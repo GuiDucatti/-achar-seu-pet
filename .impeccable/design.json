@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-01T00:00:00-03:00",
+  "title": "Design System: Achar seu Pet",
+  "extensions": {
+    "colorMeta": {
+      "forest": {"role": "primary", "displayName": "Deep Trust Green", "canonical": "#234f4b", "tonalRamp": ["#dcebe6", "#234f4b", "#173b39"]},
+      "accent-caramel": {"role": "primary", "displayName": "Lobinha Caramel", "canonical": "#c8793d", "tonalRamp": ["#f1d2b2", "#c8793d", "#9d542d"]},
+      "eye-blue-deep": {"role": "secondary", "displayName": "Eye Blue", "canonical": "#397e9c", "tonalRamp": ["#e3f0f4", "#79b9d2", "#397e9c"]},
+      "paper": {"role": "neutral", "displayName": "Paper", "canonical": "#f6f2eb", "tonalRamp": ["#fffdf9", "#f6f2eb", "#ede5d9"]}
+    },
+    "typographyMeta": {
+      "display": {"displayName": "Newsreader", "purpose": "Editorial meaning and page-level statements."},
+      "body": {"displayName": "Outfit", "purpose": "Navigation, forms, search and supporting copy."}
+    },
+    "shadows": [
+      {"name": "ambient-content", "value": "0 18px 48px rgba(39, 50, 57, 0.08)", "purpose": "Pet card separation at rest."},
+      {"name": "brand-lift", "value": "0 8px 18px rgba(35, 79, 75, 0.18)", "purpose": "Brand mark separation from the header."}
+    ],
+    "motion": [
+      {"name": "ease-out-strong", "value": "cubic-bezier(0.23, 1, 0.32, 1)", "purpose": "Responsive hover and entry transitions."},
+      {"name": "button-press", "value": "100-160ms scale(0.97)", "purpose": "Immediate feedback for pressable controls."},
+      {"name": "scroll-reveal", "value": "GSAP power3.out under 700ms", "purpose": "Reveal content without delaying interaction."}
+    ],
+    "breakpoints": [
+      {"name": "mobile-menu", "value": "800px"},
+      {"name": "single-column", "value": "560px"}
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Caramel action button for publishing, searching and confirming.",
+      "html": "<button class=\"ds-btn-primary\"><span>Registrar avistamento</span></button>",
+      "css": ".ds-btn-primary { background: #c8793d; color: #fffdf9; min-height: 44px; padding: 0 17px; border: 0; border-radius: 4px; font: 700 14px Outfit, sans-serif; transition: transform 160ms cubic-bezier(0.23, 1, 0.32, 1), background 160ms ease; } .ds-btn-primary:hover { background: #9d542d; transform: translateY(-1px); } .ds-btn-primary:focus-visible { outline: 3px solid rgba(57, 126, 156, 0.32); outline-offset: 2px; } .ds-btn-primary:active { transform: scale(0.97); }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Quiet paper field for searching by recognition details.",
+      "html": "<label class=\"ds-input-label\">Buscar<input class=\"ds-input-search\" placeholder=\"Nome, raca ou caracteristica\" /></label>",
+      "css": ".ds-input-label { color: #273239; display: grid; gap: 7px; font: 700 12px/1.2 Outfit, sans-serif; } .ds-input-search { min-height: 44px; padding: 10px 12px; color: #273239; background: #f6f2eb; border: 1px solid #d9cec0; border-radius: 3px; font: 400 14px Outfit, sans-serif; transition: border-color 160ms ease, outline 160ms ease; } .ds-input-search:focus-visible { border-color: #397e9c; outline: 3px solid rgba(57, 126, 156, 0.16); outline-offset: 0; }"
+    },
+    {
+      "name": "Pet Card",
+      "kind": "card",
+      "refersTo": "pet-card",
+      "description": "Photo-led case card that preserves status, place and the next action.",
+      "html": "<article class=\"ds-pet-card\"><div class=\"ds-pet-image\"></div><div class=\"ds-pet-copy\"><strong>Lobinha</strong><span>Campinas - SP</span><a href=\"#\">Ver historia completa</a></div></article>",
+      "css": ".ds-pet-card { overflow: hidden; border: 1px solid #d9cec0; border-radius: 5px; background: #fffdf9; box-shadow: 0 18px 48px rgba(39, 50, 57, 0.08); } .ds-pet-image { height: 160px; background: #e7f1f4; } .ds-pet-copy { display: grid; gap: 8px; padding: 18px; } .ds-pet-copy strong { color: #273239; font: 700 24px/1 Newsreader, Georgia, serif; } .ds-pet-copy span { color: #667075; font: 400 13px Outfit, sans-serif; } .ds-pet-copy a { color: #9d542d; font: 700 13px Outfit, sans-serif; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "navigation",
+      "description": "Sticky paper navigation with compact active states and a mobile menu.",
+      "html": "<nav class=\"ds-nav\"><strong>Achar seu Pet</strong><a class=\"ds-nav-active\" href=\"#\">Pets perdidos</a></nav>",
+      "css": ".ds-nav { min-height: 58px; display: flex; align-items: center; gap: 18px; padding: 0 16px; color: #273239; background: rgba(246, 242, 235, 0.93); border-bottom: 1px solid #d9cec0; } .ds-nav strong { font: 700 17px Outfit, sans-serif; } .ds-nav a { color: #667075; padding: 0 10px; min-height: 36px; display: inline-flex; align-items: center; border-radius: 4px; font: 700 13px Outfit, sans-serif; text-decoration: none; } .ds-nav a:hover, .ds-nav-active { color: #234f4b; background: #dcebe6; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "O Atlas de Reencontros",
+    "overview": "Achar seu Pet treats a local search like a living route atlas. Deep blue-green builds trust, caramel marks action, powder blue carries geography and paper neutrals make urgent reading calmer. Newsreader carries meaning while Outfit carries operational precision.",
+    "keyCharacteristics": ["Photo-led cases", "Dense but legible search controls", "Human copy with privacy by default", "Purposeful, reduced-motion-aware movement"],
+    "rules": [
+      {"name": "The Signal Scarcity Rule", "body": "Reserve caramel and marker yellow for actions, status and attention-worthy moments.", "section": "colors"},
+      {"name": "The Two-Voice Rule", "body": "Newsreader owns meaning and memory; Outfit owns action and precision.", "section": "typography"},
+      {"name": "The Layer Before Shadow Rule", "body": "Use tone, dividers and composition before increasing elevation.", "section": "elevation"}
+    ],
+    "dos": ["Keep search and forms aligned to a stable grid.", "Use real pet photography where recognition matters.", "Respect approximate location and optional contact."],
+    "donts": ["Do not add fictional stats or social proof.", "Do not turn status chips into decoration.", "Do not expose precise addresses for visual effect."]
+  }
+}

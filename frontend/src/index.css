@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,600;6..72,700&family=Outfit:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #f6f2eb;
+  --surface: #ede5d9;
+  --surface-strong: #fffdf9;
+  --surface-blue: #e7f1f4;
+  --border: #d9cec0;
+  --text-strong: #273239;
+  --text-muted: #667075;
+  --accent: #c8793d;
+  --accent-dark: #9d542d;
+  --eye-blue: #79b9d2;
+  --eye-blue-deep: #397e9c;
+  --eye-blue-soft: #e3f0f4;
+  --forest: #234f4b;
+  --forest-soft: #dcebe6;
+  --sun: #f3c56e;
+  --success: #39745d;
+  --danger: #a84742;
+  --shadow-soft: 0 18px 48px rgba(39, 50, 57, 0.08);
+  font-family: 'Outfit', ui-sans-serif, system-ui, sans-serif;
+  color: var(--text-strong);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: var(--bg);
+}
+
+::selection {
+  color: var(--surface-strong);
+  background: var(--forest);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
