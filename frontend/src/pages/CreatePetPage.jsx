@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HeartHandshake } from 'lucide-react'
-import petsRunningHero from '../assets/pets-running-hero.jpg'
+import createPetImage from '../assets/editorial/create-pet.webp'
 import PetForm from '../components/PetForm.jsx'
 import { createPet } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
@@ -38,12 +38,19 @@ function CreatePetPage() {
         <div className="form-main">
           <PetForm isSubmitting={isSubmitting} onSubmit={handleSubmit} submitLabel="Publicar busca" />
         </div>
-        <aside className="form-side-note">
-          <img alt="Cachorro e gato correndo juntos" src={petsRunningHero} />
+        <aside className="form-side-note create-side-note">
+          <img
+            alt="Tutora abracando seu cachorro ao ar livre"
+            decoding="async"
+            height="962"
+            loading="lazy"
+            src={createPetImage}
+            width="1200"
+          />
           <div>
             <HeartHandshake aria-hidden="true" size={22} />
-            <strong>Uma boa descricao vira reconhecimento.</strong>
-            <p>A regiao sera mostrada de forma aproximada para manter todos seguros.</p>
+            <strong>Uma foto nitida faz diferenca.</strong>
+            <p>Uma foto nitida e um detalhe marcante ajudam mais do que uma descricao longa.</p>
           </div>
         </aside>
       </div>

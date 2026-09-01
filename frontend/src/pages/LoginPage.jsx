@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { PawPrint } from 'lucide-react'
-import catsRunningImage from '../assets/cats-running.jpg'
+import loginImage from '../assets/editorial/login.webp'
 import { useAuth } from '../hooks/useAuth.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
 
@@ -42,11 +42,16 @@ function LoginPage() {
     <section className="auth-view">
       <div className="auth-layout">
         <div className="auth-copy">
-          <img alt="Gatos correndo em um jardim" src={catsRunningImage} />
+          <img
+            alt="Pessoa acolhendo seu gato em casa"
+            height="1650"
+            src={loginImage}
+            width="1100"
+          />
           <div>
             <PawPrint aria-hidden="true" size={22} />
             <strong>Que bom ter voce de volta.</strong>
-            <p>As buscas continuam. Entre para acompanhar seus pets e suas pistas.</p>
+            <p>Entre para acompanhar seus cadastros e manter cada informacao atualizada.</p>
           </div>
         </div>
         <div className="auth-panel">

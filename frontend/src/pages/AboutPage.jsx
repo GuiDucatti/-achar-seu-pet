@@ -1,5 +1,5 @@
 import { HeartHandshake, MapPinned, Search, ShieldCheck } from 'lucide-react'
-import catsRunningImage from '../assets/cats-running.jpg'
+import aboutImage from '../assets/editorial/about.webp'
 
 function AboutPage() {
   return (
@@ -14,10 +14,15 @@ function AboutPage() {
           </p>
           <div className="about-signature">
             <HeartHandshake aria-hidden="true" size={22} />
-            <span>Uma ponte entre quem procura e quem viu.</span>
+            <span>O Lobinha organiza as informacoes para que quem procura e quem viu consigam se encontrar.</span>
           </div>
         </div>
-        <img alt="Gatos correndo juntos em um jardim ensolarado" src={catsRunningImage} />
+        <img
+          alt="Familia caminhando com seu cachorro em um parque"
+          height="1200"
+          src={aboutImage}
+          width="1800"
+        />
       </div>
 
       <div className="about-values">

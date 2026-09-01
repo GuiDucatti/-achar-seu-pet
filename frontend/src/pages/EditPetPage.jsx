@@ -70,11 +70,14 @@ function EditPetPage() {
           />
         </div>
         <aside className="form-side-note edit-side-note">
-          <img alt={`Foto atual de ${pet.nome}`} src={pet.foto} />
+          <img alt={`Foto atual de ${pet.nome}`} loading="lazy" src={pet.foto} />
           <div>
             <HeartHandshake aria-hidden="true" size={22} />
             <strong>Cada atualizacao ajuda.</strong>
-            <p>Quando ele voltar, marque como encontrado para levar alivio a quem esta procurando.</p>
+            <p>
+              Mudou a regiao, surgiu uma pista ou ele voltou? Atualize o cadastro para ninguem
+              seguir uma informacao antiga.
+            </p>
           </div>
         </aside>
       </div>

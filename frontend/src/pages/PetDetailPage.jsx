@@ -148,7 +148,7 @@ function PetDetailPage() {
             <HeartHandshake aria-hidden="true" size={21} />
             <span>
               {pet.status === 'P'
-                ? `Se voce reconhecer ${pet.nome}, uma mensagem sua pode aproximar esse reencontro.`
+                ? 'Reconheceu algum detalhe? Compartilhe o anuncio ou registre somente o que voce observou.'
                 : `${pet.nome} ja foi marcado como encontrado. Este registro continua visivel para fortalecer quem ainda esta buscando.`}
             </span>
           </div>
@@ -241,6 +241,7 @@ function PetDetailPage() {
             setIsSightingOpen(false)
           }}
           onSubmit={handleSightingSubmit}
+          pet={pet}
         />
       )}
     </section>

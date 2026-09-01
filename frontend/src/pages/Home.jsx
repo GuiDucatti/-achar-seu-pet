@@ -4,8 +4,8 @@ import { ArrowRight, HeartHandshake, MapPinned, Search, ShieldCheck } from 'luci
 import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import catsRunningImage from '../assets/cats-running.jpg'
-import petsRunningHero from '../assets/pets-running-hero.jpg'
+import homeHeroImage from '../assets/editorial/home-hero.webp'
+import homeStoryImage from '../assets/editorial/home-story.webp'
 import PetCard from '../components/PetCard.jsx'
 import { listPets } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
@@ -113,7 +113,13 @@ function Home() {
   return (
     <div className="home-page" ref={homeRef}>
       <section className="home-hero">
-        <img alt="Cachorro e gato correndo juntos em um parque" src={petsRunningHero} />
+        <img
+          alt="Tutora abracando seu cachorro em um parque"
+          fetchPriority="high"
+          height="1500"
+          src={homeHeroImage}
+          width="2000"
+        />
         <div className="home-hero-shade" />
         <div className="home-hero-content">
           <h1>
@@ -143,7 +149,7 @@ function Home() {
         </div>
         <div className="home-hero-note">
           <span className="status-dot" />
-          Feito para buscas reais, com cuidado e privacidade
+          Prestar atencao no caminho ja e uma forma de ajudar.
         </div>
       </section>
 
@@ -245,7 +251,14 @@ function Home() {
           </div>
         </div>
         <div className="home-story-image">
-          <img alt="Dois gatos correndo e brincando em um jardim" src={catsRunningImage} />
+          <img
+            alt="Tutora acolhendo seu gato em casa"
+            decoding="async"
+            height="1068"
+            loading="lazy"
+            src={homeStoryImage}
+            width="1600"
+          />
           <span>Tem lugar para todo tipo de historia</span>
         </div>
       </motion.section>

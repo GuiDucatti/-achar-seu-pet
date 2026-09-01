@@ -713,6 +713,48 @@ textarea:focus-visible {
   font-weight: 700;
 }
 
+.browse-human-note {
+  min-height: 132px;
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  align-items: stretch;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-blue);
+}
+
+.browse-human-note.found {
+  background: var(--forest-soft);
+}
+
+.browse-human-note img {
+  width: 100%;
+  height: 100%;
+  min-height: 132px;
+  object-fit: cover;
+}
+
+.browse-human-note.lost img {
+  object-position: center 72%;
+}
+
+.browse-human-note.found img {
+  object-position: center 62%;
+}
+
+.browse-human-note p {
+  max-width: 760px;
+  align-self: center;
+  padding: 22px 28px;
+  color: var(--forest);
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: clamp(21px, 2.4vw, 29px);
+  font-weight: 700;
+  line-height: 1.08;
+}
+
 /* Filters */
 .filter-bar {
   margin-top: 32px;
@@ -1132,6 +1174,66 @@ textarea:focus-visible {
   font-size: 13px;
 }
 
+.account-next-step {
+  width: min(100%, 900px);
+  min-height: 280px;
+  margin-top: 56px;
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  overflow: hidden;
+  color: var(--surface-strong);
+  background: var(--forest);
+}
+
+.account-next-step > img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  object-position: center 35%;
+}
+
+.account-next-step > div {
+  align-self: center;
+  padding: 36px 40px;
+}
+
+.account-next-step h2 {
+  max-width: 500px;
+  margin: 0;
+  color: var(--surface-strong);
+  font-size: 34px;
+}
+
+.account-next-step p {
+  max-width: 520px;
+  margin-top: 12px;
+  color: rgba(255, 253, 249, 0.78);
+}
+
+.account-next-actions {
+  margin-top: 24px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.account-search-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--surface-strong);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.account-search-link:hover {
+  color: var(--sun);
+}
+
 /* About */
 .about-hero {
   display: grid;
@@ -1151,8 +1253,9 @@ textarea:focus-visible {
 
 .about-hero > img {
   width: 100%;
-  aspect-ratio: 0.84;
+  aspect-ratio: 1.25;
   object-fit: cover;
+  object-position: center;
   border-radius: 5px;
 }
 
@@ -1591,6 +1694,31 @@ textarea:focus-visible {
   font-size: 14px;
 }
 
+.sighting-pet-context {
+  margin-top: 18px;
+  padding: 11px 13px;
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  border-top: 2px solid var(--eye-blue-deep);
+  background: var(--surface-blue);
+}
+
+.sighting-pet-context img {
+  width: 58px;
+  height: 58px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.sighting-pet-context p {
+  color: var(--forest);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .modal-close {
   width: 36px;
   height: 36px;
@@ -1791,6 +1919,25 @@ textarea:focus-visible {
     order: -1;
   }
 
+  .create-side-note {
+    display: grid;
+    grid-template-columns: minmax(160px, 0.5fr) minmax(0, 1fr);
+  }
+
+  .create-side-note img {
+    height: 100%;
+    min-height: 190px;
+    aspect-ratio: auto;
+  }
+
+  .account-next-step {
+    grid-template-columns: minmax(190px, 0.6fr) minmax(0, 1.4fr);
+  }
+
+  .account-next-step > div {
+    padding: 30px;
+  }
+
   .detail-photo {
     aspect-ratio: 1.3;
   }
@@ -1918,6 +2065,46 @@ textarea:focus-visible {
     width: 100%;
   }
 
+  .browse-human-note {
+    min-height: 124px;
+    margin-top: 24px;
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
+
+  .browse-human-note img {
+    min-height: 124px;
+  }
+
+  .browse-human-note p {
+    padding: 17px 16px;
+    font-size: 19px;
+  }
+
+  .create-side-note {
+    grid-template-columns: 92px minmax(0, 1fr);
+  }
+
+  .create-side-note img {
+    min-height: 158px;
+  }
+
+  .create-side-note > div {
+    padding: 16px;
+  }
+
+  .create-side-note svg {
+    display: none;
+  }
+
+  .create-side-note strong {
+    font-size: 21px;
+  }
+
+  .create-side-note p {
+    margin-top: 7px;
+    font-size: 12px;
+  }
+
   .form-side-note strong {
     font-size: 25px;
   }
@@ -1933,6 +2120,35 @@ textarea:focus-visible {
 
   .about-quote p {
     font-size: 33px;
+  }
+
+  .account-next-step {
+    min-height: 0;
+    grid-template-columns: 1fr;
+  }
+
+  .account-next-step > img {
+    min-height: 0;
+    aspect-ratio: 1.75;
+    object-position: center 30%;
+  }
+
+  .account-next-step > div {
+    padding: 24px 20px 26px;
+  }
+
+  .account-next-step h2 {
+    font-size: 29px;
+  }
+
+  .account-next-actions,
+  .account-next-actions .primary-action,
+  .account-search-link {
+    width: 100%;
+  }
+
+  .account-search-link {
+    justify-content: center;
   }
 
   .pet-details div,
@@ -3188,7 +3404,7 @@ textarea:focus-visible {
   vertical-align: -0.02em;
   border: 3px solid rgba(255, 253, 249, 0.76);
   border-radius: 999px;
-  background-image: url('./assets/pets-running-hero.jpg');
+  background-image: url('./assets/editorial/home-story.webp');
   background-position: center;
   background-size: cover;
   box-shadow: 0 0 0 5px rgba(243, 197, 110, 0.18);

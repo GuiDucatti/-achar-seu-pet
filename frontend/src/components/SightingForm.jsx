@@ -1,6 +1,6 @@
 import { HeartHandshake, X } from 'lucide-react'
 
-function SightingForm({ error, isSubmitting, onClose, onSubmit }) {
+function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
   function handleSubmit(event) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -30,6 +30,13 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit }) {
           <button aria-label="Fechar formulario" className="modal-close" onClick={onClose} type="button">
             <X aria-hidden="true" size={18} />
           </button>
+        </div>
+
+        <div className="sighting-pet-context">
+          <img alt={`Foto de ${pet.nome}`} src={pet.foto} />
+          <p>
+            Descreva apenas o que voce observou e indique o local com a maior precisao possivel.
+          </p>
         </div>
 
         <form className="sighting-form" onSubmit={handleSubmit}>

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { HeartHandshake } from 'lucide-react'
-import petsRunningHero from '../assets/pets-running-hero.jpg'
+import registerImage from '../assets/editorial/register.webp'
 import { useAuth } from '../hooks/useAuth.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
 
@@ -41,11 +41,16 @@ function RegisterPage() {
     <section className="auth-view">
       <div className="auth-layout">
         <div className="auth-copy">
-          <img alt="Cachorro e gato correndo em um parque" src={petsRunningHero} />
+          <img
+            alt="Casal cuidando de seu gato em casa"
+            height="1650"
+            src={registerImage}
+            width="1100"
+          />
           <div>
             <HeartHandshake aria-hidden="true" size={22} />
-            <strong>Uma conta, muitas possibilidades de ajudar.</strong>
-            <p>Publique uma busca, acompanhe avistamentos e faca parte de uma rede mais atenta.</p>
+            <strong>Um lugar para manter a busca em dia.</strong>
+            <p>A conta permite publicar uma busca, acompanhar pistas e atualizar o anuncio quando algo mudar.</p>
           </div>
         </div>
         <div className="auth-panel">

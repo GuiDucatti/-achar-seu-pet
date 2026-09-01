@@ -1,4 +1,6 @@
-import { HeartHandshake, ShieldCheck } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, HeartHandshake, Search, ShieldCheck } from 'lucide-react'
+import accountImage from '../assets/editorial/account.webp'
 import { useAuth } from '../hooks/useAuth.js'
 
 function AccountPage() {
@@ -34,6 +36,31 @@ function AccountPage() {
           <p>Apenas voce pode editar os pets cadastrados nesta conta.</p>
         </div>
       </div>
+
+      <section className="account-next-step" aria-labelledby="account-next-step-title">
+        <img
+          alt="Tutor sorrindo enquanto segura seu gato"
+          decoding="async"
+          height="1650"
+          loading="lazy"
+          src={accountImage}
+          width="1100"
+        />
+        <div>
+          <h2 id="account-next-step-title">Sua proxima acao pode comecar aqui.</h2>
+          <p>Com sua conta, voce pode iniciar uma busca e manter seus anuncios atualizados.</p>
+          <div className="account-next-actions">
+            <Link className="primary-action" to="/cadastrar-pet">
+              Cadastrar um pet
+              <ArrowRight aria-hidden="true" size={17} />
+            </Link>
+            <Link className="account-search-link" to="/pets">
+              <Search aria-hidden="true" size={16} />
+              Procurar pets
+            </Link>
+          </div>
+        </div>
+      </section>
     </section>
   )
 }
