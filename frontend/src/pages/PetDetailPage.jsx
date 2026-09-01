@@ -25,7 +25,9 @@ function PetDetailPage() {
 
   const isOwner = user && pet && user.id === pet.autor
   const shareMessage = pet
-    ? `Ajude a encontrar o ${pet.nome}!\nDesapareceu em ${pet.cidade} - ${pet.estado}.\nVeja mais informacoes:\n${window.location.href}`
+    ? pet.status === 'P'
+      ? `Ajude a encontrar o ${pet.nome}!\nDesapareceu em ${pet.cidade} - ${pet.estado}.\nVeja mais informacoes:\n${window.location.href}`
+      : `${pet.nome} foi marcado como encontrado.\nConheca esta historia:\n${window.location.href}`
     : ''
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
 
@@ -130,14 +132,25 @@ function PetDetailPage() {
             <span className={`detail-status ${pet.status === 'E' ? 'found' : ''}`}>
               {pet.status === 'P' ? 'Pet perdido' : 'Pet encontrado'}
             </span>
+            {pet.is_demo && <span className="detail-demo-label">Cadastro de demonstracao</span>}
             <span>Cadastro acompanhado pela rede</span>
           </div>
           <h1>{pet.nome}</h1>
           <p className="detail-lead">{pet.descricao}</p>
 
+          {pet.is_demo && (
+            <p className="detail-demo-note">
+              Este perfil e ficticio e existe para voce conhecer e testar a plataforma.
+            </p>
+          )}
+
           <div className="detail-encouragement">
             <HeartHandshake aria-hidden="true" size={21} />
-            <span>Se voce reconhecer {pet.nome}, uma mensagem sua pode aproximar esse reencontro.</span>
+            <span>
+              {pet.status === 'P'
+                ? `Se voce reconhecer ${pet.nome}, uma mensagem sua pode aproximar esse reencontro.`
+                : `${pet.nome} ja foi marcado como encontrado. Este registro continua visivel para fortalecer quem ainda esta buscando.`}
+            </span>
           </div>
 
           <dl className="pet-details">
@@ -199,19 +212,21 @@ function PetDetailPage() {
         </div>
       </div>
 
-      <section className="sighting-cta" aria-labelledby="sighting-cta-title">
-        <div>
-          <div className="sighting-cta-title-row">
-            <HeartHandshake aria-hidden="true" size={23} />
+      {pet.status === 'P' && (
+        <section className="sighting-cta" aria-labelledby="sighting-cta-title">
+          <div>
+            <div className="sighting-cta-title-row">
+              <HeartHandshake aria-hidden="true" size={23} />
+            </div>
+            <h2 id="sighting-cta-title">Voce viu este pet?</h2>
+            <p>Registre o local e os detalhes. Mesmo uma pista pequena pode devolver a esperanca.</p>
           </div>
-          <h2 id="sighting-cta-title">Voce viu este pet?</h2>
-          <p>Registre o local e os detalhes. Mesmo uma pista pequena pode devolver a esperanca.</p>
-        </div>
-        <button className="primary-action" onClick={() => setIsSightingOpen(true)} type="button">
-          <MapPin aria-hidden="true" size={17} />
-          Vi esse pet!
-        </button>
-      </section>
+          <button className="primary-action" onClick={() => setIsSightingOpen(true)} type="button">
+            <MapPin aria-hidden="true" size={17} />
+            Vi esse pet!
+          </button>
+        </section>
+      )}
 
       <PetMap pet={pet} />
 

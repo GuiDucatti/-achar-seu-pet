@@ -53,6 +53,7 @@ class Pet(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_PERDIDO,
     )
+    is_demo = models.BooleanField(default=False)
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 

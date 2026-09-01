@@ -17,6 +17,11 @@ export async function listPets(params = {}) {
   return response.data
 }
 
+export async function listNearbyPets(data) {
+  const response = await api.post('/pets/proximos/', data)
+  return response.data
+}
+
 export async function getPet(id) {
   const response = await api.get(`/pets/${id}/`)
   return response.data

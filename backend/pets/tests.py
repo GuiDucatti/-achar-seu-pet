@@ -1,8 +1,11 @@
 from math import isclose
+from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.management import call_command
 from django.test import TestCase, override_settings
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -175,6 +178,160 @@ class ProximityTests(TestCase):
         distance = haversine_distance_km(-23.5505, -46.6333, -22.9068, -47.0616)
 
         self.assertTrue(isclose(distance, 83.9, abs_tol=1))
+
+
+class NearbyPetSearchTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            username='nearby-test',
+            email='nearby-test@example.com',
+            password='senha-forte-123',
+        )
+        self.near_pet = self.create_pet(
+            nome='Perto',
+            latitude=-21.2886,
+            longitude=-50.3404,
+            especie='cachorro',
+            sexo='macho',
+            caracteristicas='Coleira azul',
+        )
+        self.middle_pet = self.create_pet(
+            nome='Vizinha',
+            latitude=-21.2089,
+            longitude=-50.4328,
+            especie='gato',
+            sexo='femea',
+            caracteristicas='Mancha branca',
+        )
+        self.far_pet = self.create_pet(
+            nome='Distante',
+            latitude=-23.5505,
+            longitude=-46.6333,
+            especie='cachorro',
+            sexo='femea',
+            caracteristicas='Coleira vermelha',
+        )
+
+    def create_pet(self, **overrides):
+        data = {
+            'autor': self.user,
+            'nome': 'Pet',
+            'foto': 'pets/test.gif',
+            'especie': 'cachorro',
+            'raca': 'Sem raca definida',
+            'cor': 'Caramelo',
+            'sexo': 'macho',
+            'caracteristicas': 'Sem detalhes',
+            'estado': 'SP',
+            'cidade': 'Birigui',
+            'endereco_texto': 'Centro',
+            'latitude': -21.2886,
+            'longitude': -50.3404,
+            'data_desaparecimento': '2026-08-01',
+            'descricao': 'Pet para busca regional',
+            'contato': 'Nao disponivel',
+            'status': Pet.STATUS_PERDIDO,
+        }
+        data.update(overrides)
+        return Pet.objects.create(**data)
+
+    def test_anonymous_search_returns_only_pets_in_radius_ordered_by_distance(self):
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 25},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            [pet['nome'] for pet in response.data['resultados']],
+            ['Perto', 'Vizinha'],
+        )
+        self.assertEqual(response.data['origem']['tipo'], 'localizacao')
+        self.assertIsNotNone(response.data['resultados'][0]['distancia_km'])
+
+    def test_combines_proximity_with_existing_filters(self):
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {
+                'latitude': -21.289,
+                'longitude': -50.340,
+                'raio_km': 25,
+                'especie': 'gato',
+                'sexo': 'femea',
+                'busca': 'branca',
+                'status': 'P',
+                'data_desaparecimento': '2026-08-01',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual([pet['nome'] for pet in response.data['resultados']], ['Vizinha'])
+
+    def test_rejects_invalid_radius_and_incomplete_coordinates(self):
+        invalid_radius = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 30},
+            format='json',
+        )
+        incomplete = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': -21.289, 'raio_km': 50},
+            format='json',
+        )
+
+        self.assertEqual(invalid_radius.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(incomplete.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @patch(
+        'pets.views.geocode_address',
+        return_value={'latitude': -21.2886, 'longitude': -50.3404},
+    )
+    def test_resolves_city_and_state_for_regional_search(self, geocode_mock):
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {'cidade_origem': 'Birigui', 'estado_origem': 'sp', 'raio_km': 10},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['origem']['rotulo'], 'Birigui, SP')
+        geocode_mock.assert_called_once_with('', 'Birigui', 'SP')
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_returns_known_code_when_city_cannot_be_resolved(self, geocode_mock):
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {'cidade_origem': 'Cidade inexistente', 'estado_origem': 'SP'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['codigo'], 'regiao_nao_encontrada')
+
+    def test_regular_listing_keeps_stable_demo_and_distance_fields(self):
+        response = self.client.get(f'/api/pets/{self.near_pet.id}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['is_demo'])
+        self.assertIsNone(response.data['distancia_km'])
+
+
+class DemoPetSeedTests(TestCase):
+    def test_seed_is_idempotent_and_has_expected_status_counts(self):
+        with TemporaryDirectory() as media_root, override_settings(MEDIA_ROOT=media_root):
+            call_command('seed_demo_pets', verbosity=0)
+            call_command('seed_demo_pets', verbosity=0)
+
+            demo_pets = Pet.objects.filter(is_demo=True)
+            self.assertEqual(demo_pets.count(), 10)
+            self.assertEqual(demo_pets.filter(status=Pet.STATUS_PERDIDO).count(), 6)
+            self.assertEqual(demo_pets.filter(status=Pet.STATUS_ENCONTRADO).count(), 4)
+            self.assertEqual(demo_pets.values('nome').distinct().count(), 10)
+            self.assertFalse(demo_pets.filter(contato__regex=r'\d').exists())
 
 
 class PetFilterTests(TestCase):

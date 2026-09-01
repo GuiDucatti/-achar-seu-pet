@@ -57,6 +57,7 @@ class PetSerializer(serializers.ModelSerializer):
     autor = serializers.PrimaryKeyRelatedField(read_only=True)
     autor_username = serializers.CharField(source='autor.username', read_only=True)
     avistamentos = AvistamentoSerializer(many=True, read_only=True)
+    distancia_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Pet
@@ -81,6 +82,8 @@ class PetSerializer(serializers.ModelSerializer):
             'descricao',
             'contato',
             'status',
+            'is_demo',
+            'distancia_km',
             'avistamentos',
             'criado_em',
             'atualizado_em',
@@ -89,10 +92,16 @@ class PetSerializer(serializers.ModelSerializer):
             'id',
             'autor',
             'autor_username',
+            'is_demo',
+            'distancia_km',
             'avistamentos',
             'criado_em',
             'atualizado_em',
         ]
+
+    def get_distancia_km(self, obj):
+        distance = getattr(obj, 'distancia_km', None)
+        return round(distance, 2) if distance is not None else None
 
     def validate_estado(self, value):
         return value.upper()
@@ -122,3 +131,39 @@ class PetSerializer(serializers.ModelSerializer):
             )
 
         return value
+
+
+class NearbyPetSearchSerializer(serializers.Serializer):
+    latitude = serializers.FloatField(min_value=-90, max_value=90, required=False)
+    longitude = serializers.FloatField(min_value=-180, max_value=180, required=False)
+    cidade_origem = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    estado_origem = serializers.CharField(max_length=2, required=False, allow_blank=True)
+    raio_km = serializers.ChoiceField(choices=(10, 25, 50, 100), default=50)
+    status = serializers.ChoiceField(choices=Pet.STATUS_CHOICES, required=False)
+    especie = serializers.ChoiceField(choices=Pet.ESPECIE_CHOICES, required=False)
+    sexo = serializers.ChoiceField(choices=Pet.SEXO_CHOICES, required=False)
+    data_desaparecimento = serializers.DateField(required=False)
+    busca = serializers.CharField(max_length=255, required=False, allow_blank=True)
+
+    def validate(self, attrs):
+        has_latitude = 'latitude' in attrs
+        has_longitude = 'longitude' in attrs
+
+        if has_latitude != has_longitude:
+            raise serializers.ValidationError(
+                'Latitude e longitude devem ser informadas juntas.'
+            )
+
+        if has_latitude and has_longitude:
+            return attrs
+
+        city = attrs.get('cidade_origem', '').strip()
+        state = attrs.get('estado_origem', '').strip()
+        if not city or len(state) != 2:
+            raise serializers.ValidationError(
+                'Informe latitude e longitude ou uma cidade com UF.'
+            )
+
+        attrs['cidade_origem'] = city
+        attrs['estado_origem'] = state.upper()
+        return attrs

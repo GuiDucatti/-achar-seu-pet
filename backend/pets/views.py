@@ -1,4 +1,6 @@
+from django.core.cache import cache
 from django.db.models import Q
+from django.utils.text import slugify
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,7 +8,12 @@ from rest_framework.response import Response
 from .geocoding import geocode_address
 from .models import Pet
 from .permissions import PetPermission
-from .serializers import AvistamentoSerializer, PetSerializer
+from .proximity import bounding_box, haversine_distance_km
+from .serializers import (
+    AvistamentoSerializer,
+    NearbyPetSearchSerializer,
+    PetSerializer,
+)
 
 
 class PetViewSet(viewsets.ModelViewSet):
@@ -15,14 +22,17 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
+        return self._apply_filters(queryset, self.request.query_params)
 
-        estado = self.request.query_params.get('estado')
-        cidade = self.request.query_params.get('cidade')
-        status_pet = self.request.query_params.get('status')
-        especie = self.request.query_params.get('especie')
-        sexo = self.request.query_params.get('sexo')
-        data_desaparecimento = self.request.query_params.get('data_desaparecimento')
-        busca = self.request.query_params.get('busca')
+    @staticmethod
+    def _apply_filters(queryset, source):
+        estado = source.get('estado')
+        cidade = source.get('cidade')
+        status_pet = source.get('status')
+        especie = source.get('especie')
+        sexo = source.get('sexo')
+        data_desaparecimento = source.get('data_desaparecimento')
+        busca = source.get('busca')
 
         if estado:
             queryset = queryset.filter(estado__iexact=estado)
@@ -50,6 +60,82 @@ class PetViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
+
+    @action(detail=False, methods=['post'], url_path='proximos')
+    def proximos(self, request):
+        search = NearbyPetSearchSerializer(data=request.data)
+        search.is_valid(raise_exception=True)
+        data = search.validated_data
+
+        if 'latitude' in data:
+            latitude = round(data['latitude'], 3)
+            longitude = round(data['longitude'], 3)
+            origin_type = 'localizacao'
+            origin_label = 'Sua localizacao'
+        else:
+            city = data['cidade_origem']
+            state_code = data['estado_origem']
+            cache_key = f"pet-region:{slugify(city)}:{state_code.casefold()}"
+            coordinates = cache.get(cache_key)
+            if coordinates is None:
+                coordinates = geocode_address('', city, state_code)
+                if coordinates:
+                    cache.set(cache_key, coordinates, timeout=86400)
+
+            if not coordinates:
+                return Response(
+                    {
+                        'codigo': 'regiao_nao_encontrada',
+                        'detail': 'Nao foi possivel localizar a cidade informada.',
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            latitude = coordinates['latitude']
+            longitude = coordinates['longitude']
+            origin_type = 'cidade'
+            origin_label = f'{city}, {state_code}'
+
+        radius = int(data['raio_km'])
+        bounds = bounding_box(latitude, longitude, radius)
+        queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
+        queryset = self._apply_filters(queryset, data).filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+            latitude__range=(bounds['latitude_min'], bounds['latitude_max']),
+            longitude__range=(bounds['longitude_min'], bounds['longitude_max']),
+        )
+
+        nearby_pets = []
+        for pet in queryset:
+            pet.distancia_km = haversine_distance_km(
+                latitude,
+                longitude,
+                pet.latitude,
+                pet.longitude,
+            )
+            if pet.distancia_km <= radius:
+                nearby_pets.append(pet)
+
+        nearby_pets.sort(
+            key=lambda pet: (pet.distancia_km, -pet.criado_em.timestamp())
+        )
+        results = PetSerializer(
+            nearby_pets,
+            many=True,
+            context={'request': request},
+        ).data
+
+        return Response(
+            {
+                'origem': {
+                    'tipo': origin_type,
+                    'rotulo': origin_label,
+                    'raio_km': radius,
+                },
+                'resultados': results,
+            }
+        )
 
     def perform_create(self, serializer):
         pet = serializer.save(autor=self.request.user)

@@ -4,6 +4,12 @@ import { ArrowUpRight, MapPin, PawPrint } from 'lucide-react'
 import { formatDate } from '../utils/formatters.js'
 
 function PetCard({ index = 0, pet }) {
+  const distance = Number(pet.distancia_km)
+  const hasDistance = pet.distancia_km !== null && Number.isFinite(distance)
+  const distanceLabel = distance < 1
+    ? 'A menos de 1 km de voce'
+    : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distance)} km de voce`
+
   return (
     <motion.article
       animate={{ opacity: 1, y: 0 }}
@@ -17,6 +23,7 @@ function PetCard({ index = 0, pet }) {
         <span className={`pet-status ${pet.status === 'E' ? 'found' : ''}`}>
           {pet.status === 'E' ? 'Encontrado' : 'Perdido'}
         </span>
+        {pet.is_demo && <span className="pet-demo-label">Cadastro de demonstracao</span>}
       </div>
       <div className="pet-card-content">
         <div className="pet-card-heading">
@@ -31,6 +38,7 @@ function PetCard({ index = 0, pet }) {
           {pet.cidade} - {pet.estado}
         </p>
         <p className="pet-meta">Desapareceu em {formatDate(pet.data_desaparecimento)}</p>
+        {hasDistance && <p className="pet-distance">{distanceLabel}</p>}
         <Link className="text-link" to={`/pets/${pet.id}`}>
           Ver historia completa
           <ArrowUpRight aria-hidden="true" size={15} />

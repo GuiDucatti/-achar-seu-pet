@@ -621,6 +621,21 @@ textarea:focus-visible {
   background: var(--success);
 }
 
+.pet-demo-label {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  color: var(--surface-strong);
+  border-radius: 3px;
+  background: rgba(42, 65, 61, 0.9);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
 .pet-card-content {
   padding: 18px 18px 20px;
 }
@@ -658,6 +673,13 @@ textarea:focus-visible {
 .pet-meta {
   margin-top: 5px;
   font-size: 12px;
+}
+
+.pet-distance {
+  margin-top: 9px;
+  color: var(--eye-blue-deep);
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .text-link {
@@ -1264,6 +1286,28 @@ textarea:focus-visible {
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
+}
+
+.detail-status-line .detail-demo-label {
+  padding: 5px 8px;
+  color: var(--forest);
+  border: 1px solid var(--forest);
+  border-radius: 3px;
+  background: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.detail-demo-note {
+  max-width: 610px;
+  margin-top: 18px;
+  padding: 11px 0 11px 14px;
+  color: var(--forest);
+  border-left: 3px solid var(--eye-blue-deep);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.5;
 }
 
 .detail-content > h1 {
@@ -2009,11 +2053,216 @@ textarea:focus-visible {
   font-size: 12px;
 }
 
+.region-search {
+  padding: 22px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.region-search-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.region-search-heading > div {
+  display: grid;
+  gap: 4px;
+}
+
+.region-kicker {
+  color: var(--eye-blue-deep);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.region-search-heading strong {
+  color: var(--text-strong);
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.location-action,
+.region-submit {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--forest);
+  border-radius: 4px;
+  color: var(--surface-strong);
+  background: var(--forest);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.location-action {
+  flex: 0 0 auto;
+  color: var(--forest);
+  background: transparent;
+}
+
+.location-action:hover {
+  color: var(--surface-strong);
+  background: var(--forest);
+}
+
+.location-action:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.location-action:active,
+.region-submit:active,
+.radius-options button:active {
+  transform: scale(0.97);
+}
+
+.region-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: end;
+  margin-top: 17px;
+}
+
+.region-city-fields {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) 72px auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.region-city-fields label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-strong);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.region-city-fields input {
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 11px;
+  color: var(--text-strong);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.radius-control {
+  min-width: 282px;
+  padding: 0;
+  border: 0;
+}
+
+.radius-control legend {
+  margin-bottom: 6px;
+  color: var(--text-strong);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.radius-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(60px, 1fr));
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+.radius-options button {
+  min-height: 42px;
+  padding: 0 9px;
+  border: 0;
+  border-right: 1px solid var(--border);
+  color: var(--text-muted);
+  background: var(--surface-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.radius-options button:last-child {
+  border-right: 0;
+}
+
+.radius-options button:hover,
+.radius-options button.selected {
+  color: var(--surface-strong);
+  background: var(--eye-blue-deep);
+}
+
+.region-feedback {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 8px 10px;
+  color: var(--text-muted);
+  border-left: 3px solid var(--sun);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+.region-feedback.active {
+  color: var(--forest);
+  border-left-color: var(--eye-blue-deep);
+}
+
+.region-feedback svg {
+  flex: 0 0 auto;
+  color: var(--eye-blue-deep);
+}
+
+.region-feedback button {
+  margin-left: auto;
+  padding: 4px 2px;
+  border: 0;
+  color: var(--accent-dark);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.location-action:focus-visible,
+.region-submit:focus-visible,
+.region-city-fields input:focus,
+.radius-options button:focus-visible,
+.region-feedback button:focus-visible {
+  border-color: var(--eye-blue-deep);
+  outline: 3px solid rgba(57, 126, 156, 0.16);
+  outline-offset: 2px;
+}
+
 .search-main-row {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
   gap: 22px;
   padding: 22px 0 20px;
+}
+
+.search-main-row-single {
+  grid-template-columns: minmax(0, 760px);
 }
 
 .search-primary-field,
@@ -2726,6 +2975,16 @@ textarea:focus-visible {
     max-width: 560px;
   }
 
+  .region-controls {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .radius-control {
+    min-width: 0;
+    max-width: 420px;
+  }
+
   .wizard-header {
     grid-template-columns: 1fr;
   }
@@ -2767,6 +3026,46 @@ textarea:focus-visible {
   .search-main-row {
     gap: 18px;
     padding: 18px 0;
+  }
+
+  .region-search-heading {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .location-action {
+    width: 100%;
+  }
+
+  .region-city-fields {
+    grid-template-columns: minmax(0, 1fr) 68px;
+  }
+
+  .region-submit {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  .radius-control,
+  .radius-options {
+    width: 100%;
+  }
+
+  .radius-options button {
+    padding: 0 5px;
+    font-size: 10px;
+  }
+
+  .region-feedback {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .region-feedback button {
+    width: 100%;
+    margin-left: 24px;
+    text-align: left;
   }
 
   .quick-filter-row {

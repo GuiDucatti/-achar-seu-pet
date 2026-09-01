@@ -1,8 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Cat, Check, Dog, HeartHandshake, Search, SlidersHorizontal, X } from 'lucide-react'
+import {
+  Cat,
+  Check,
+  Dog,
+  HeartHandshake,
+  LocateFixed,
+  MapPin,
+  Search,
+  SlidersHorizontal,
+  X,
+} from 'lucide-react'
 import PetCard from '../components/PetCard.jsx'
-import { listPets } from '../services/petService.js'
+import { listNearbyPets, listPets } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
 
 const emptyFilters = {
@@ -20,6 +30,8 @@ const speciesOptions = [
   { label: 'Gato', value: 'gato', icon: Cat },
 ]
 
+const radiusOptions = [10, 25, 50, 100]
+
 function PetsPage({ title, status }) {
   const [pets, setPets] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -27,6 +39,12 @@ function PetsPage({ title, status }) {
   const [filters, setFilters] = useState(emptyFilters)
   const [activeFilters, setActiveFilters] = useState(emptyFilters)
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
+  const [radius, setRadius] = useState(50)
+  const [activeRegion, setActiveRegion] = useState(null)
+  const [resolvedOrigin, setResolvedOrigin] = useState(null)
+  const [regionNotice, setRegionNotice] = useState('')
+  const [locationState, setLocationState] = useState('idle')
+  const [reloadKey, setReloadKey] = useState(0)
 
   const hasPendingFilters = useMemo(
     () => JSON.stringify(filters) !== JSON.stringify(activeFilters),
@@ -49,20 +67,63 @@ function PetsPage({ title, status }) {
         setIsLoading(true)
         setError('')
 
-        const data = await listPets({
+        const commonFilters = {
           status,
-          estado: activeFilters.estado || undefined,
-          cidade: activeFilters.cidade || undefined,
           especie: activeFilters.especie || undefined,
           sexo: activeFilters.sexo || undefined,
           data_desaparecimento: activeFilters.data_desaparecimento || undefined,
           busca: activeFilters.busca || undefined,
-        })
+        }
+
+        let data
+        if (activeRegion) {
+          const origin = activeRegion.type === 'gps'
+            ? {
+                latitude: activeRegion.latitude,
+                longitude: activeRegion.longitude,
+              }
+            : {
+                cidade_origem: activeRegion.city,
+                estado_origem: activeRegion.state,
+              }
+          const regionalData = await listNearbyPets({
+            ...origin,
+            ...commonFilters,
+            raio_km: radius,
+          })
+          data = regionalData.resultados
+
+          if (isMounted) {
+            setResolvedOrigin(regionalData.origem)
+            setRegionNotice('')
+            setLocationState('active')
+          }
+        } else {
+          data = await listPets({
+            ...commonFilters,
+            estado: activeFilters.estado || undefined,
+            cidade: activeFilters.cidade || undefined,
+          })
+        }
 
         if (isMounted) {
           setPets(data)
         }
       } catch (err) {
+        if (
+          isMounted
+          && activeRegion?.type === 'city'
+          && err.response?.data?.codigo === 'regiao_nao_encontrada'
+        ) {
+          setActiveRegion(null)
+          setResolvedOrigin(null)
+          setLocationState('fallback')
+          setRegionNotice(
+            `Nao foi possivel calcular cidades vizinhas. Mostrando cadastros de ${activeRegion.city}/${activeRegion.state}.`,
+          )
+          return
+        }
+
         if (isMounted) {
           setError(getApiErrorMessage(err, 'Nao foi possivel carregar os pets agora.'))
         }
@@ -80,11 +141,19 @@ function PetsPage({ title, status }) {
     return () => {
       isMounted = false
     }
-  }, [status, activeFilters])
+  }, [status, activeFilters, activeRegion, radius, reloadKey])
 
   function handleFilterChange(event) {
     const { name, value } = event.target
-    setFilters((current) => ({ ...current, [name]: value }))
+    const nextValue = name === 'estado' ? value.toUpperCase() : value
+    setFilters((current) => ({ ...current, [name]: nextValue }))
+
+    if ((name === 'cidade' || name === 'estado') && activeRegion?.type === 'city') {
+      setActiveRegion(null)
+      setResolvedOrigin(null)
+      setLocationState('idle')
+      setRegionNotice('Clique em Usar esta regiao para incluir cidades vizinhas.')
+    }
   }
 
   function handleSpeciesChange(value) {
@@ -99,6 +168,62 @@ function PetsPage({ title, status }) {
   function handleClearFilters() {
     setFilters(emptyFilters)
     setActiveFilters(emptyFilters)
+    setActiveRegion(null)
+    setResolvedOrigin(null)
+    setRegionNotice('')
+    setLocationState('idle')
+    setRadius(50)
+  }
+
+  function handleUseTypedRegion() {
+    const city = filters.cidade.trim()
+    const stateCode = filters.estado.trim().toUpperCase()
+
+    if (!city || stateCode.length !== 2) {
+      setLocationState('idle')
+      setRegionNotice('Informe a cidade e uma UF com duas letras para usar a busca regional.')
+      return
+    }
+
+    setActiveFilters({ ...filters, cidade: city, estado: stateCode })
+    setActiveRegion({ type: 'city', city, state: stateCode })
+    setResolvedOrigin(null)
+    setRegionNotice('')
+    setLocationState('resolving')
+  }
+
+  function handleUseLocation() {
+    if (!navigator.geolocation) {
+      setLocationState('unavailable')
+      setRegionNotice('Este navegador nao oferece localizacao. Use cidade e UF abaixo.')
+      return
+    }
+
+    setLocationState('locating')
+    setRegionNotice('')
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setActiveRegion({
+          type: 'gps',
+          latitude: Number(coords.latitude.toFixed(3)),
+          longitude: Number(coords.longitude.toFixed(3)),
+        })
+        setResolvedOrigin(null)
+        setLocationState('resolving')
+      },
+      () => {
+        setLocationState('denied')
+        setRegionNotice('Localizacao nao autorizada. Voce pode usar cidade e UF sem problema.')
+      },
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    )
+  }
+
+  function handleRemoveRegion() {
+    setActiveRegion(null)
+    setResolvedOrigin(null)
+    setLocationState('idle')
+    setRegionNotice('Busca regional removida. Cidade e UF voltaram ao filtro comum.')
   }
 
   return (
@@ -124,7 +249,88 @@ function PetsPage({ title, status }) {
           </div>
         </div>
 
-        <div className="search-main-row">
+        <section className="region-search" aria-labelledby="region-search-title">
+          <div className="region-search-heading">
+            <div>
+              <span className="region-kicker">Sua regiao</span>
+              <strong id="region-search-title">Coloque sua regiao para ver animais perto de voce.</strong>
+            </div>
+            <button
+              className="location-action"
+              disabled={locationState === 'locating' || locationState === 'resolving'}
+              onClick={handleUseLocation}
+              type="button"
+            >
+              <LocateFixed aria-hidden="true" size={18} />
+              {locationState === 'locating' ? 'Buscando sua regiao...' : 'Usar minha localizacao'}
+            </button>
+          </div>
+
+          <div className="region-controls">
+            <div className="region-city-fields">
+              <label htmlFor="cidade">
+                Cidade
+                <input
+                  id="cidade"
+                  name="cidade"
+                  onChange={handleFilterChange}
+                  placeholder="Ex.: Birigui"
+                  type="text"
+                  value={filters.cidade}
+                />
+              </label>
+              <label htmlFor="estado">
+                UF
+                <input
+                  id="estado"
+                  maxLength="2"
+                  name="estado"
+                  onChange={handleFilterChange}
+                  placeholder="SP"
+                  type="text"
+                  value={filters.estado}
+                />
+              </label>
+              <button className="region-submit" onClick={handleUseTypedRegion} type="button">
+                <MapPin aria-hidden="true" size={17} />
+                Usar esta regiao
+              </button>
+            </div>
+
+            <fieldset className="radius-control">
+              <legend>Buscar em ate</legend>
+              <div className="radius-options">
+                {radiusOptions.map((option) => (
+                  <button
+                    aria-pressed={radius === option}
+                    className={radius === option ? 'selected' : ''}
+                    key={option}
+                    onClick={() => setRadius(option)}
+                    type="button"
+                  >
+                    {option} km
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          </div>
+
+          {(resolvedOrigin || regionNotice) && (
+            <div className={`region-feedback ${resolvedOrigin ? 'active' : ''}`} aria-live="polite">
+              <MapPin aria-hidden="true" size={16} />
+              <span>
+                {resolvedOrigin
+                  ? `Perto de ${resolvedOrigin.rotulo.toLowerCase() === 'sua localizacao' ? 'sua localizacao' : resolvedOrigin.rotulo} - ate ${radius} km`
+                  : regionNotice}
+              </span>
+              {resolvedOrigin && (
+                <button onClick={handleRemoveRegion} type="button">Remover regiao</button>
+              )}
+            </div>
+          )}
+        </section>
+
+        <div className="search-main-row search-main-row-single">
           <label className="search-primary-field" htmlFor="busca">
             <span>Nome, raca ou uma caracteristica</span>
             <div className="input-with-icon">
@@ -139,35 +345,6 @@ function PetsPage({ title, status }) {
               />
             </div>
           </label>
-
-          <div className="search-location-group">
-            <div className="search-location-label">
-              <span>Onde procurar</span>
-              <small>Por cidade e estado</small>
-            </div>
-            <div className="search-location-fields">
-              <label className="sr-only" htmlFor="cidade">Cidade</label>
-              <input
-                id="cidade"
-                name="cidade"
-                onChange={handleFilterChange}
-                placeholder="Cidade"
-                type="text"
-                value={filters.cidade}
-              />
-              <label className="sr-only" htmlFor="estado">Estado</label>
-              <input
-                aria-label="Estado"
-                id="estado"
-                maxLength="2"
-                name="estado"
-                onChange={handleFilterChange}
-                placeholder="UF"
-                type="text"
-                value={filters.estado}
-              />
-            </div>
-          </div>
         </div>
 
         <div className="quick-filter-row" aria-label="Filtros rapidos">
@@ -227,12 +404,6 @@ function PetsPage({ title, status }) {
                   />
                 </label>
               </div>
-              <div className="location-readiness">
-                <span className="location-signal" aria-hidden="true" />
-                <p>
-                  A busca por distancia ainda esta sendo preparada. Por enquanto, cidade e estado ja filtram os cadastros reais.
-                </p>
-              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -243,6 +414,8 @@ function PetsPage({ title, status }) {
               ? pets.length > 0
                 ? 'Atualizando os resultados...'
                 : 'Procurando pistas na rede...'
+              : locationState === 'resolving'
+                ? 'Calculando os animais mais proximos...'
               : hasPendingFilters
                 ? 'Preparando sua busca...'
                 : 'Busca atualizada automaticamente'}
@@ -257,6 +430,7 @@ function PetsPage({ title, status }) {
       {!isLoading && !error && (
         <p className="results-summary" aria-live="polite">
           {pets.length} {pets.length === 1 ? 'historia encontrada' : 'historias encontradas'}
+          {resolvedOrigin ? ` em ate ${radius} km` : ''}
         </p>
       )}
 
@@ -266,7 +440,7 @@ function PetsPage({ title, status }) {
         <div className="feedback error search-error">
           <strong>Nao conseguimos atualizar a busca.</strong>
           <span>{error}</span>
-          <button className="secondary-action" onClick={() => setActiveFilters({ ...filters })} type="button">
+          <button className="secondary-action" onClick={() => setReloadKey((current) => current + 1)} type="button">
             Tentar novamente
           </button>
         </div>
@@ -285,7 +459,11 @@ function PetsPage({ title, status }) {
             </div>
             <div>
               <h2>Nenhuma historia apareceu ainda</h2>
-              <p>Tente tirar um filtro ou procurar por outro detalhe. Uma pista pode estar escrita de outro jeito.</p>
+              <p>
+                {resolvedOrigin && radius < 100
+                  ? 'Nenhum cadastro apareceu neste raio. Tente ampliar a distancia ou retirar um filtro.'
+                  : 'Tente tirar um filtro ou procurar por outro detalhe. Uma pista pode estar escrita de outro jeito.'}
+              </p>
             </div>
             <button className="secondary-action" onClick={handleClearFilters} type="button">
               Ver todos os pets
