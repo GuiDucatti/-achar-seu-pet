@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   Cat,
   Check,
@@ -47,6 +47,7 @@ function PetsPage({ title, status }) {
   const [regionNotice, setRegionNotice] = useState('')
   const [locationState, setLocationState] = useState('idle')
   const [reloadKey, setReloadKey] = useState(0)
+  const reduceMotion = useReducedMotion()
 
   const hasPendingFilters = useMemo(
     () => JSON.stringify(filters) !== JSON.stringify(activeFilters),
@@ -333,19 +334,28 @@ function PetsPage({ title, status }) {
             </fieldset>
           </div>
 
-          {(resolvedOrigin || regionNotice) && (
-            <div className={`region-feedback ${resolvedOrigin ? 'active' : ''}`} aria-live="polite">
-              <MapPin aria-hidden="true" size={16} />
-              <span>
-                {resolvedOrigin
-                  ? `Perto de ${resolvedOrigin.rotulo.toLowerCase() === 'sua localizacao' ? 'sua localizacao' : resolvedOrigin.rotulo} - ate ${radius} km`
-                  : regionNotice}
-              </span>
-              {resolvedOrigin && (
-                <button onClick={handleRemoveRegion} type="button">Remover regiao</button>
-              )}
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {(resolvedOrigin || regionNotice) && (
+              <motion.div
+                animate={{ opacity: 1, y: 0 }}
+                className={`region-feedback ${resolvedOrigin ? 'active' : ''}`}
+                exit={{ opacity: 0, y: reduceMotion ? 0 : -3 }}
+                initial={reduceMotion ? false : { opacity: 0, y: -3 }}
+                transition={{ duration: reduceMotion ? 0 : 0.16 }}
+                aria-live="polite"
+              >
+                <MapPin aria-hidden="true" size={16} />
+                <span>
+                  {resolvedOrigin
+                    ? `Perto de ${resolvedOrigin.rotulo.toLowerCase() === 'sua localizacao' ? 'sua localizacao' : resolvedOrigin.rotulo} - ate ${radius} km`
+                    : regionNotice}
+                </span>
+                {resolvedOrigin && (
+                  <button onClick={handleRemoveRegion} type="button">Remover regiao</button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </section>
 
         <div className="search-main-row search-main-row-single">
@@ -378,7 +388,7 @@ function PetsPage({ title, status }) {
               >
                 <Icon aria-hidden="true" size={17} />
                 {label}
-                {filters.especie === value && <Check aria-hidden="true" size={14} />}
+                <Check aria-hidden="true" className="choice-check" size={14} />
               </button>
             ))}
           </div>
@@ -397,11 +407,11 @@ function PetsPage({ title, status }) {
         <AnimatePresence initial={false}>
           {isAdvancedOpen && (
             <motion.div
-              animate={{ height: 'auto', opacity: 1 }}
+              animate={{ height: 'auto', opacity: 1, y: 0 }}
               className="advanced-filter-panel"
-              exit={{ height: 0, opacity: 0 }}
-              initial={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+              exit={{ height: 0, opacity: 0, y: reduceMotion ? 0 : -3 }}
+              initial={{ height: 0, opacity: 0, y: reduceMotion ? 0 : -3 }}
+              transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.2, 0.8, 0.2, 1] }}
             >
               <div className="advanced-filter-grid">
                 <label>
@@ -445,14 +455,19 @@ function PetsPage({ title, status }) {
         </div>
       </form>
 
-      {!isLoading && !error && (
+      {!error && (!isLoading || pets.length > 0) && (
         <p className="results-summary" aria-live="polite">
           {pets.length} {pets.length === 1 ? 'historia encontrada' : 'historias encontradas'}
           {resolvedOrigin ? ` em ate ${radius} km` : ''}
         </p>
       )}
 
-      {isLoading && <p className="feedback loading-feedback">Procurando pistas na rede...</p>}
+      {isLoading && pets.length === 0 && (
+        <p className="feedback loading-feedback" role="status">
+          <span className="loading-indicator" aria-hidden="true" />
+          Procurando pistas na rede...
+        </p>
+      )}
 
       {!isLoading && error && (
         <div className="feedback error search-error">
@@ -464,13 +479,15 @@ function PetsPage({ title, status }) {
         </div>
       )}
 
-      <AnimatePresence mode="wait">
+      <div className={`results-stage ${isLoading && pets.length > 0 ? 'is-updating' : ''}`} aria-busy={isLoading}>
+      <AnimatePresence initial={false}>
         {!isLoading && !error && pets.length === 0 && (
           <motion.div
             animate={{ opacity: 1, y: 0 }}
             className="search-empty-state"
-            exit={{ opacity: 0, y: -6 }}
-            initial={{ opacity: 0, y: 6 }}
+            exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }}
+            initial={{ opacity: 0, y: reduceMotion ? 0 : 4 }}
+            transition={{ duration: reduceMotion ? 0 : 0.18 }}
           >
             <div className="empty-paw" aria-hidden="true">
               <HeartHandshake size={26} />
@@ -489,14 +506,15 @@ function PetsPage({ title, status }) {
           </motion.div>
         )}
 
-        {!isLoading && !error && pets.length > 0 && (
-          <motion.div animate={{ opacity: 1 }} className="pet-list" initial={{ opacity: 0 }}>
-            {pets.map((pet, index) => (
-              <PetCard key={pet.id} index={index} pet={pet} />
+        {!error && pets.length > 0 && (
+          <motion.div animate={{ opacity: 1 }} className="pet-list" initial={reduceMotion ? false : { opacity: 0.82 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}>
+            {pets.map((pet) => (
+              <PetCard key={pet.id} pet={pet} />
             ))}
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </section>
   )
 }

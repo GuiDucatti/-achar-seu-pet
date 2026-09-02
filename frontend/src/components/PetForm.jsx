@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowLeft,
   ArrowRight,
@@ -61,6 +62,8 @@ const sexOptions = [
 ]
 
 function PetPreview({ photoPreview, values }) {
+  const reduceMotion = useReducedMotion()
+
   return (
     <aside className="listing-preview" aria-label="Preview da publicacao">
       <div className="preview-label">
@@ -69,7 +72,14 @@ function PetPreview({ photoPreview, values }) {
       </div>
       <div className="preview-photo-wrap">
         {photoPreview ? (
-          <img alt="Preview da foto do pet" src={photoPreview} />
+          <motion.img
+            animate={{ opacity: 1 }}
+            alt="Preview da foto do pet"
+            initial={reduceMotion ? false : { opacity: 0 }}
+            key={photoPreview}
+            src={photoPreview}
+            transition={{ duration: reduceMotion ? 0 : 0.18 }}
+          />
         ) : (
           <div className="preview-photo-empty">
             <PawPrint aria-hidden="true" size={28} />
@@ -104,6 +114,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
   const mergedInitialValues = { ...initialPetValues, ...initialValues }
   const [values, setValues] = useState(mergedInitialValues)
   const [currentStep, setCurrentStep] = useState(0)
+  const [stepDirection, setStepDirection] = useState(1)
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(
     typeof mergedInitialValues.foto === 'string' ? mergedInitialValues.foto : '',
@@ -112,6 +123,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
   const stepHeadingRef = useRef(null)
   const objectUrlRef = useRef('')
   const isEditing = Boolean(initialValues.id)
+  const reduceMotion = useReducedMotion()
 
   useEffect(() => {
     return () => {
@@ -221,6 +233,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
       }
     }
 
+    setStepDirection(nextStep > currentStep ? 1 : -1)
     setCurrentStep(nextStep)
   }
 
@@ -236,6 +249,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
         (stepIndex) => Object.keys(validateStep(stepIndex)).length > 0,
       )
       setErrors(allErrors)
+      setStepDirection((firstInvalidStep ?? 0) >= currentStep ? 1 : -1)
       setCurrentStep(firstInvalidStep ?? 0)
       return
     }
@@ -247,7 +261,17 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
   }
 
   function fieldError(name) {
-    return errors[name] ? <span className="field-error" id={`${name}-error`}>{errors[name]}</span> : null
+    return errors[name] ? (
+      <motion.span
+        animate={{ opacity: 1, y: 0 }}
+        className="field-error"
+        id={`${name}-error`}
+        initial={reduceMotion ? false : { opacity: 0, y: -2 }}
+        transition={{ duration: reduceMotion ? 0 : 0.16 }}
+      >
+        {errors[name]}
+      </motion.span>
+    ) : null
   }
 
   return (
@@ -258,7 +282,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
           <strong>{steps[currentStep].title}</strong>
         </div>
         <div className="wizard-progress-track" aria-hidden="true">
-          <span style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }} />
+          <span style={{ transform: `scaleX(${(currentStep + 1) / steps.length})` }} />
         </div>
         <ol className="wizard-step-list" aria-label="Etapas do cadastro">
           {steps.map((step, index) => (
@@ -274,6 +298,13 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
         <h2 id="wizard-step-title" ref={stepHeadingRef} tabIndex="-1">{steps[currentStep].title}</h2>
         <p className="wizard-step-description">{steps[currentStep].description}</p>
 
+        <motion.div
+          animate={{ opacity: 1, x: 0 }}
+          className="wizard-step-content"
+          initial={reduceMotion ? false : { opacity: 0.72, x: stepDirection * 8 }}
+          key={currentStep}
+          transition={{ duration: reduceMotion ? 0 : 0.2, ease: [0.2, 0.8, 0.2, 1] }}
+        >
         {currentStep === 0 && (
           <div className="identity-step">
             <div>
@@ -336,7 +367,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                     >
                       <Icon aria-hidden="true" size={20} />
                       <span>{label}</span>
-                      {values.especie === value && <Check aria-hidden="true" size={15} />}
+                      <Check aria-hidden="true" className="choice-check" size={15} />
                     </button>
                   ))}
                 </div>
@@ -366,7 +397,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 {sexOptions.map(({ label, value }) => (
                   <button aria-pressed={values.sexo === value} className={`visual-choice ${values.sexo === value ? 'selected' : ''}`} key={value} onClick={() => updateField('sexo', value)} type="button">
                     <span>{label}</span>
-                    {values.sexo === value && <Check aria-hidden="true" size={15} />}
+                    <Check aria-hidden="true" className="choice-check" size={15} />
                   </button>
                 ))}
               </div>
@@ -442,6 +473,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             <PetPreview photoPreview={photoPreview} values={values} />
           </div>
         )}
+        </motion.div>
       </section>
 
       <div className="wizard-actions">

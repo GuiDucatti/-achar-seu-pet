@@ -1,6 +1,48 @@
+import { useEffect, useRef } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { HeartHandshake, X } from 'lucide-react'
 
 function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
+  const closeButtonRef = useRef(null)
+  const panelRef = useRef(null)
+  const onCloseRef = useRef(onClose)
+  const reduceMotion = useReducedMotion()
+
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
+
+  useEffect(() => {
+    closeButtonRef.current?.focus()
+
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        onCloseRef.current()
+        return
+      }
+
+      if (event.key !== 'Tab') return
+
+      const focusable = panelRef.current?.querySelectorAll(
+        'button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), a[href]',
+      )
+      if (!focusable?.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   function handleSubmit(event) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
@@ -14,20 +56,32 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
   }
 
   return (
-    <div className="modal-backdrop" onMouseDown={onClose}>
-      <div
+    <motion.div
+      animate={{ opacity: 1 }}
+      className="modal-backdrop"
+      exit={{ opacity: 0 }}
+      initial={{ opacity: 0 }}
+      onMouseDown={onClose}
+      transition={{ duration: reduceMotion ? 0 : 0.16 }}
+    >
+      <motion.div
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         aria-labelledby="sighting-title"
         aria-modal="true"
         className="modal-panel"
+        exit={{ opacity: 0, scale: reduceMotion ? 1 : 0.99, y: reduceMotion ? 0 : 3 }}
+        initial={reduceMotion ? false : { opacity: 0, scale: 0.98, y: 5 }}
         onMouseDown={(event) => event.stopPropagation()}
+        ref={panelRef}
         role="dialog"
+        transition={{ duration: reduceMotion ? 0 : 0.22, ease: [0.2, 0.8, 0.2, 1] }}
       >
         <div className="modal-heading">
           <div>
             <h2 id="sighting-title">Vi esse pet!</h2>
             <p className="modal-intro">Obrigado por parar e olhar. Conte o que lembrar, mesmo que pareca pequeno.</p>
           </div>
-          <button aria-label="Fechar formulario" className="modal-close" onClick={onClose} type="button">
+          <button aria-label="Fechar formulario" className="modal-close" onClick={onClose} ref={closeButtonRef} type="button">
             <X aria-hidden="true" size={18} />
           </button>
         </div>
@@ -61,7 +115,19 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
             <input name="contato_quem_viu" type="text" />
           </label>
 
-          {error && <p className="feedback error">{error}</p>}
+          <AnimatePresence initial={false}>
+            {error && (
+              <motion.p
+                animate={{ opacity: 1, y: 0 }}
+                className="feedback error"
+                exit={{ opacity: 0 }}
+                initial={reduceMotion ? false : { opacity: 0, y: -3 }}
+                transition={{ duration: reduceMotion ? 0 : 0.16 }}
+              >
+                {error}
+              </motion.p>
+            )}
+          </AnimatePresence>
 
           <div className="modal-actions">
             <button className="secondary-action" onClick={onClose} type="button">
@@ -73,8 +139,8 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

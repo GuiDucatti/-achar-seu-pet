@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CheckCircle2, HeartHandshake, MapPin, Share2, Trash2 } from 'lucide-react'
 import SightingForm from '../components/SightingForm.jsx'
 import SightingTimeline from '../components/SightingTimeline.jsx'
@@ -22,6 +23,7 @@ function PetDetailPage() {
   const [sightingError, setSightingError] = useState('')
   const [sightingSuccess, setSightingSuccess] = useState('')
   const [sightings, setSightings] = useState([])
+  const reduceMotion = useReducedMotion()
 
   const isOwner = user && pet && user.id === pet.autor
   const shareMessage = pet
@@ -121,8 +123,18 @@ function PetDetailPage() {
 
   return (
     <section className="detail-view">
-      {error && <p className="feedback error">{error}</p>}
-      {sightingSuccess && <p className="feedback success">{sightingSuccess}</p>}
+      <AnimatePresence initial={false}>
+        {error && (
+          <motion.p animate={{ opacity: 1, y: 0 }} className="feedback error" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
+            {error}
+          </motion.p>
+        )}
+        {sightingSuccess && (
+          <motion.p animate={{ opacity: 1, y: 0 }} className="feedback success" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
+            {sightingSuccess}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       <div className="detail-layout">
         <img className="detail-photo" src={pet.foto} alt={`Foto de ${pet.nome}`} />
@@ -232,18 +244,20 @@ function PetDetailPage() {
 
       <SightingTimeline sightings={sightings} />
 
-      {isSightingOpen && (
-        <SightingForm
-          error={sightingError}
-          isSubmitting={isSubmittingSighting}
-          onClose={() => {
-            setSightingError('')
-            setIsSightingOpen(false)
-          }}
-          onSubmit={handleSightingSubmit}
-          pet={pet}
-        />
-      )}
+      <AnimatePresence>
+        {isSightingOpen && (
+          <SightingForm
+            error={sightingError}
+            isSubmitting={isSubmittingSighting}
+            onClose={() => {
+              setSightingError('')
+              setIsSightingOpen(false)
+            }}
+            onSubmit={handleSightingSubmit}
+            pet={pet}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }

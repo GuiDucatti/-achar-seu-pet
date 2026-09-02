@@ -1,6 +1,6 @@
 import { lazy, Suspense, useState } from 'react'
-import { NavLink, Route, Routes } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
+import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { motion, useReducedMotion } from 'framer-motion'
 import { LogIn, Menu, PawPrint, UserPlus, X } from 'lucide-react'
 import './App.css'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
@@ -19,6 +19,8 @@ const PetDetailPage = lazy(() => import('./pages/PetDetailPage.jsx'))
 function App() {
   const { isAuthenticated, logout, user } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const location = useLocation()
+  const reduceMotion = useReducedMotion()
 
   function closeMobileMenu() {
     setIsMenuOpen(false)
@@ -91,12 +93,12 @@ function App() {
       </header>
 
       <main className="app-main">
-        <AnimatePresence mode="wait">
           <motion.div
             animate={{ opacity: 1, y: 0 }}
             className="route-stage"
-            initial={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.22 }}
+            initial={reduceMotion ? false : { opacity: 0.96, y: 3 }}
+            key={location.pathname}
+            transition={{ duration: reduceMotion ? 0 : 0.16, ease: [0.2, 0.8, 0.2, 1] }}
           >
             <Suspense fallback={<p className="feedback">Carregando pagina...</p>}>
               <Routes>
@@ -134,7 +136,6 @@ function App() {
               </Routes>
             </Suspense>
           </motion.div>
-        </AnimatePresence>
       </main>
 
       <footer className="app-footer">

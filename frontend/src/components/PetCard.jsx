@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { ArrowUpRight, MapPin, PawPrint } from 'lucide-react'
 import { formatDate } from '../utils/formatters.js'
 
-function PetCard({ index = 0, pet }) {
+function PetCard({ pet }) {
   const distance = Number(pet.distancia_km)
   const hasDistance = pet.distancia_km !== null && Number.isFinite(distance)
   const distanceLabel = distance < 1
@@ -11,13 +10,7 @@ function PetCard({ index = 0, pet }) {
     : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distance)} km de voce`
 
   return (
-    <motion.article
-      animate={{ opacity: 1, y: 0 }}
-      className="pet-item"
-      initial={{ opacity: 0, y: 12 }}
-      transition={{ delay: index * 0.05, duration: 0.25 }}
-      whileHover={{ y: -3 }}
-    >
+    <article className="pet-item">
       <div className="pet-image-wrap">
         <img src={pet.foto} alt={`Foto de ${pet.nome}`} />
         <span className={`pet-status ${pet.status === 'E' ? 'found' : ''}`}>
@@ -44,7 +37,7 @@ function PetCard({ index = 0, pet }) {
           <ArrowUpRight aria-hidden="true" size={15} />
         </Link>
       </div>
-    </motion.article>
+    </article>
   )
 }
 

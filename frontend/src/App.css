@@ -9,7 +9,7 @@
   z-index: 50;
   top: 0;
   width: 100%;
-  padding: 16px max(24px, calc((100vw - 1240px) / 2));
+  padding: 14px max(24px, calc((100vw - 1240px) / 2));
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -26,6 +26,7 @@
   gap: 11px;
   color: var(--text-strong);
   text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-ui);
 }
 
 .brand-mark {
@@ -38,6 +39,7 @@
   color: var(--surface-strong);
   background: var(--forest);
   box-shadow: 0 8px 18px rgba(35, 79, 75, 0.18);
+  transition: transform var(--motion-fast) var(--ease-ui), box-shadow var(--motion-fast) var(--ease-ui);
 }
 
 .brand-copy {
@@ -79,6 +81,7 @@
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui);
 }
 
 .main-nav a:hover,
@@ -102,6 +105,7 @@
   color: var(--text-strong);
   background: var(--surface-strong);
   cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), transform var(--motion-instant) var(--ease-ui);
 }
 
 .app-main {
@@ -136,6 +140,7 @@
   background: var(--surface-strong);
   font-size: 14px;
   line-height: 1.5;
+  transition: color var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui);
 }
 
 .feedback.error {
@@ -214,7 +219,7 @@ p {
   font-weight: 700;
   line-height: 1.2;
   text-decoration: none;
-  transition: transform 160ms ease, background 160ms ease, color 160ms ease, border-color 160ms ease;
+  transition: transform var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-fast) var(--ease-ui);
 }
 
 .primary-action {
@@ -225,7 +230,6 @@ p {
 .primary-action:hover {
   color: var(--surface-strong);
   background: var(--accent-dark);
-  transform: translateY(-1px);
 }
 
 .secondary-action {
@@ -237,7 +241,6 @@ p {
 .secondary-action:hover {
   border-color: var(--forest);
   background: var(--forest-soft);
-  transform: translateY(-1px);
 }
 
 .whatsapp-action {
@@ -248,7 +251,6 @@ p {
 .whatsapp-action:hover {
   color: var(--surface-strong);
   background: #2f634e;
-  transform: translateY(-1px);
 }
 
 .danger-action {
@@ -277,35 +279,19 @@ textarea:focus-visible {
 
 .home-hero {
   position: relative;
-  min-height: 650px;
+  min-height: 520px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(340px, 0.92fr);
+  align-items: center;
+  gap: 34px;
   overflow: hidden;
   border-radius: 6px;
-  isolation: isolate;
   background: var(--forest);
 }
 
-.home-hero > img,
-.home-hero-shade {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.home-hero > img {
-  z-index: -2;
-  object-fit: cover;
-  object-position: center;
-}
-
-.home-hero-shade {
-  z-index: -1;
-  background: linear-gradient(90deg, rgba(26, 54, 54, 0.92) 0%, rgba(26, 54, 54, 0.64) 40%, rgba(26, 54, 54, 0.1) 85%);
-}
-
 .home-hero-content {
-  max-width: 690px;
-  padding: 112px 72px 170px;
+  max-width: 660px;
+  padding: 72px 0 72px 68px;
 }
 
 .home-hero-content .eyebrow {
@@ -313,11 +299,11 @@ textarea:focus-visible {
 }
 
 .home-hero-content h1 {
-  max-width: 660px;
+  max-width: 620px;
   margin-bottom: 24px;
   color: var(--surface-strong);
-  font-size: clamp(48px, 6vw, 82px);
-  line-height: 0.94;
+  font-size: clamp(44px, 5vw, 68px);
+  line-height: 0.98;
 }
 
 .home-hero-content > p:not(.eyebrow) {
@@ -357,27 +343,41 @@ textarea:focus-visible {
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-ui);
 }
 
 .hero-text-link:hover {
   color: var(--sun);
 }
 
+.home-hero-media {
+  min-width: 0;
+  margin: 0;
+  padding: 34px 34px 34px 0;
+  display: grid;
+  gap: 12px;
+}
+
+.home-hero-media > img {
+  display: block;
+  width: 100%;
+  max-height: 410px;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center;
+  border: 6px solid rgba(255, 253, 249, 0.12);
+  border-radius: 5px;
+}
+
 .home-hero-note {
-  position: absolute;
-  right: 28px;
-  bottom: 26px;
-  max-width: calc(100% - 56px);
+  max-width: 460px;
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 10px 13px;
-  color: rgba(255, 253, 249, 0.9);
-  border: 1px solid rgba(255, 253, 249, 0.3);
-  border-radius: 999px;
-  background: rgba(35, 79, 75, 0.72);
-  font-size: 11px;
-  font-weight: 700;
+  color: rgba(255, 253, 249, 0.82);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.45;
 }
 
 .status-dot {
@@ -464,6 +464,13 @@ textarea:focus-visible {
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
+  transition: color var(--motion-fast) var(--ease-ui);
+}
+
+.section-link svg,
+.text-link svg,
+.hero-text-link svg {
+  transition: transform var(--motion-fast) var(--ease-ui);
 }
 
 .section-link:hover,
@@ -477,8 +484,8 @@ textarea:focus-visible {
 
 .home-story {
   display: grid;
-  grid-template-columns: minmax(0, 0.78fr) minmax(360px, 1.22fr);
-  gap: 68px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+  gap: 52px;
   align-items: center;
   padding: 88px 0;
   color: var(--surface-strong);
@@ -521,13 +528,15 @@ textarea:focus-visible {
 
 .home-story-image {
   position: relative;
+  width: min(100%, 380px);
   min-width: 0;
+  justify-self: end;
 }
 
 .home-story-image img {
   display: block;
   width: 100%;
-  aspect-ratio: 1.36;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   border: 8px solid rgba(255, 253, 249, 0.12);
   border-radius: 4px;
@@ -583,6 +592,7 @@ textarea:focus-visible {
   border-radius: 5px;
   background: var(--surface-strong);
   box-shadow: var(--shadow-soft);
+  transition: transform var(--motion-normal) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-normal) var(--ease-ui);
 }
 
 .pet-image-wrap {
@@ -596,11 +606,7 @@ textarea:focus-visible {
   width: 100%;
   aspect-ratio: 4 / 3;
   object-fit: cover;
-  transition: transform 350ms ease;
-}
-
-.pet-item:hover img {
-  transform: scale(1.04);
+  transition: transform var(--motion-contextual) var(--ease-ui);
 }
 
 .pet-status {
@@ -986,6 +992,7 @@ textarea:focus-visible {
 .form-side-note img {
   display: block;
   width: 100%;
+  max-height: 210px;
   aspect-ratio: 4 / 3;
   object-fit: cover;
 }
@@ -1041,6 +1048,30 @@ textarea:focus-visible {
   aspect-ratio: 1.05;
   object-fit: cover;
   border-radius: 5px;
+}
+
+.register-copy > img {
+  max-height: 300px;
+  aspect-ratio: 16 / 9;
+  object-position: center 36%;
+}
+
+.login-copy {
+  width: min(100%, 360px);
+  justify-self: end;
+}
+
+.login-copy > img {
+  aspect-ratio: 3 / 2;
+  object-position: center;
+}
+
+.login-view .auth-layout {
+  min-height: 520px;
+}
+
+.register-view .auth-layout {
+  min-height: 560px;
 }
 
 .auth-copy > div {
@@ -1242,6 +1273,12 @@ textarea:focus-visible {
   align-items: center;
 }
 
+.about-visual {
+  width: min(100%, 460px);
+  margin: 0;
+  justify-self: end;
+}
+
 .about-hero-copy h1 {
   max-width: 650px;
 }
@@ -1251,12 +1288,23 @@ textarea:focus-visible {
   font-size: 18px;
 }
 
-.about-hero > img {
+.about-visual img {
+  display: block;
   width: 100%;
-  aspect-ratio: 1.25;
+  max-height: 340px;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
-  object-position: center;
+  object-position: center 55%;
   border-radius: 5px;
+}
+
+.about-visual figcaption {
+  padding: 12px 0 0 14px;
+  color: var(--text-muted);
+  border-left: 2px solid var(--eye-blue-deep);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
 }
 
 .about-signature {
@@ -1841,15 +1889,29 @@ textarea:focus-visible {
   .main-nav,
   .main-nav.open {
     width: 100%;
-    display: none;
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 3px;
-    padding-top: 13px;
-    border-top: 1px solid var(--border);
+    max-height: 0;
+    overflow: hidden;
+    padding-top: 0;
+    border-top: 1px solid transparent;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    visibility: hidden;
+    transition: max-height var(--motion-normal) var(--ease-ui), padding-top var(--motion-normal) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), opacity var(--motion-fast) var(--ease-ui), transform var(--motion-normal) var(--ease-ui), visibility 0s linear var(--motion-normal);
   }
 
   .main-nav.open {
-    display: grid;
+    max-height: 320px;
+    padding-top: 13px;
+    border-top-color: var(--border);
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+    visibility: visible;
+    transition-delay: 0s;
   }
 
   .main-nav a,
@@ -1860,12 +1922,23 @@ textarea:focus-visible {
     font-size: 12px;
   }
 
-  .home-hero-content {
-    padding: 74px 30px 175px;
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 
-  .home-hero > img {
-    object-position: 64% center;
+  .home-hero-content {
+    max-width: 680px;
+    padding: 52px 30px 30px;
+  }
+
+  .home-hero-media {
+    padding: 0 30px 30px;
+  }
+
+  .home-hero-media > img {
+    max-height: 320px;
+    aspect-ratio: 16 / 9;
   }
 
   .home-signal-row {
@@ -1890,6 +1963,11 @@ textarea:focus-visible {
     gap: 34px;
   }
 
+  .home-story-image,
+  .login-copy {
+    justify-self: start;
+  }
+
   .auth-layout,
   .about-hero,
   .form-layout,
@@ -1909,9 +1987,14 @@ textarea:focus-visible {
     border-left: 0;
   }
 
-  .about-hero > img {
-    order: -1;
-    aspect-ratio: 1.45;
+  .about-visual {
+    width: min(100%, 560px);
+    justify-self: start;
+  }
+
+  .about-visual img {
+    max-height: 300px;
+    aspect-ratio: 16 / 10;
   }
 
   .form-side-note {
@@ -1927,6 +2010,7 @@ textarea:focus-visible {
   .create-side-note img {
     height: 100%;
     min-height: 190px;
+    max-height: 240px;
     aspect-ratio: auto;
   }
 
@@ -1971,15 +2055,15 @@ textarea:focus-visible {
   }
 
   .home-hero {
-    min-height: 630px;
+    min-height: 0;
   }
 
   .home-hero-content {
-    padding: 55px 22px 182px;
+    padding: 42px 22px 27px;
   }
 
   .home-hero-content h1 {
-    font-size: 48px;
+    font-size: 40px;
   }
 
   .home-hero-content > p:not(.eyebrow) {
@@ -1996,11 +2080,17 @@ textarea:focus-visible {
     flex-direction: column;
   }
 
+  .home-hero-media {
+    padding: 0 22px 22px;
+  }
+
+  .home-hero-media > img {
+    max-height: 240px;
+    aspect-ratio: 16 / 10;
+  }
+
   .home-hero-note {
-    right: 18px;
-    bottom: 18px;
-    max-width: calc(100% - 36px);
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .home-section,
@@ -2024,6 +2114,14 @@ textarea:focus-visible {
 
   .home-story h2 {
     font-size: 38px;
+  }
+
+  .home-story-image {
+    width: min(100%, 300px);
+  }
+
+  .login-copy {
+    width: min(100%, 300px);
   }
 
   .home-final-cta {
@@ -2086,6 +2184,7 @@ textarea:focus-visible {
 
   .create-side-note img {
     min-height: 158px;
+    max-height: 178px;
   }
 
   .create-side-note > div {
@@ -2315,7 +2414,7 @@ textarea:focus-visible {
   font: inherit;
   font-size: 12px;
   font-weight: 800;
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background-color var(--motion-fast) var(--ease-ui), color var(--motion-fast) var(--ease-ui), transform var(--motion-instant) var(--ease-ui);
 }
 
 .location-action {
@@ -2408,7 +2507,7 @@ textarea:focus-visible {
   font: inherit;
   font-size: 11px;
   font-weight: 800;
-  transition: background 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background-color var(--motion-fast) var(--ease-ui), color var(--motion-fast) var(--ease-ui), transform var(--motion-instant) var(--ease-ui);
 }
 
 .radius-options button:last-child {
@@ -2586,7 +2685,7 @@ textarea:focus-visible {
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background-color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), color var(--motion-fast) var(--ease-ui), transform var(--motion-instant) var(--ease-ui);
 }
 
 .species-choice:hover,
@@ -2604,6 +2703,18 @@ textarea:focus-visible {
 .clear-search:active,
 .photo-change:active {
   transform: scale(0.97);
+}
+
+.choice-check {
+  opacity: 0;
+  transform: scale(0.86);
+  transition: opacity var(--motion-fast) var(--ease-ui), transform var(--motion-fast) var(--ease-ui);
+}
+
+.species-choice.selected .choice-check,
+.visual-choice.selected .choice-check {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .advanced-toggle {
@@ -2683,7 +2794,34 @@ textarea:focus-visible {
 }
 
 .loading-feedback {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   border-top-color: var(--accent);
+}
+
+.loading-indicator {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+  border: 2px solid rgba(200, 121, 61, 0.25);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: loading-turn 700ms linear infinite;
+}
+
+@keyframes loading-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.results-stage {
+  transition: opacity var(--motion-fast) var(--ease-ui);
+}
+
+.results-stage.is-updating {
+  opacity: 0.68;
 }
 
 .search-error {
@@ -2779,7 +2917,9 @@ textarea:focus-visible {
   display: block;
   height: 100%;
   background: var(--accent);
-  transition: width 220ms ease;
+  width: 100%;
+  transform-origin: left center;
+  transition: transform var(--motion-normal) var(--ease-ui);
 }
 
 .wizard-step-list {
@@ -2811,6 +2951,7 @@ textarea:focus-visible {
   border: 1px solid var(--border);
   border-radius: 50%;
   background: var(--surface-strong);
+  transition: color var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui), transform var(--motion-fast) var(--ease-ui);
 }
 
 .wizard-step-list li.current,
@@ -2837,6 +2978,10 @@ textarea:focus-visible {
 }
 
 .wizard-step-panel {
+  min-width: 0;
+}
+
+.wizard-step-content {
   min-width: 0;
 }
 
@@ -2872,6 +3017,7 @@ textarea:focus-visible {
   overflow: hidden;
   border: 1px dashed var(--eye-blue-deep);
   background: var(--surface-blue);
+  transition: border-color var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-fast) var(--ease-ui);
 }
 
 .photo-dropzone > label {
@@ -2889,6 +3035,14 @@ textarea:focus-visible {
   width: 100%;
   height: 260px;
   object-fit: cover;
+  animation: photo-enter var(--motion-normal) var(--ease-ui);
+}
+
+@keyframes photo-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.99);
+  }
 }
 
 .photo-upload-prompt {
@@ -3009,6 +3163,16 @@ textarea:focus-visible {
   font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
+}
+
+.guided-pet-form input,
+.guided-pet-form select,
+.guided-pet-form textarea,
+.sighting-form input,
+.sighting-form textarea,
+.search-panel input,
+.search-panel select {
+  transition: border-color var(--motion-fast) var(--ease-ui), box-shadow var(--motion-fast) var(--ease-ui), background-color var(--motion-fast) var(--ease-ui), color var(--motion-fast) var(--ease-ui);
 }
 
 .guided-pet-form input[aria-invalid='true'],
@@ -3389,27 +3553,6 @@ textarea:focus-visible {
   }
 }
 
-.home-hero-content h1 {
-  max-width: 1120px;
-}
-
-.home-hero-content {
-  max-width: 1060px;
-}
-
-.hero-inline-image {
-  width: 1.28em;
-  height: 0.68em;
-  display: inline-block;
-  vertical-align: -0.02em;
-  border: 3px solid rgba(255, 253, 249, 0.76);
-  border-radius: 999px;
-  background-image: url('./assets/editorial/home-story.webp');
-  background-position: center;
-  background-size: cover;
-  box-shadow: 0 0 0 5px rgba(243, 197, 110, 0.18);
-}
-
 .home-signal-row {
   grid-auto-flow: dense;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3519,7 +3662,7 @@ textarea:focus-visible {
   border: 1px solid var(--border);
   border-top: 3px solid var(--accent);
   background: var(--surface-strong);
-  transition: flex-grow 220ms cubic-bezier(0.23, 1, 0.32, 1), background 180ms ease;
+  transition: background-color var(--motion-fast) var(--ease-ui), border-color var(--motion-fast) var(--ease-ui);
 }
 
 .about-values article:nth-child(2) {
@@ -3528,12 +3671,6 @@ textarea:focus-visible {
 
 .about-values article:nth-child(3) {
   border-top-color: var(--forest);
-}
-
-.about-values article:hover,
-.about-values article:focus-within {
-  flex-grow: 1.55;
-  background: var(--surface);
 }
 
 .about-values article p {
@@ -3551,15 +3688,41 @@ textarea:focus-visible {
 }
 
 @media (hover: hover) and (pointer: fine) {
+  .brand:hover .brand-mark {
+    transform: translateY(-1px) scale(1.015);
+    box-shadow: 0 10px 22px rgba(35, 79, 75, 0.2);
+  }
+
+  .primary-action:hover,
+  .secondary-action:hover,
+  .whatsapp-action:hover {
+    transform: translateY(-1px);
+  }
+
   .pet-item:hover {
     border-color: rgba(57, 126, 156, 0.45);
+    box-shadow: 0 20px 48px rgba(39, 50, 57, 0.12);
+    transform: translateY(-2px);
+  }
+
+  .pet-item:hover img {
+    transform: scale(1.015);
+  }
+
+  .photo-dropzone:hover {
+    border-color: var(--forest);
+    box-shadow: 0 10px 28px rgba(35, 79, 75, 0.08);
+  }
+
+  .section-link:hover svg,
+  .text-link:hover svg,
+  .hero-text-link:hover svg {
+    transform: translateX(2px);
   }
 }
 
-@media (hover: none) {
-  .pet-item:hover img {
-    transform: none;
-  }
+.brand:active .brand-mark {
+  transform: scale(0.985);
 }
 
 @media (max-width: 800px) {
@@ -3598,10 +3761,6 @@ textarea:focus-visible {
     grid-template-columns: 1fr;
   }
 
-  .about-values article:hover,
-  .about-values article:focus-within {
-    flex-grow: 1;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -3609,12 +3768,38 @@ textarea:focus-visible {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
 
-  .home-marquee-track {
+  .home-marquee-track,
+  .loading-indicator {
     animation: none;
+  }
+
+  .brand-mark,
+  .pet-item,
+  .pet-item img,
+  .primary-action,
+  .secondary-action,
+  .whatsapp-action,
+  .danger-action,
+  .menu-toggle,
+  .main-nav {
+    transform: none !important;
+  }
+
+  .main-nav,
+  .main-nav.open {
+    transition-duration: 0.01ms;
+  }
+
+  .choice-check {
+    transform: none !important;
+  }
+
+  .wizard-progress-track span,
+  .choice-check {
+    transition-duration: 0.01ms;
   }
 }
