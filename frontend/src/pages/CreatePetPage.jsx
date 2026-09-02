@@ -40,17 +40,17 @@ function CreatePetPage() {
         </div>
         <aside className="form-side-note create-side-note">
           <img
-            alt="Tutora abracando seu cachorro ao ar livre"
+            alt="Tutora acolhendo seu cachorro em uma rua residencial"
             decoding="async"
-            height="962"
+            height="800"
             loading="lazy"
             src={createPetImage}
             width="1200"
           />
           <div>
             <HeartHandshake aria-hidden="true" size={22} />
-            <strong>Uma foto nitida faz diferenca.</strong>
-            <p>Uma foto nitida e um detalhe marcante ajudam mais do que uma descricao longa.</p>
+            <strong>Comece pela imagem que alguém reconheceria na rua.</strong>
+            <p>Rosto, cor do pelo e marcas diferentes ajudam mais do que uma fotografia distante.</p>
           </div>
         </aside>
       </div>

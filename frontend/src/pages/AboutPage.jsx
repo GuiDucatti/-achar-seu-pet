@@ -6,7 +6,7 @@ function AboutPage() {
     <section className="content-view about-view">
       <div className="about-hero">
         <div className="about-hero-copy">
-          <h1>Ninguem deveria procurar sozinho.</h1>
+          <h1>Uma busca fica mais clara quando a cidade sabe quem procurar.</h1>
           <p>
             O Achar seu Pet nasceu para transformar a aflição de uma busca em uma
             rede de apoio: mais organizada para quem procura, mais simples para
@@ -14,15 +14,22 @@ function AboutPage() {
           </p>
           <div className="about-signature">
             <HeartHandshake aria-hidden="true" size={22} />
-            <span>O Lobinha organiza as informacoes para que quem procura e quem viu consigam se encontrar.</span>
+            <span>Ninguém deveria procurar sozinho.</span>
           </div>
         </div>
-        <img
-          alt="Familia caminhando com seu cachorro em um parque"
-          height="1200"
-          src={aboutImage}
-          width="1800"
-        />
+        <figure className="about-visual">
+          <img
+            alt="Tutora acolhendo seus dois cachorros em uma rua da cidade"
+            decoding="async"
+            height="1050"
+            loading="lazy"
+            src={aboutImage}
+            width="1400"
+          />
+          <figcaption>
+            O Lobinha aproxima tutores e pessoas dispostas a prestar atenção no caminho.
+          </figcaption>
+        </figure>
       </div>
 
       <div className="about-values">

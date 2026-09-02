@@ -39,19 +39,24 @@ function LoginPage() {
   }
 
   return (
-    <section className="auth-view">
+    <section className="auth-view login-view">
       <div className="auth-layout">
-        <div className="auth-copy">
+        <div className="auth-copy login-copy">
           <img
-            alt="Pessoa acolhendo seu gato em casa"
-            height="1650"
+            alt="Pessoa acessando o notebook com seu gato no colo"
+            decoding="async"
+            height="680"
+            loading="lazy"
             src={loginImage}
-            width="1100"
+            width="960"
           />
           <div>
             <PawPrint aria-hidden="true" size={22} />
-            <strong>Que bom ter voce de volta.</strong>
-            <p>Entre para acompanhar seus cadastros e manter cada informacao atualizada.</p>
+            <strong>Voltar a sua conta e voltar para a busca.</strong>
+            <p>
+              Revise os dados, acompanhe avistamentos e atualize o anuncio quando
+              houver novidade.
+            </p>
           </div>
         </div>
         <div className="auth-panel">

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, HeartHandshake, MapPinned, Search, ShieldCheck } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import homeHeroImage from '../assets/editorial/home-hero.webp'
@@ -37,7 +36,6 @@ function Home() {
   }, [])
 
   useEffect(() => {
-    let media
     const context = gsap.context(() => {
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -47,9 +45,9 @@ function Home() {
 
       gsap.fromTo(
         '.home-hero-content > *',
-        { opacity: 0, transform: 'translateY(18px)' },
+        { opacity: 0, transform: 'translateY(12px)' },
         {
-          duration: 0.62,
+          duration: 0.52,
           ease: 'power3.out',
           opacity: 1,
           stagger: 0.07,
@@ -60,9 +58,9 @@ function Home() {
       gsap.utils.toArray('[data-reveal]').forEach((element) => {
         gsap.fromTo(
           element,
-          { opacity: 0, transform: 'translateY(24px)' },
+          { opacity: 0, transform: 'translateY(12px)' },
           {
-            duration: 0.7,
+            duration: 0.46,
             ease: 'power3.out',
             opacity: 1,
             scrollTrigger: {
@@ -77,7 +75,7 @@ function Home() {
 
       gsap.fromTo(
         '.home-story-image img',
-        { opacity: 0.45, transform: 'scale(0.84)' },
+        { opacity: 0.78, transform: 'scale(0.97)' },
         {
           ease: 'none',
           opacity: 1,
@@ -91,21 +89,9 @@ function Home() {
         },
       )
 
-      media = gsap.matchMedia()
-      media.add('(min-width: 801px)', () => {
-        ScrollTrigger.create({
-          end: 'bottom bottom-=96',
-          pin: '.home-story-copy',
-          pinSpacing: false,
-          start: 'top top+=112',
-          trigger: '.home-story',
-        })
-      })
-
     }, homeRef)
 
     return () => {
-      media?.revert()
       context.revert()
     }
   }, [])
@@ -113,28 +99,11 @@ function Home() {
   return (
     <div className="home-page" ref={homeRef}>
       <section className="home-hero">
-        <img
-          alt="Tutora abracando seu cachorro em um parque"
-          fetchPriority="high"
-          height="1500"
-          src={homeHeroImage}
-          width="2000"
-        />
-        <div className="home-hero-shade" />
         <div className="home-hero-content">
-          <h1>
-            Achar seu Pet. Cada detalhe vira uma{' '}
-            <span
-              aria-label="pista"
-              className="hero-inline-image"
-              role="img"
-              title="Uma pista pode aproximar um reencontro"
-            />{' '}
-            pista.
-          </h1>
+          <h1>Uma pista perto de você pode mudar o caminho de volta.</h1>
           <p>
-            Um lugar para divulgar, procurar e deixar uma pista. Porque encontrar
-            fica mais possivel quando a cidade inteira ajuda.
+            Cadastre, procure e compartilhe informações com quem já está olhando
+            pelo mesmo bairro.
           </p>
           <div className="home-actions">
             <Link className="primary-action" to="/cadastrar-pet">
@@ -147,10 +116,20 @@ function Home() {
             </Link>
           </div>
         </div>
-        <div className="home-hero-note">
-          <span className="status-dot" />
-          Prestar atencao no caminho ja e uma forma de ajudar.
-        </div>
+        <figure className="home-hero-media">
+          <img
+            alt="Pessoa caminhando com seu cachorro por um bairro residencial"
+            fetchPriority="high"
+            height="934"
+            src={homeHeroImage}
+            width="1400"
+          />
+          <figcaption className="home-hero-note">
+            <span className="status-dot" />
+            Uma coleira, uma mancha no pelo ou o horário de um avistamento podem
+            aproximar a busca.
+          </figcaption>
+        </figure>
       </section>
 
       <section className="home-signal-row" aria-label="Como a rede ajuda">
@@ -231,19 +210,13 @@ function Home() {
         )}
       </section>
 
-      <motion.section
-        className="home-story"
-        data-reveal
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-      >
-        <div className="home-story-copy">
+      <section className="home-story">
+        <div className="home-story-copy" data-reveal>
           <h2>Uma foto. Um bairro. Um reencontro.</h2>
           <p>
-            O Achar seu Pet aproxima quem esta procurando de quem viu alguma coisa.
-            Cada cadastro organiza a busca e cada avistamento acende uma nova
-            possibilidade.
+            A foto ajuda a reconhecer. O bairro ajuda a saber onde olhar. Quando
+            essas informacoes se encontram, uma pista deixa de ser apenas
+            coincidencia.
           </p>
           <div className="story-proof">
             <ShieldCheck aria-hidden="true" size={20} />
@@ -252,16 +225,16 @@ function Home() {
         </div>
         <div className="home-story-image">
           <img
-            alt="Tutora acolhendo seu gato em casa"
+            alt="Tutora abracando seu cachorro em uma area externa"
             decoding="async"
-            height="1068"
+            height="720"
             loading="lazy"
             src={homeStoryImage}
-            width="1600"
+            width="960"
           />
-          <span>Tem lugar para todo tipo de historia</span>
+          <span>Uma imagem nitida ajuda alguem a reconhecer</span>
         </div>
-      </motion.section>
+      </section>
 
       <section className="home-final-cta" data-reveal>
         <h2>Uma pista pequena pode levar a um reencontro enorme.</h2>

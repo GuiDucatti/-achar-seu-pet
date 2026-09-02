@@ -38,19 +38,21 @@ function RegisterPage() {
   }
 
   return (
-    <section className="auth-view">
+    <section className="auth-view register-view">
       <div className="auth-layout">
-        <div className="auth-copy">
+        <div className="auth-copy register-copy">
           <img
-            alt="Casal cuidando de seu gato em casa"
-            height="1650"
+            alt="Pessoa segurando seu gato em um ambiente doméstico"
+            decoding="async"
+            height="750"
+            loading="lazy"
             src={registerImage}
-            width="1100"
+            width="1200"
           />
           <div>
             <HeartHandshake aria-hidden="true" size={22} />
-            <strong>Um lugar para manter a busca em dia.</strong>
-            <p>A conta permite publicar uma busca, acompanhar pistas e atualizar o anuncio quando algo mudar.</p>
+            <strong>Sua conta guarda a busca em um só lugar.</strong>
+            <p>Publique o pet, acompanhe novas pistas e atualize a situação quando ele voltar para casa.</p>
           </div>
         </div>
         <div className="auth-panel">
