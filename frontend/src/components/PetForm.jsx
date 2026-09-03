@@ -14,6 +14,7 @@ import {
   Phone,
   UploadCloud,
 } from 'lucide-react'
+import AddressAutocomplete from './AddressAutocomplete.jsx'
 import { formatDate } from '../utils/formatters.js'
 
 const initialPetValues = {
@@ -26,6 +27,8 @@ const initialPetValues = {
   estado: '',
   cidade: '',
   endereco_texto: '',
+  latitude: null,
+  longitude: null,
   data_desaparecimento: '',
   descricao: '',
   contato: '',
@@ -142,6 +145,33 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
     setErrors((current) => ({ ...current, [name]: '' }))
   }
 
+  function updateLocationField(name, value) {
+    setValues((current) => ({
+      ...current,
+      [name]: value,
+      latitude: null,
+      longitude: null,
+    }))
+    setErrors((current) => ({ ...current, [name]: '' }))
+  }
+
+  function handleAddressSelect(suggestion) {
+    setValues((current) => ({
+      ...current,
+      endereco_texto: suggestion.endereco,
+      cidade: suggestion.cidade,
+      estado: suggestion.estado,
+      latitude: suggestion.latitude,
+      longitude: suggestion.longitude,
+    }))
+    setErrors((current) => ({
+      ...current,
+      endereco_texto: '',
+      cidade: '',
+      estado: '',
+    }))
+  }
+
   function handleFile(file) {
     if (!file) {
       return
@@ -211,7 +241,9 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
     if (stepIndex === 2) {
       if (!values.estado.trim()) nextErrors.estado = 'Informe o estado.'
       if (!values.cidade.trim()) nextErrors.cidade = 'Informe a cidade.'
-      if (!values.endereco_texto.trim()) nextErrors.endereco_texto = 'Indique uma regiao aproximada.'
+      if (!values.endereco_texto.trim()) {
+        nextErrors.endereco_texto = 'Busque a rua ou informe um ponto de referencia.'
+      }
       if (!values.data_desaparecimento) nextErrors.data_desaparecimento = 'Informe a data.'
     }
 
@@ -420,24 +452,40 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 <span>A localizacao publica fica aproximada para proteger voce e o pet.</span>
               </div>
             </div>
+            <div>
+              <AddressAutocomplete
+                describedBy={`regiao-help${errors.endereco_texto ? ' endereco_texto-error' : ''}`}
+                id="pet-regiao"
+                invalid={Boolean(errors.endereco_texto)}
+                label="Rua ou local onde desapareceu"
+                onChange={(value) => updateLocationField('endereco_texto', value)}
+                onSelect={handleAddressSelect}
+                placeholder="Ex.: Rua das Flores, Birigui - SP"
+                value={values.endereco_texto}
+              />
+              <span className="form-help" id="regiao-help">
+                Digite pelo menos 3 letras e escolha a cidade correta. Nao informe o numero da casa.
+              </span>
+              {fieldError('endereco_texto')}
+              {values.latitude !== null && values.longitude !== null && (
+                <span className="address-selected-note" role="status">
+                  <Check aria-hidden="true" size={14} />
+                  Local pronto para aparecer como area aproximada no mapa.
+                </span>
+              )}
+            </div>
             <div className="form-grid location-fields">
               <label htmlFor="pet-cidade">
                 Cidade
-                <input aria-invalid={Boolean(errors.cidade)} id="pet-cidade" name="cidade" onChange={(event) => updateField('cidade', event.target.value)} placeholder="Ex.: Campinas" type="text" value={values.cidade} />
+                <input aria-invalid={Boolean(errors.cidade)} id="pet-cidade" name="cidade" onChange={(event) => updateLocationField('cidade', event.target.value)} placeholder="Preenchida ao escolher a rua" type="text" value={values.cidade} />
                 {fieldError('cidade')}
               </label>
               <label htmlFor="pet-estado">
                 Estado
-                <input aria-invalid={Boolean(errors.estado)} id="pet-estado" maxLength="2" name="estado" onChange={(event) => updateField('estado', event.target.value.toUpperCase())} placeholder="SP" type="text" value={values.estado} />
+                <input aria-invalid={Boolean(errors.estado)} id="pet-estado" maxLength="2" name="estado" onChange={(event) => updateLocationField('estado', event.target.value.toUpperCase())} placeholder="UF" type="text" value={values.estado} />
                 {fieldError('estado')}
               </label>
             </div>
-            <label htmlFor="pet-regiao">
-              Regiao aproximada
-              <input aria-describedby="regiao-help" aria-invalid={Boolean(errors.endereco_texto)} id="pet-regiao" name="endereco_texto" onChange={(event) => updateField('endereco_texto', event.target.value)} placeholder="Ex.: proximo a uma pracinha no Taquaral" type="text" value={values.endereco_texto} />
-              <span className="form-help" id="regiao-help">Usamos este texto apenas para encontrar a area no mapa.</span>
-              {fieldError('endereco_texto')}
-            </label>
             <label htmlFor="pet-data">
               Data do desaparecimento
               <input aria-invalid={Boolean(errors.data_desaparecimento)} id="pet-data" name="data_desaparecimento" onChange={(event) => updateField('data_desaparecimento', event.target.value)} type="date" value={values.data_desaparecimento} />

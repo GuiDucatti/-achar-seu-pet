@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { CheckCircle2, HeartHandshake, MapPin, Share2, Trash2 } from 'lucide-react'
+import { CheckCircle2, HeartHandshake, MapPin, MessageCircle, Phone, Share2, Trash2 } from 'lucide-react'
 import SightingForm from '../components/SightingForm.jsx'
 import SightingTimeline from '../components/SightingTimeline.jsx'
 import { useAuth } from '../hooks/useAuth.js'
@@ -9,6 +9,11 @@ import PetMap from '../components/PetMap.jsx'
 import { createSighting, deletePet, getPet, updatePet } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
 import { formatDate } from '../utils/formatters.js'
+import {
+  buildTelephoneUrl,
+  buildWhatsAppUrl,
+  normalizeBrazilianPhone,
+} from '../utils/contact.js'
 
 function PetDetailPage() {
   const { id } = useParams()
@@ -21,7 +26,7 @@ function PetDetailPage() {
   const [isSightingOpen, setIsSightingOpen] = useState(false)
   const [isSubmittingSighting, setIsSubmittingSighting] = useState(false)
   const [sightingError, setSightingError] = useState('')
-  const [sightingSuccess, setSightingSuccess] = useState('')
+  const [sightingSuccess, setSightingSuccess] = useState(null)
   const [sightings, setSightings] = useState([])
   const reduceMotion = useReducedMotion()
 
@@ -32,6 +37,12 @@ function PetDetailPage() {
       : `${pet.nome} foi marcado como encontrado.\nConheca esta historia:\n${window.location.href}`
     : ''
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
+  const ownerPhone = normalizeBrazilianPhone(pet?.contato)
+  const ownerContactMessage = pet
+    ? `Ola! Tenho uma informacao sobre ${pet.nome}. Vi o anuncio no Achar seu Pet: ${window.location.href}`
+    : ''
+  const ownerWhatsAppUrl = buildWhatsAppUrl(ownerPhone, ownerContactMessage)
+  const ownerTelephoneUrl = buildTelephoneUrl(ownerPhone)
 
   useEffect(() => {
     let isMounted = true
@@ -99,14 +110,15 @@ function PetDetailPage() {
     try {
       setSightingError('')
       setIsSubmittingSighting(true)
-      const sighting = await createSighting(id, data)
+      const { endereco_label: addressLabel, ...payload } = data
+      const sighting = await createSighting(id, payload)
       setSightings((currentSightings) => [sighting, ...currentSightings])
       setIsSightingOpen(false)
-      setSightingSuccess('Avistamento registrado. Obrigado por ajudar nessa busca.')
+      setSightingSuccess({ addressLabel })
     } catch (err) {
       console.error(err)
       setSightingError(
-        getApiErrorMessage(err, 'Nao foi possivel registrar o avistamento. Confira as coordenadas.'),
+        getApiErrorMessage(err, 'Nao foi possivel registrar o avistamento. Confira o local informado.'),
       )
     } finally {
       setIsSubmittingSighting(false)
@@ -130,9 +142,20 @@ function PetDetailPage() {
           </motion.p>
         )}
         {sightingSuccess && (
-          <motion.p animate={{ opacity: 1, y: 0 }} className="feedback success" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
-            {sightingSuccess}
-          </motion.p>
+          <motion.div animate={{ opacity: 1, y: 0 }} className="feedback success sighting-success" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
+            <span>Avistamento registrado. Obrigado por ajudar nessa busca.</span>
+            {ownerPhone && (
+              <a
+                className="sighting-success-link"
+                href={buildWhatsAppUrl(ownerPhone, `Ola! Registrei um avistamento de ${pet.nome} em ${sightingSuccess.addressLabel}. Veja o anuncio: ${window.location.href}`)}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <MessageCircle aria-hidden="true" size={16} />
+                Avisar tambem pelo WhatsApp
+              </a>
+            )}
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -170,7 +193,7 @@ function PetDetailPage() {
               <dt>Local</dt>
               <dd className="detail-value-with-icon">
                 <MapPin aria-hidden="true" size={16} />
-                {pet.cidade} - {pet.estado}
+                <span>{pet.endereco_texto ? `${pet.endereco_texto}, ` : ''}{pet.cidade} - {pet.estado}</span>
               </dd>
             </div>
             <div>
@@ -183,7 +206,19 @@ function PetDetailPage() {
             </div>
             <div>
               <dt>Contato</dt>
-              <dd>{pet.contato}</dd>
+              <dd className="detail-contact-value">
+                <span>{pet.contato}</span>
+                {ownerPhone && (
+                  <span className="detail-contact-actions">
+                    <a href={ownerWhatsAppUrl} rel="noreferrer" target="_blank">
+                      <MessageCircle aria-hidden="true" size={15} /> WhatsApp
+                    </a>
+                    <a href={ownerTelephoneUrl}>
+                      <Phone aria-hidden="true" size={15} /> Ligar
+                    </a>
+                  </span>
+                )}
+              </dd>
             </div>
             <div>
               <dt>Caracteristicas</dt>
@@ -233,7 +268,14 @@ function PetDetailPage() {
             <h2 id="sighting-cta-title">Voce viu este pet?</h2>
             <p>Registre o local e os detalhes. Mesmo uma pista pequena pode devolver a esperanca.</p>
           </div>
-          <button className="primary-action" onClick={() => setIsSightingOpen(true)} type="button">
+          <button
+            className="primary-action"
+            onClick={() => {
+              setSightingSuccess(null)
+              setIsSightingOpen(true)
+            }}
+            type="button"
+          >
             <MapPin aria-hidden="true" size={17} />
             Vi esse pet!
           </button>

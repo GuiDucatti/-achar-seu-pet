@@ -1,12 +1,26 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { HeartHandshake, X } from 'lucide-react'
+import { Check, Copy, HeartHandshake, MessageCircle, Phone, X } from 'lucide-react'
+import AddressAutocomplete from './AddressAutocomplete.jsx'
+import {
+  buildTelephoneUrl,
+  buildWhatsAppUrl,
+  normalizeBrazilianPhone,
+} from '../utils/contact.js'
 
 function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
   const closeButtonRef = useRef(null)
   const panelRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const reduceMotion = useReducedMotion()
+  const [address, setAddress] = useState('')
+  const [selectedLocation, setSelectedLocation] = useState(null)
+  const [locationError, setLocationError] = useState('')
+  const [copyFeedback, setCopyFeedback] = useState('')
+  const phone = normalizeBrazilianPhone(pet.contato)
+  const ownerMessage = `Ola! Acho que vi ${pet.nome}. Estou entrando em contato pelo Achar seu Pet: ${window.location.href}`
+  const ownerWhatsAppUrl = buildWhatsAppUrl(phone, ownerMessage)
+  const ownerTelephoneUrl = buildTelephoneUrl(phone)
 
   useEffect(() => {
     onCloseRef.current = onClose
@@ -47,12 +61,27 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
 
+    if (!selectedLocation) {
+      setLocationError('Digite o local e escolha uma das sugestoes da cidade correta.')
+      return
+    }
+
     onSubmit({
-      latitude: Number(formData.get('latitude')),
-      longitude: Number(formData.get('longitude')),
+      latitude: selectedLocation.latitude,
+      longitude: selectedLocation.longitude,
+      endereco_label: selectedLocation.rotulo,
       descricao: formData.get('descricao'),
       contato_quem_viu: formData.get('contato_quem_viu'),
     })
+  }
+
+  async function copyContact() {
+    try {
+      await navigator.clipboard.writeText(pet.contato)
+      setCopyFeedback('Contato copiado.')
+    } catch {
+      setCopyFeedback('Nao foi possivel copiar. Selecione o contato abaixo.')
+    }
   }
 
   return (
@@ -93,16 +122,60 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
           </p>
         </div>
 
+        <section className="sighting-contact-panel" aria-labelledby="owner-contact-title">
+          <div>
+            <strong id="owner-contact-title">Avise o responsavel agora</strong>
+            <span>{pet.contato}</span>
+          </div>
+          {phone ? (
+            <div className="sighting-contact-actions">
+              <a className="whatsapp-action" href={ownerWhatsAppUrl} rel="noreferrer" target="_blank">
+                <MessageCircle aria-hidden="true" size={17} />
+                WhatsApp
+              </a>
+              <a className="secondary-action" href={ownerTelephoneUrl}>
+                <Phone aria-hidden="true" size={17} />
+                Ligar
+              </a>
+            </div>
+          ) : (
+            <button className="secondary-action" onClick={copyContact} type="button">
+              {copyFeedback === 'Contato copiado.' ? <Check aria-hidden="true" size={17} /> : <Copy aria-hidden="true" size={17} />}
+              Copiar contato
+            </button>
+          )}
+          <span aria-live="polite" className="sighting-copy-feedback">{copyFeedback}</span>
+        </section>
+
         <form className="sighting-form" onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <label>
-              Latitude
-              <input max="90" min="-90" name="latitude" required step="any" type="number" />
-            </label>
-            <label>
-              Longitude
-              <input max="180" min="-180" name="longitude" required step="any" type="number" />
-            </label>
+          <div>
+            <AddressAutocomplete
+              describedBy={`sighting-location-help${locationError ? ' sighting-location-error' : ''}`}
+              id="sighting-location"
+              invalid={Boolean(locationError)}
+              label="Onde voce viu este pet?"
+              onChange={(value) => {
+                setAddress(value)
+                setSelectedLocation(null)
+                setLocationError('')
+              }}
+              onSelect={(suggestion) => {
+                setAddress(suggestion.rotulo)
+                setSelectedLocation(suggestion)
+                setLocationError('')
+              }}
+              placeholder="Digite a rua, bairro ou ponto de referencia"
+              value={address}
+            />
+            <span className="form-help" id="sighting-location-help">
+              Escolha uma sugestao para registrar o ponto correto sem digitar coordenadas.
+            </span>
+            {locationError && <span className="field-error" id="sighting-location-error">{locationError}</span>}
+            {selectedLocation && (
+              <span className="address-selected-note" role="status">
+                <Check aria-hidden="true" size={14} /> Local selecionado
+              </span>
+            )}
           </div>
 
           <label>
@@ -112,7 +185,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
 
           <label>
             Seu contato (opcional)
-            <input name="contato_quem_viu" type="text" />
+            <input name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsavel retornar" type="text" />
           </label>
 
           <AnimatePresence initial={false}>

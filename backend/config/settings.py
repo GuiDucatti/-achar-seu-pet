@@ -58,6 +58,10 @@ ALLOWED_IMAGE_CONTENT_TYPES = env_list(
 )
 GEOCODING_ENABLED = os.getenv('GEOCODING_ENABLED', 'False').lower() == 'true'
 NOMINATIM_URL = os.getenv('NOMINATIM_URL', 'https://nominatim.openstreetmap.org/search')
+ADDRESS_SUGGESTION_URL = os.getenv(
+    'ADDRESS_SUGGESTION_URL',
+    'https://photon.komoot.io/api/',
+)
 NOMINATIM_USER_AGENT = os.getenv(
     'NOMINATIM_USER_AGENT',
     'AcharSeuPet/1.0 (local-development)',

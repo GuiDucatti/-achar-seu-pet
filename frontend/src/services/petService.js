@@ -22,6 +22,14 @@ export async function listNearbyPets(data) {
   return response.data
 }
 
+export async function suggestAddresses(query, signal) {
+  const response = await api.get('/pets/sugestoes-endereco/', {
+    params: { q: query },
+    signal,
+  })
+  return response.data
+}
+
 export async function getPet(id) {
   const response = await api.get(`/pets/${id}/`)
   return response.data

@@ -23,10 +23,7 @@ function SightingTimeline({ sightings }) {
               {sighting.proximo && (
                 <strong className="proximity-badge">Possivel correspondencia proxima</strong>
               )}
-              <span>
-                Local registrado: {Number(sighting.latitude).toFixed(5)},{' '}
-                {Number(sighting.longitude).toFixed(5)}
-              </span>
+              <span>Localizacao registrada para calcular a proximidade desta pista.</span>
               {sighting.distancia_km !== null && (
                 <span>Distancia da regiao do pet: {sighting.distancia_km} km</span>
               )}

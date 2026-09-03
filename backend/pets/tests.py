@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import Pet
+from .geocoding import search_addresses
 from .proximity import haversine_distance_km
 
 
@@ -104,6 +105,85 @@ class PetUploadTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('svg', str(response.data['foto']).lower())
+
+    @patch('pets.views.geocode_address')
+    def test_keeps_coordinates_selected_from_address_suggestion(self, geocode_mock):
+        payload = self.pet_payload()
+        payload.update({'latitude': -21.2886, 'longitude': -50.3404})
+
+        response = self.client.post('/api/pets/', payload, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pet = Pet.objects.get(pk=response.data['id'])
+        self.assertEqual(pet.latitude, -21.2886)
+        self.assertEqual(pet.longitude, -50.3404)
+        geocode_mock.assert_not_called()
+
+
+class AddressSuggestionTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client = APIClient()
+
+    @patch(
+        'pets.views.search_addresses',
+        return_value=[
+            {
+                'rotulo': 'Rua das Flores - Birigui, SP',
+                'endereco': 'Rua das Flores',
+                'cidade': 'Birigui',
+                'estado': 'SP',
+                'latitude': -21.2886,
+                'longitude': -50.3404,
+            }
+        ],
+    )
+    def test_anonymous_user_can_search_address_suggestions(self, search_mock):
+        response = self.client.get(
+            '/api/pets/sugestoes-endereco/',
+            {'q': 'Rua das Flores Birigui'},
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]['cidade'], 'Birigui')
+        search_mock.assert_called_once_with('Rua das Flores Birigui')
+
+    @patch('pets.views.search_addresses')
+    def test_short_query_returns_empty_without_external_request(self, search_mock):
+        response = self.client.get('/api/pets/sugestoes-endereco/', {'q': 'Ru'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+        search_mock.assert_not_called()
+
+    @patch(
+        'pets.geocoding._load_suggestion_features',
+        return_value=[
+            {
+                'properties': {
+                    'type': 'house',
+                    'name': 'Clinica Veterinaria Amiga',
+                    'street': 'Rua Saudades',
+                    'housenumber': '32',
+                    'district': 'Jardim Morumbi',
+                    'city': 'Birigui',
+                    'state': 'Sao Paulo',
+                    'countrycode': 'BR',
+                },
+                'geometry': {
+                    'coordinates': [-50.3433886, -21.2868583],
+                },
+            }
+        ],
+    )
+    def test_suggestions_use_photon_and_omit_house_number(self, photon_mock):
+        suggestions = search_addresses('Rua Saudades Birigui')
+
+        self.assertEqual(len(suggestions), 1)
+        self.assertEqual(suggestions[0]['cidade'], 'Birigui')
+        self.assertEqual(suggestions[0]['estado'], 'SP')
+        self.assertNotIn('32', suggestions[0]['endereco'])
+        photon_mock.assert_called_once_with('Rua Saudades Birigui', 5)
 
 
 class PetSightingTests(TestCase):

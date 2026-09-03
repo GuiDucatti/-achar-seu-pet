@@ -166,6 +166,7 @@ DATABASE_URL=sqlite:///db.sqlite3
 ALLOWED_HOSTS=localhost,127.0.0.1
 CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 GEOCODING_ENABLED=True
+ADDRESS_SUGGESTION_URL=https://photon.komoot.io/api/
 NOMINATIM_USER_AGENT=nome-do-projeto-e-contato
 ```
 

@@ -1,3 +1,5 @@
+from hashlib import sha256
+
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils.text import slugify
@@ -5,7 +7,7 @@ from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .geocoding import geocode_address
+from .geocoding import geocode_address, search_addresses
 from .models import Pet
 from .permissions import PetPermission
 from .proximity import bounding_box, haversine_distance_km
@@ -23,6 +25,21 @@ class PetViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
         return self._apply_filters(queryset, self.request.query_params)
+
+    @action(detail=False, methods=['get'], url_path='sugestoes-endereco')
+    def sugestoes_endereco(self, request):
+        query = request.query_params.get('q', '').strip()
+        if len(query) < 3:
+            return Response([])
+
+        query_hash = sha256(query.casefold().encode('utf-8')).hexdigest()[:24]
+        cache_key = f'address-suggestions:{query_hash}'
+        suggestions = cache.get(cache_key)
+        if suggestions is None:
+            suggestions = search_addresses(query)
+            cache.set(cache_key, suggestions, timeout=86400)
+
+        return Response(suggestions)
 
     @staticmethod
     def _apply_filters(queryset, source):
@@ -139,17 +156,22 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         pet = serializer.save(autor=self.request.user)
-        self._geocode_pet(pet)
+        if pet.latitude is None or pet.longitude is None:
+            self._geocode_pet(pet)
 
     def perform_update(self, serializer):
         current_pet = self.get_object()
         location_changed = any(
             field in serializer.validated_data
             and serializer.validated_data[field] != getattr(current_pet, field)
-            for field in ('endereco_texto', 'cidade', 'estado')
+            for field in ('endereco_texto', 'cidade', 'estado', 'latitude', 'longitude')
         )
         pet = serializer.save()
-        if location_changed:
+        coordinates_received = (
+            'latitude' in serializer.validated_data
+            and 'longitude' in serializer.validated_data
+        )
+        if location_changed and not coordinates_received:
             self._geocode_pet(pet)
 
     @staticmethod
