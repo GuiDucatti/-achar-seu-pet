@@ -45,7 +45,7 @@ O nome e Achar seu Pet. A identidade existente foi inspirada na Lobinha, uma cac
 
 ## Evidence on Hand
 
-- fotos geradas de pets correndo em `frontend/src/assets/pets-running-hero.jpg` e `frontend/src/assets/cats-running.jpg`;
+- fotografias editoriais locais em `frontend/src/assets/editorial/`, com fontes registradas em `CREDITS.md`;
 - cadastro real de demonstracao no backend;
 - documentacao funcional nas fases dentro de `docs/`;
 - o projeto nao possui depoimentos, metricas publicas ou provas comerciais para serem inventadas.
