@@ -10,21 +10,79 @@ from rest_framework.response import Response
 from .geocoding import geocode_address, search_addresses
 from .models import Pet
 from .permissions import PetPermission
-from .proximity import bounding_box, haversine_distance_km
+from .proximity import build_public_location, bounding_box, haversine_distance_km
 from .serializers import (
-    AvistamentoSerializer,
     NearbyPetSearchSerializer,
-    PetSerializer,
+    OwnerPetDetailSerializer,
+    OwnerSightingSerializer,
+    PetWriteSerializer,
+    PublicPetDetailSerializer,
+    PublicPetListSerializer,
+    PublicSightingSerializer,
+    SightingWriteSerializer,
 )
 
 
 class PetViewSet(viewsets.ModelViewSet):
-    serializer_class = PetSerializer
+    serializer_class = PublicPetListSerializer
     permission_classes = [PetPermission]
 
     def get_queryset(self):
         queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
         return self._apply_filters(queryset, self.request.query_params)
+
+    def _is_owner(self, pet):
+        return bool(
+            self.request.user.is_authenticated
+            and self.request.user.pk == pet.autor_id
+        )
+
+    def create(self, request, *args, **kwargs):
+        serializer = PetWriteSerializer(
+            data=request.data,
+            context=self.get_serializer_context(),
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        response_serializer = OwnerPetDetailSerializer(
+            serializer.instance,
+            context=self.get_serializer_context(),
+        )
+        headers = self.get_success_headers(response_serializer.data)
+        return Response(
+            response_serializer.data,
+            status=status.HTTP_201_CREATED,
+            headers=headers,
+        )
+
+    def retrieve(self, request, *args, **kwargs):
+        pet = self.get_object()
+        serializer_class = (
+            OwnerPetDetailSerializer if self._is_owner(pet) else PublicPetDetailSerializer
+        )
+        serializer = serializer_class(pet, context=self.get_serializer_context())
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        pet = self.get_object()
+        serializer = PetWriteSerializer(
+            pet,
+            data=request.data,
+            partial=partial,
+            context=self.get_serializer_context(),
+        )
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        if getattr(pet, '_prefetched_objects_cache', None):
+            pet._prefetched_objects_cache = {}
+
+        response_serializer = OwnerPetDetailSerializer(
+            serializer.instance,
+            context=self.get_serializer_context(),
+        )
+        return Response(response_serializer.data)
 
     @action(detail=False, methods=['get'], url_path='sugestoes-endereco')
     def sugestoes_endereco(self, request):
@@ -132,12 +190,23 @@ class PetViewSet(viewsets.ModelViewSet):
                 pet.longitude,
             )
             if pet.distancia_km <= radius:
+                public_location = build_public_location(
+                    pet.latitude,
+                    pet.longitude,
+                    pet.raio_area_metros,
+                )
+                pet.distancia_aproximada_km = haversine_distance_km(
+                    latitude,
+                    longitude,
+                    public_location['latitude'],
+                    public_location['longitude'],
+                )
                 nearby_pets.append(pet)
 
         nearby_pets.sort(
             key=lambda pet: (pet.distancia_km, -pet.criado_em.timestamp())
         )
-        results = PetSerializer(
+        results = PublicPetListSerializer(
             nearby_pets,
             many=True,
             context={'request': request},
@@ -160,7 +229,7 @@ class PetViewSet(viewsets.ModelViewSet):
             self._geocode_pet(pet)
 
     def perform_update(self, serializer):
-        current_pet = self.get_object()
+        current_pet = serializer.instance
         location_changed = any(
             field in serializer.validated_data
             and serializer.validated_data[field] != getattr(current_pet, field)
@@ -191,10 +260,27 @@ class PetViewSet(viewsets.ModelViewSet):
         pet = self.get_object()
 
         if request.method == 'GET':
-            serializer = AvistamentoSerializer(pet.avistamentos.all(), many=True)
+            serializer_class = (
+                OwnerSightingSerializer if self._is_owner(pet) else PublicSightingSerializer
+            )
+            serializer = serializer_class(
+                pet.avistamentos.all(),
+                many=True,
+                context=self.get_serializer_context(),
+            )
             return Response(serializer.data)
 
-        serializer = AvistamentoSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save(pet=pet)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        write_serializer = SightingWriteSerializer(
+            data=request.data,
+            context=self.get_serializer_context(),
+        )
+        write_serializer.is_valid(raise_exception=True)
+        sighting = write_serializer.save(pet=pet)
+        response_serializer_class = (
+            OwnerSightingSerializer if self._is_owner(pet) else PublicSightingSerializer
+        )
+        response_serializer = response_serializer_class(
+            sighting,
+            context=self.get_serializer_context(),
+        )
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)

@@ -1,3 +1,4 @@
+from io import BytesIO
 from math import isclose
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
@@ -7,12 +8,13 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
 from django.test import TestCase, override_settings
+from PIL import ExifTags, Image
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from .models import Pet
+from .models import Avistamento, Pet
 from .geocoding import search_addresses
-from .proximity import haversine_distance_km
+from .proximity import build_public_location, haversine_distance_km
 
 
 class PetUploadTests(TestCase):
@@ -56,6 +58,62 @@ class PetUploadTests(TestCase):
             'contato': '11999999999',
             'status': 'P',
         }
+
+    @staticmethod
+    def jpeg_with_gps_exif():
+        image = Image.new('RGB', (10, 20), 'red')
+        exif = Image.Exif()
+        exif[ExifTags.Base.Orientation] = 6
+        exif[ExifTags.IFD.GPSInfo] = {
+            ExifTags.GPS.GPSLatitudeRef: 'S',
+            ExifTags.GPS.GPSLatitude: (21.0, 17.0, 19.0),
+            ExifTags.GPS.GPSLongitudeRef: 'W',
+            ExifTags.GPS.GPSLongitude: (50.0, 20.0, 25.0),
+        }
+        content = BytesIO()
+        image.save(content, format='JPEG', exif=exif)
+        return SimpleUploadedFile(
+            'pet-com-gps.jpg',
+            content.getvalue(),
+            content_type='image/jpeg',
+        )
+
+    @staticmethod
+    def gif_with_sensitive_comment():
+        image = Image.new('P', (8, 8), 1)
+        content = BytesIO()
+        image.save(
+            content,
+            format='GIF',
+            comment=b'GPS:-21.2886,-50.3404',
+        )
+        return SimpleUploadedFile(
+            'pet-com-comentario.gif',
+            content.getvalue(),
+            content_type='image/gif',
+        )
+
+    @staticmethod
+    def animated_webp_with_orientation():
+        first = Image.new('RGB', (10, 20), 'red')
+        second = Image.new('RGB', (10, 20), 'blue')
+        exif = Image.Exif()
+        exif[ExifTags.Base.Orientation] = 6
+        content = BytesIO()
+        first.save(
+            content,
+            format='WEBP',
+            save_all=True,
+            append_images=[second],
+            duration=[100, 100],
+            loop=0,
+            exif=exif,
+        )
+        return SimpleUploadedFile(
+            'pet-animado.webp',
+            content.getvalue(),
+            content_type='image/webp',
+        )
 
     @patch(
         'pets.views.geocode_address',
@@ -118,6 +176,69 @@ class PetUploadTests(TestCase):
         self.assertEqual(pet.latitude, -21.2886)
         self.assertEqual(pet.longitude, -50.3404)
         geocode_mock.assert_not_called()
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_removes_gps_exif_from_public_photo(self, _geocode_mock):
+        response = self.client.post(
+            '/api/pets/',
+            self.pet_payload(foto=self.jpeg_with_gps_exif()),
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pet = Pet.objects.get(pk=response.data['id'])
+        with pet.foto.open('rb') as stored_photo:
+            stored_image = Image.open(stored_photo)
+            gps_data = stored_image.getexif().get_ifd(ExifTags.IFD.GPSInfo)
+            stored_size = stored_image.size
+
+        self.assertEqual(gps_data, {})
+        self.assertEqual(stored_size, (20, 10))
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_removes_sensitive_comment_from_gif(self, _geocode_mock):
+        response = self.client.post(
+            '/api/pets/',
+            self.pet_payload(foto=self.gif_with_sensitive_comment()),
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pet = Pet.objects.get(pk=response.data['id'])
+        with pet.foto.open('rb') as stored_photo:
+            stored_image = Image.open(stored_photo)
+            comment = stored_image.info.get('comment')
+
+        self.assertIsNone(comment)
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_preserves_orientation_for_animated_image(self, _geocode_mock):
+        response = self.client.post(
+            '/api/pets/',
+            self.pet_payload(foto=self.animated_webp_with_orientation()),
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pet = Pet.objects.get(pk=response.data['id'])
+        with pet.foto.open('rb') as stored_photo:
+            stored_image = Image.open(stored_photo)
+            stored_size = stored_image.size
+            frame_count = stored_image.n_frames
+
+        self.assertEqual(stored_size, (20, 10))
+        self.assertEqual(frame_count, 2)
+
+    @patch('pets.images.MAX_DECODED_IMAGE_PIXELS', 100)
+    def test_rejects_image_that_exceeds_decoded_pixel_limit(self):
+        response = self.client.post(
+            '/api/pets/',
+            self.pet_payload(foto=self.jpeg_with_gps_exif()),
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('imagem valida', str(response.data['foto']).lower())
 
 
 class AddressSuggestionTests(TestCase):
@@ -226,10 +347,12 @@ class PetSightingTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['pet'], self.pet.id)
+        self.assertEqual(set(response.data), {'id', 'criado_em'})
         self.assertEqual(self.pet.avistamentos.count(), 1)
-        self.assertTrue(response.data['proximo'])
-        self.assertTrue(isclose(response.data['distancia_km'], 0, abs_tol=0.01))
+        self.client.force_authenticate(self.user)
+        owner_response = self.client.get(f'/api/pets/{self.pet.id}/avistamentos/')
+        self.assertTrue(owner_response.data[0]['proximo'])
+        self.assertTrue(isclose(owner_response.data[0]['distancia_km'], 0, abs_tol=0.01))
 
     def test_marks_distant_sighting_as_not_nearby(self):
         response = self.client.post(
@@ -239,8 +362,10 @@ class PetSightingTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertFalse(response.data['proximo'])
-        self.assertGreater(response.data['distancia_km'], 3)
+        self.client.force_authenticate(self.user)
+        owner_response = self.client.get(f'/api/pets/{self.pet.id}/avistamentos/')
+        self.assertFalse(owner_response.data[0]['proximo'])
+        self.assertGreater(owner_response.data[0]['distancia_km'], 3)
 
     def test_rejects_coordinates_outside_valid_range(self):
         response = self.client.post(
@@ -253,11 +378,264 @@ class PetSightingTests(TestCase):
         self.assertIn('latitude', response.data)
 
 
+class PetPrivacyTests(TestCase):
+    PUBLIC_LIST_FIELDS = {
+        'id',
+        'nome',
+        'foto',
+        'estado',
+        'cidade',
+        'data_desaparecimento',
+        'status',
+        'is_demo',
+        'distancia_aproximada_km',
+    }
+    PUBLIC_DETAIL_FIELDS = {
+        'id',
+        'nome',
+        'foto',
+        'especie',
+        'raca',
+        'cor',
+        'sexo',
+        'caracteristicas',
+        'estado',
+        'cidade',
+        'localizacao_publica',
+        'data_desaparecimento',
+        'descricao',
+        'contato',
+        'status',
+        'is_demo',
+        'is_owner',
+        'avistamentos',
+        'criado_em',
+        'atualizado_em',
+    }
+    PUBLIC_SIGHTING_FIELDS = {'id', 'criado_em'}
+    PET_PRIVATE_FIELDS = {
+        'autor',
+        'autor_username',
+        'endereco_texto',
+        'latitude',
+        'longitude',
+        'raio_area_metros',
+    }
+    SIGHTING_PRIVATE_FIELDS = {
+        'pet',
+        'latitude',
+        'longitude',
+        'descricao',
+        'contato_quem_viu',
+        'distancia_km',
+        'proximo',
+    }
+
+    def setUp(self):
+        self.client = APIClient()
+        self.owner = get_user_model().objects.create_user(
+            username='privacy-owner',
+            email='privacy-owner@example.com',
+            password='senha-forte-123',
+        )
+        self.other_user = get_user_model().objects.create_user(
+            username='privacy-other',
+            email='privacy-other@example.com',
+            password='senha-forte-123',
+        )
+        self.pet = Pet.objects.create(
+            autor=self.owner,
+            nome='Lobinha',
+            foto='pets/lobinha.gif',
+            especie='cachorro',
+            raca='Vira-lata',
+            cor='Caramelo e branca',
+            sexo='femea',
+            caracteristicas='Olhos azuis',
+            estado='SP',
+            cidade='Birigui',
+            endereco_texto='Rua Privada, 123',
+            latitude=-21.288612,
+            longitude=-50.340412,
+            raio_area_metros=400,
+            data_desaparecimento='2026-09-01',
+            descricao='Pet para validar privacidade',
+            contato='18999999999',
+        )
+        self.sighting = Avistamento.objects.create(
+            pet=self.pet,
+            latitude=-21.287901,
+            longitude=-50.341102,
+            descricao='Vi na Rua Particular, perto do numero 45',
+            contato_quem_viu='18988888888',
+        )
+
+    def assert_public_pet(self, data, *, detail):
+        self.assertTrue(self.PET_PRIVATE_FIELDS.isdisjoint(data))
+        if detail:
+            self.assertEqual(set(data), self.PUBLIC_DETAIL_FIELDS)
+            self.assertFalse(data['is_owner'])
+            self.assertEqual(data['contato'], self.pet.contato)
+            self.assertEqual(
+                data['localizacao_publica']['latitude'],
+                round(self.pet.latitude, 2),
+            )
+            self.assertEqual(
+                data['localizacao_publica']['longitude'],
+                round(self.pet.longitude, 2),
+            )
+            for sighting in data['avistamentos']:
+                self.assertEqual(set(sighting), self.PUBLIC_SIGHTING_FIELDS)
+                self.assertTrue(self.SIGHTING_PRIVATE_FIELDS.isdisjoint(sighting))
+        else:
+            self.assertEqual(set(data), self.PUBLIC_LIST_FIELDS)
+            self.assertNotIn('avistamentos', data)
+            self.assertNotIn('localizacao_publica', data)
+
+    def test_anonymous_list_has_compact_public_contract(self):
+        responses = [self.client.get('/api/pets/')]
+        for user in (self.other_user, self.owner):
+            self.client.force_authenticate(user)
+            responses.append(self.client.get('/api/pets/'))
+
+        for response in responses:
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assert_public_pet(response.data[0], detail=False)
+
+    def test_anonymous_and_non_owner_receive_only_public_pet_detail(self):
+        anonymous = self.client.get(f'/api/pets/{self.pet.id}/')
+        self.client.force_authenticate(self.other_user)
+        non_owner = self.client.get(f'/api/pets/{self.pet.id}/')
+
+        self.assertEqual(anonymous.status_code, status.HTTP_200_OK)
+        self.assertEqual(non_owner.status_code, status.HTTP_200_OK)
+        self.assert_public_pet(anonymous.data, detail=True)
+        self.assert_public_pet(non_owner.data, detail=True)
+
+    def test_owner_receives_private_pet_and_sighting_fields(self):
+        self.client.force_authenticate(self.owner)
+
+        response = self.client.get(f'/api/pets/{self.pet.id}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['is_owner'])
+        self.assertEqual(response.data['endereco_texto'], self.pet.endereco_texto)
+        self.assertEqual(response.data['latitude'], self.pet.latitude)
+        self.assertEqual(response.data['longitude'], self.pet.longitude)
+        sighting = response.data['avistamentos'][0]
+        self.assertEqual(sighting['contato_quem_viu'], self.sighting.contato_quem_viu)
+        self.assertEqual(sighting['descricao'], self.sighting.descricao)
+        self.assertEqual(sighting['latitude'], self.sighting.latitude)
+        self.assertEqual(sighting['longitude'], self.sighting.longitude)
+
+    def test_sighting_list_contract_depends_on_pet_ownership(self):
+        endpoint = f'/api/pets/{self.pet.id}/avistamentos/'
+        anonymous = self.client.get(endpoint)
+        self.client.force_authenticate(self.other_user)
+        non_owner = self.client.get(endpoint)
+        self.client.force_authenticate(self.owner)
+        owner = self.client.get(endpoint)
+
+        self.assertTrue(self.SIGHTING_PRIVATE_FIELDS.isdisjoint(anonymous.data[0]))
+        self.assertTrue(self.SIGHTING_PRIVATE_FIELDS.isdisjoint(non_owner.data[0]))
+        self.assertEqual(set(anonymous.data[0]), self.PUBLIC_SIGHTING_FIELDS)
+        self.assertEqual(set(non_owner.data[0]), self.PUBLIC_SIGHTING_FIELDS)
+        self.assertEqual(owner.data[0]['contato_quem_viu'], self.sighting.contato_quem_viu)
+        self.assertEqual(owner.data[0]['latitude'], self.sighting.latitude)
+
+    def test_anonymous_sighting_post_stores_private_data_without_echoing_it(self):
+        response = self.client.post(
+            f'/api/pets/{self.pet.id}/avistamentos/',
+            {
+                'latitude': -21.286,
+                'longitude': -50.342,
+                'descricao': 'Relato privado',
+                'contato_quem_viu': '18977777777',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(self.SIGHTING_PRIVATE_FIELDS.isdisjoint(response.data))
+        stored = self.pet.avistamentos.get(descricao='Relato privado')
+        self.assertEqual(stored.latitude, -21.286)
+        self.assertEqual(stored.contato_quem_viu, '18977777777')
+
+    def test_sighting_post_contract_depends_on_pet_ownership(self):
+        endpoint = f'/api/pets/{self.pet.id}/avistamentos/'
+        payload = {
+            'latitude': -21.286,
+            'longitude': -50.342,
+            'descricao': 'Relato privado',
+            'contato_quem_viu': '18977777777',
+        }
+
+        self.client.force_authenticate(self.other_user)
+        non_owner = self.client.post(endpoint, payload, format='json')
+        self.client.force_authenticate(self.owner)
+        owner = self.client.post(endpoint, payload, format='json')
+
+        self.assertEqual(set(non_owner.data), self.PUBLIC_SIGHTING_FIELDS)
+        self.assertTrue(self.SIGHTING_PRIVATE_FIELDS.isdisjoint(non_owner.data))
+        self.assertEqual(owner.data['descricao'], payload['descricao'])
+        self.assertEqual(owner.data['contato_quem_viu'], payload['contato_quem_viu'])
+        self.assertEqual(owner.data['latitude'], payload['latitude'])
+
+    def test_nearby_search_uses_compact_public_contract(self):
+        responses = []
+        for user in (None, self.other_user, self.owner):
+            self.client.force_authenticate(user)
+            responses.append(
+                self.client.post(
+                    '/api/pets/proximos/',
+                    {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 10},
+                    format='json',
+                )
+            )
+
+        for response in responses:
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            result = response.data['resultados'][0]
+            self.assert_public_pet(result, detail=False)
+            self.assertNotIn('distancia_km', result)
+            self.assertIn('distancia_aproximada_km', result)
+
+
 class ProximityTests(TestCase):
     def test_haversine_returns_expected_distance(self):
         distance = haversine_distance_km(-23.5505, -46.6333, -22.9068, -47.0616)
 
         self.assertTrue(isclose(distance, 83.9, abs_tol=1))
+
+    def test_public_location_is_deterministic_and_uses_two_decimal_cell(self):
+        first = build_public_location(-21.288612, -50.340412, 400)
+        second = build_public_location(-21.288612, -50.340412, 400)
+
+        self.assertEqual(first, second)
+        self.assertEqual(first['latitude'], -21.29)
+        self.assertEqual(first['longitude'], -50.34)
+
+    def test_public_radius_covers_generalization_offset_and_private_area(self):
+        latitude = -0.004999
+        longitude = -50.004999
+        private_radius = 900
+        location = build_public_location(latitude, longitude, private_radius)
+        offset_meters = haversine_distance_km(
+            latitude,
+            longitude,
+            location['latitude'],
+            location['longitude'],
+        ) * 1000
+
+        self.assertLess(offset_meters, 788)
+        self.assertGreaterEqual(
+            location['raio_metros'],
+            offset_meters + private_radius,
+        )
+
+    def test_public_location_handles_missing_coordinates(self):
+        self.assertIsNone(build_public_location(None, -50.34, 400))
+        self.assertIsNone(build_public_location(-21.29, None, 400))
 
 
 class NearbyPetSearchTests(TestCase):
@@ -330,7 +708,9 @@ class NearbyPetSearchTests(TestCase):
             ['Perto', 'Vizinha'],
         )
         self.assertEqual(response.data['origem']['tipo'], 'localizacao')
-        self.assertIsNotNone(response.data['resultados'][0]['distancia_km'])
+        self.assertIsNotNone(
+            response.data['resultados'][0]['distancia_aproximada_km']
+        )
 
     def test_combines_proximity_with_existing_filters(self):
         response = self.client.post(
@@ -392,12 +772,13 @@ class NearbyPetSearchTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['codigo'], 'regiao_nao_encontrada')
 
-    def test_regular_listing_keeps_stable_demo_and_distance_fields(self):
+    def test_regular_detail_keeps_demo_and_public_location_fields(self):
         response = self.client.get(f'/api/pets/{self.near_pet.id}/')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.data['is_demo'])
-        self.assertIsNone(response.data['distancia_km'])
+        self.assertEqual(response.data['localizacao_publica']['latitude'], -21.29)
+        self.assertNotIn('distancia_km', response.data)
 
 
 class DemoPetSeedTests(TestCase):

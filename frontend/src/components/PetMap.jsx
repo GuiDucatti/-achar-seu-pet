@@ -1,20 +1,9 @@
-import L from 'leaflet'
-import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
-
-function createPetIcon(photo) {
-  return L.icon({
-    className: 'pet-map-icon',
-    iconAnchor: [28, 28],
-    iconSize: [56, 56],
-    iconUrl: photo,
-    popupAnchor: [0, -28],
-  })
-}
+import { Circle, MapContainer, TileLayer } from 'react-leaflet'
 
 function PetMap({ pet }) {
-  const latitude = Number(pet.latitude)
-  const longitude = Number(pet.longitude)
-  const radius = Number(pet.raio_area_metros) || 400
+  const latitude = Number(pet.localizacao_publica?.latitude)
+  const longitude = Number(pet.localizacao_publica?.longitude)
+  const radius = Number(pet.localizacao_publica?.raio_metros)
   const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude)
 
   return (
@@ -31,7 +20,7 @@ function PetMap({ pet }) {
           className="pet-map"
           center={[latitude, longitude]}
           scrollWheelZoom={false}
-          zoom={15}
+          zoom={14}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -42,13 +31,6 @@ function PetMap({ pet }) {
             pathOptions={{ color: '#347ea8', fillColor: '#347ea8', fillOpacity: 0.18 }}
             radius={radius}
           />
-          <Marker icon={createPetIcon(pet.foto)} position={[latitude, longitude]}>
-            <Popup>
-              {pet.nome}
-              <br />
-              {pet.cidade} - {pet.estado}
-            </Popup>
-          </Marker>
         </MapContainer>
       ) : (
         <div className="map-placeholder">

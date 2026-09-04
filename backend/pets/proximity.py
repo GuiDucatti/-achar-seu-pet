@@ -1,7 +1,9 @@
-from math import asin, cos, degrees, radians, sin, sqrt
+from math import asin, ceil, cos, degrees, radians, sin, sqrt
 
 
 EARTH_RADIUS_KM = 6371.0
+PUBLIC_LOCATION_DECIMAL_PLACES = 2
+MIN_PUBLIC_RADIUS_METERS = 1500
 
 
 def bounding_box(latitude, longitude, radius_km):
@@ -38,6 +40,31 @@ def haversine_distance_km(latitude_one, longitude_one, latitude_two, longitude_t
         + cos(latitude_one) * cos(latitude_two) * sin(longitude_delta / 2) ** 2
     )
     return 2 * EARTH_RADIUS_KM * asin(sqrt(min(1, haversine)))
+
+
+def build_public_location(latitude, longitude, private_radius_meters=0):
+    if latitude is None or longitude is None:
+        return None
+
+    public_latitude = round(latitude, PUBLIC_LOCATION_DECIMAL_PLACES)
+    public_longitude = round(longitude, PUBLIC_LOCATION_DECIMAL_PLACES)
+    offset_meters = haversine_distance_km(
+        latitude,
+        longitude,
+        public_latitude,
+        public_longitude,
+    ) * 1000
+    private_radius_meters = max(0, int(private_radius_meters or 0))
+    radius_meters = max(
+        MIN_PUBLIC_RADIUS_METERS,
+        ceil(offset_meters + private_radius_meters),
+    )
+
+    return {
+        'latitude': public_latitude,
+        'longitude': public_longitude,
+        'raio_metros': radius_meters,
+    }
 
 
 def proximity_result(

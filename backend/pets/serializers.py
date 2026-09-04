@@ -3,12 +3,19 @@ from pathlib import Path
 from django.conf import settings
 from rest_framework import serializers
 
+from .images import sanitize_uploaded_image
 from .models import Avistamento, Pet
-from .proximity import proximity_result
+from .proximity import build_public_location, proximity_result
 
 
-class AvistamentoSerializer(serializers.ModelSerializer):
-    pet = serializers.PrimaryKeyRelatedField(read_only=True)
+class PublicSightingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avistamento
+        fields = ['id', 'criado_em']
+        read_only_fields = fields
+
+
+class OwnerSightingSerializer(serializers.ModelSerializer):
     distancia_km = serializers.SerializerMethodField()
     proximo = serializers.SerializerMethodField()
 
@@ -16,7 +23,6 @@ class AvistamentoSerializer(serializers.ModelSerializer):
         model = Avistamento
         fields = [
             'id',
-            'pet',
             'latitude',
             'longitude',
             'descricao',
@@ -25,7 +31,7 @@ class AvistamentoSerializer(serializers.ModelSerializer):
             'distancia_km',
             'proximo',
         ]
-        read_only_fields = ['id', 'pet', 'criado_em', 'distancia_km', 'proximo']
+        read_only_fields = fields
 
     def _proximity(self, obj):
         return proximity_result(
@@ -42,6 +48,12 @@ class AvistamentoSerializer(serializers.ModelSerializer):
     def get_proximo(self, obj):
         return self._proximity(obj)['proximo']
 
+
+class SightingWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Avistamento
+        fields = ['latitude', 'longitude', 'descricao', 'contato_quem_viu']
+
     def validate_latitude(self, value):
         if not -90 <= value <= 90:
             raise serializers.ValidationError('A latitude deve estar entre -90 e 90.')
@@ -53,18 +65,93 @@ class AvistamentoSerializer(serializers.ModelSerializer):
         return value
 
 
-class PetSerializer(serializers.ModelSerializer):
-    autor = serializers.PrimaryKeyRelatedField(read_only=True)
-    autor_username = serializers.CharField(source='autor.username', read_only=True)
-    avistamentos = AvistamentoSerializer(many=True, read_only=True)
-    distancia_km = serializers.SerializerMethodField()
+class PublicPetListSerializer(serializers.ModelSerializer):
+    distancia_aproximada_km = serializers.SerializerMethodField()
 
     class Meta:
         model = Pet
         fields = [
             'id',
-            'autor',
-            'autor_username',
+            'nome',
+            'foto',
+            'estado',
+            'cidade',
+            'data_desaparecimento',
+            'status',
+            'is_demo',
+            'distancia_aproximada_km',
+        ]
+        read_only_fields = fields
+
+    def get_distancia_aproximada_km(self, obj):
+        distance = getattr(obj, 'distancia_aproximada_km', None)
+        return round(distance, 1) if distance is not None else None
+
+
+class PublicPetDetailSerializer(serializers.ModelSerializer):
+    avistamentos = PublicSightingSerializer(many=True, read_only=True)
+    is_owner = serializers.SerializerMethodField()
+    localizacao_publica = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Pet
+        fields = [
+            'id',
+            'nome',
+            'foto',
+            'especie',
+            'raca',
+            'cor',
+            'sexo',
+            'caracteristicas',
+            'estado',
+            'cidade',
+            'localizacao_publica',
+            'data_desaparecimento',
+            'descricao',
+            'contato',
+            'status',
+            'is_demo',
+            'is_owner',
+            'avistamentos',
+            'criado_em',
+            'atualizado_em',
+        ]
+        read_only_fields = fields
+
+    def get_is_owner(self, obj):
+        request = self.context.get('request')
+        return bool(
+            request
+            and request.user.is_authenticated
+            and request.user.pk == obj.autor_id
+        )
+
+    def get_localizacao_publica(self, obj):
+        return build_public_location(
+            obj.latitude,
+            obj.longitude,
+            obj.raio_area_metros,
+        )
+
+
+class OwnerPetDetailSerializer(PublicPetDetailSerializer):
+    avistamentos = OwnerSightingSerializer(many=True, read_only=True)
+
+    class Meta(PublicPetDetailSerializer.Meta):
+        fields = PublicPetDetailSerializer.Meta.fields + [
+            'endereco_texto',
+            'latitude',
+            'longitude',
+            'raio_area_metros',
+        ]
+        read_only_fields = fields
+
+
+class PetWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Pet
+        fields = [
             'nome',
             'foto',
             'especie',
@@ -82,26 +169,7 @@ class PetSerializer(serializers.ModelSerializer):
             'descricao',
             'contato',
             'status',
-            'is_demo',
-            'distancia_km',
-            'avistamentos',
-            'criado_em',
-            'atualizado_em',
         ]
-        read_only_fields = [
-            'id',
-            'autor',
-            'autor_username',
-            'is_demo',
-            'distancia_km',
-            'avistamentos',
-            'criado_em',
-            'atualizado_em',
-        ]
-
-    def get_distancia_km(self, obj):
-        distance = getattr(obj, 'distancia_km', None)
-        return round(distance, 2) if distance is not None else None
 
     def validate_estado(self, value):
         return value.upper()
@@ -130,7 +198,10 @@ class PetSerializer(serializers.ModelSerializer):
                 f'Formato de imagem nao permitido. Use: {formatos}.'
             )
 
-        return value
+        try:
+            return sanitize_uploaded_image(value)
+        except (KeyError, OSError, ValueError):
+            raise serializers.ValidationError('O arquivo enviado nao e uma imagem valida.')
 
 
 class NearbyPetSearchSerializer(serializers.Serializer):

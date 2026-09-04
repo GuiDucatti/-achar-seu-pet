@@ -1,6 +1,6 @@
 import { formatDateTime } from '../utils/formatters.js'
 
-function SightingTimeline({ sightings }) {
+function SightingTimeline({ isOwner, sightings }) {
   const orderedSightings = [...sightings].sort(
     (first, second) => new Date(second.criado_em) - new Date(first.criado_em),
   )
@@ -19,15 +19,21 @@ function SightingTimeline({ sightings }) {
           {orderedSightings.map((sighting) => (
             <li className="sighting-item" key={sighting.id}>
               <time dateTime={sighting.criado_em}>{formatDateTime(sighting.criado_em)}</time>
-              <p>{sighting.descricao || 'Nenhuma descricao informada.'}</p>
-              {sighting.proximo && (
-                <strong className="proximity-badge">Possivel correspondencia proxima</strong>
+              {isOwner ? (
+                <>
+                  <p>{sighting.descricao || 'Nenhuma descricao informada.'}</p>
+                  {sighting.proximo && (
+                    <strong className="proximity-badge">Possivel correspondencia proxima</strong>
+                  )}
+                  <span>Localizacao registrada para calcular a proximidade desta pista.</span>
+                  {sighting.distancia_km !== null && sighting.distancia_km !== undefined && (
+                    <span>Distancia da regiao do pet: {sighting.distancia_km} km</span>
+                  )}
+                  {sighting.contato_quem_viu && <small>Contato: {sighting.contato_quem_viu}</small>}
+                </>
+              ) : (
+                <p>Uma pista foi registrada e os detalhes foram enviados ao tutor.</p>
               )}
-              <span>Localizacao registrada para calcular a proximidade desta pista.</span>
-              {sighting.distancia_km !== null && (
-                <span>Distancia da regiao do pet: {sighting.distancia_km} km</span>
-              )}
-              {sighting.contato_quem_viu && <small>Contato: {sighting.contato_quem_viu}</small>}
             </li>
           ))}
         </ol>

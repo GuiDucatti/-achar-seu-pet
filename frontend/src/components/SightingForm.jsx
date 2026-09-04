@@ -184,9 +184,10 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
           </label>
 
           <label>
-            Seu contato (opcional)
+            Seu contato para o tutor (opcional)
             <input name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsavel retornar" type="text" />
           </label>
+          <span className="form-help">Seu relato, local exato e contato ficam visiveis somente para o tutor.</span>
 
           <AnimatePresence initial={false}>
             {error && (

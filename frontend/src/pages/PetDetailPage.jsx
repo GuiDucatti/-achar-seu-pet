@@ -4,7 +4,6 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CheckCircle2, HeartHandshake, MapPin, MessageCircle, Phone, Share2, Trash2 } from 'lucide-react'
 import SightingForm from '../components/SightingForm.jsx'
 import SightingTimeline from '../components/SightingTimeline.jsx'
-import { useAuth } from '../hooks/useAuth.js'
 import PetMap from '../components/PetMap.jsx'
 import { createSighting, deletePet, getPet, updatePet } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
@@ -18,7 +17,6 @@ import {
 function PetDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { user } = useAuth()
   const [pet, setPet] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -30,7 +28,7 @@ function PetDetailPage() {
   const [sightings, setSightings] = useState([])
   const reduceMotion = useReducedMotion()
 
-  const isOwner = user && pet && user.id === pet.autor
+  const isOwner = Boolean(pet?.is_owner)
   const shareMessage = pet
     ? pet.status === 'P'
       ? `Ajude a encontrar o ${pet.nome}!\nDesapareceu em ${pet.cidade} - ${pet.estado}.\nVeja mais informacoes:\n${window.location.href}`
@@ -193,12 +191,16 @@ function PetDetailPage() {
               <dt>Local</dt>
               <dd className="detail-value-with-icon">
                 <MapPin aria-hidden="true" size={16} />
-                <span>{pet.endereco_texto ? `${pet.endereco_texto}, ` : ''}{pet.cidade} - {pet.estado}</span>
+                <span>{pet.cidade} - {pet.estado}</span>
               </dd>
             </div>
             <div>
               <dt>Area do mapa</dt>
-              <dd>Raio aproximado de {pet.raio_area_metros || 400} m</dd>
+              <dd>
+                {pet.localizacao_publica
+                  ? `Raio aproximado de ${pet.localizacao_publica.raio_metros} m`
+                  : 'Localizacao aproximada indisponivel'}
+              </dd>
             </div>
             <div>
               <dt>Data</dt>
@@ -284,7 +286,7 @@ function PetDetailPage() {
 
       <PetMap pet={pet} />
 
-      <SightingTimeline sightings={sightings} />
+      <SightingTimeline isOwner={isOwner} sightings={sightings} />
 
       <AnimatePresence>
         {isSightingOpen && (

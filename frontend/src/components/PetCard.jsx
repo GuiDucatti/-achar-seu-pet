@@ -3,8 +3,8 @@ import { ArrowUpRight, MapPin, PawPrint } from 'lucide-react'
 import { formatDate } from '../utils/formatters.js'
 
 function PetCard({ pet }) {
-  const distance = Number(pet.distancia_km)
-  const hasDistance = pet.distancia_km !== null && Number.isFinite(distance)
+  const distance = Number(pet.distancia_aproximada_km)
+  const hasDistance = pet.distancia_aproximada_km !== null && Number.isFinite(distance)
   const distanceLabel = distance < 1
     ? 'A menos de 1 km de voce'
     : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distance)} km de voce`
