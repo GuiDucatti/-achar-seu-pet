@@ -1,4 +1,5 @@
 from pathlib import Path
+from math import isfinite
 
 from django.conf import settings
 from rest_framework import serializers
@@ -149,6 +150,19 @@ class OwnerPetDetailSerializer(PublicPetDetailSerializer):
 
 
 class PetWriteSerializer(serializers.ModelSerializer):
+    latitude = serializers.FloatField(
+        allow_null=True,
+        max_value=90,
+        min_value=-90,
+        required=False,
+    )
+    longitude = serializers.FloatField(
+        allow_null=True,
+        max_value=180,
+        min_value=-180,
+        required=False,
+    )
+
     class Meta:
         model = Pet
         fields = [
@@ -173,6 +187,47 @@ class PetWriteSerializer(serializers.ModelSerializer):
 
     def validate_estado(self, value):
         return value.upper()
+
+    def validate(self, attrs):
+        has_latitude = 'latitude' in attrs
+        has_longitude = 'longitude' in attrs
+
+        if has_latitude != has_longitude:
+            missing_field = 'longitude' if has_latitude else 'latitude'
+            raise serializers.ValidationError(
+                {missing_field: 'Latitude e longitude devem ser informadas juntas.'}
+            )
+
+        if has_latitude and ((attrs['latitude'] is None) != (attrs['longitude'] is None)):
+            raise serializers.ValidationError(
+                {'coordinates': 'Latitude e longitude devem ser ambas validas ou ambas nulas.'}
+            )
+
+        if (
+            has_latitude
+            and attrs['latitude'] is not None
+            and not all(isfinite(value) for value in (attrs['latitude'], attrs['longitude']))
+        ):
+            raise serializers.ValidationError(
+                {'coordinates': 'Latitude e longitude devem ser valores finitos.'}
+            )
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        location_changed = any(
+            field in validated_data and validated_data[field] != getattr(instance, field)
+            for field in ('endereco_texto', 'cidade', 'estado')
+        )
+        coordinates_received = (
+            'latitude' in validated_data and 'longitude' in validated_data
+        )
+
+        if location_changed and not coordinates_received:
+            validated_data['latitude'] = None
+            validated_data['longitude'] = None
+
+        return super().update(instance, validated_data)
 
     def validate_foto(self, value):
         if value.size > settings.MAX_IMAGE_UPLOAD_SIZE:

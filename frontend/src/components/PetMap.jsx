@@ -1,10 +1,8 @@
 import { Circle, MapContainer, TileLayer } from 'react-leaflet'
+import { parsePublicLocation } from '../utils/publicLocation.js'
 
 function PetMap({ pet }) {
-  const latitude = Number(pet.localizacao_publica?.latitude)
-  const longitude = Number(pet.localizacao_publica?.longitude)
-  const radius = Number(pet.localizacao_publica?.raio_metros)
-  const hasCoordinates = Number.isFinite(latitude) && Number.isFinite(longitude)
+  const publicLocation = parsePublicLocation(pet.localizacao_publica)
 
   return (
     <section className="map-section" aria-labelledby="map-title">
@@ -15,10 +13,10 @@ function PetMap({ pet }) {
         </p>
       </div>
 
-      {hasCoordinates ? (
+      {publicLocation ? (
         <MapContainer
           className="pet-map"
-          center={[latitude, longitude]}
+          center={[publicLocation.latitude, publicLocation.longitude]}
           scrollWheelZoom={false}
           zoom={14}
         >
@@ -27,9 +25,9 @@ function PetMap({ pet }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <Circle
-            center={[latitude, longitude]}
+            center={[publicLocation.latitude, publicLocation.longitude]}
             pathOptions={{ color: '#347ea8', fillColor: '#347ea8', fillOpacity: 0.18 }}
-            radius={radius}
+            radius={publicLocation.radius}
           />
         </MapContainer>
       ) : (

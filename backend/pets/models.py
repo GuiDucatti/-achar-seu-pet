@@ -59,6 +59,22 @@ class Pet(models.Model):
 
     class Meta:
         ordering = ['-criado_em']
+        constraints = [
+            models.CheckConstraint(
+                check=(
+                    models.Q(latitude__isnull=True, longitude__isnull=True)
+                    | models.Q(
+                        latitude__isnull=False,
+                        longitude__isnull=False,
+                        latitude__gte=-90,
+                        latitude__lte=90,
+                        longitude__gte=-180,
+                        longitude__lte=180,
+                    )
+                ),
+                name='pet_valid_coordinate_pair',
+            ),
+        ]
 
     def __str__(self):
         return f'{self.nome} - {self.cidade}/{self.estado}'

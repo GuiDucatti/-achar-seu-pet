@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.management import call_command
+from django.db import IntegrityError, transaction
 from django.test import TestCase, override_settings
 from PIL import ExifTags, Image
 from rest_framework import status
@@ -15,6 +16,7 @@ from rest_framework.test import APIClient
 from .models import Avistamento, Pet
 from .geocoding import search_addresses
 from .proximity import build_public_location, haversine_distance_km
+from .serializers import PetWriteSerializer
 
 
 class PetUploadTests(TestCase):
@@ -177,6 +179,18 @@ class PetUploadTests(TestCase):
         self.assertEqual(pet.longitude, -50.3404)
         geocode_mock.assert_not_called()
 
+    @patch('pets.views.geocode_address')
+    def test_create_respects_explicit_null_coordinate_pair(self, geocode_mock):
+        payload = self.pet_payload()
+        payload.update({'latitude': '', 'longitude': ''})
+
+        response = self.client.post('/api/pets/', payload, format='multipart')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        pet = Pet.objects.get(pk=response.data['id'])
+        self.assertEqual((pet.latitude, pet.longitude), (None, None))
+        geocode_mock.assert_not_called()
+
     @patch('pets.views.geocode_address', return_value=None)
     def test_removes_gps_exif_from_public_photo(self, _geocode_mock):
         response = self.client.post(
@@ -239,6 +253,261 @@ class PetUploadTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('imagem valida', str(response.data['foto']).lower())
+
+
+class PetLocationIntegrityTests(TestCase):
+    def setUp(self):
+        self.media_directory = TemporaryDirectory()
+        self.media_override = override_settings(MEDIA_ROOT=self.media_directory.name)
+        self.media_override.enable()
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            username='location-integrity-test',
+            email='location-integrity@example.com',
+            password='senha-forte-123',
+        )
+        self.client.force_authenticate(self.user)
+        self.pet = Pet.objects.create(
+            autor=self.user,
+            nome='Luna',
+            foto='pets/luna.gif',
+            especie='gato',
+            raca='Vira-lata',
+            cor='Branca',
+            sexo='femea',
+            caracteristicas='Coleira azul',
+            estado='SP',
+            cidade='Birigui',
+            endereco_texto='Endereco A',
+            latitude=-21.2886,
+            longitude=-50.3404,
+            data_desaparecimento='2026-09-01',
+            descricao='Pet para testar integridade de localizacao',
+            contato='11999999999',
+            status=Pet.STATUS_PERDIDO,
+        )
+
+    def tearDown(self):
+        self.media_override.disable()
+        self.media_directory.cleanup()
+
+    @staticmethod
+    def image_file():
+        content = (
+            b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00'
+            b'\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00'
+            b',\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;'
+        )
+        return SimpleUploadedFile('pet.gif', content, content_type='image/gif')
+
+    def full_update_payload(self):
+        return {
+            'nome': self.pet.nome,
+            'foto': self.image_file(),
+            'especie': self.pet.especie,
+            'raca': self.pet.raca,
+            'cor': self.pet.cor,
+            'sexo': self.pet.sexo,
+            'caracteristicas': self.pet.caracteristicas,
+            'estado': self.pet.estado,
+            'cidade': self.pet.cidade,
+            'endereco_texto': 'Endereco B',
+            'data_desaparecimento': '2026-09-01',
+            'descricao': self.pet.descricao,
+            'contato': self.pet.contato,
+            'status': self.pet.status,
+        }
+
+    @patch(
+        'pets.views.geocode_address',
+        return_value={'latitude': -22.1, 'longitude': -49.2},
+    )
+    def test_patch_replaces_coordinates_when_new_address_is_geocoded(self, geocode_mock):
+        response = self.client.patch(
+            f'/api/pets/{self.pet.pk}/',
+            {'endereco_texto': 'Endereco B'},
+            format='json',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (-22.1, -49.2))
+        geocode_mock.assert_called_once_with('Endereco B', 'Birigui', 'SP')
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_patch_clears_old_coordinates_when_new_address_cannot_be_geocoded(
+        self,
+        geocode_mock,
+    ):
+        response = self.client.patch(
+            f'/api/pets/{self.pet.pk}/',
+            {'endereco_texto': 'Endereco B'},
+            format='json',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (None, None))
+        geocode_mock.assert_called_once_with('Endereco B', 'Birigui', 'SP')
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_patch_clears_old_coordinates_when_city_or_state_changes(self, geocode_mock):
+        for payload in ({'cidade': 'Aracatuba'}, {'estado': 'RJ'}):
+            with self.subTest(payload=payload):
+                self.pet.cidade = 'Birigui'
+                self.pet.estado = 'SP'
+                self.pet.latitude = -21.2886
+                self.pet.longitude = -50.3404
+                self.pet.save(
+                    update_fields=['cidade', 'estado', 'latitude', 'longitude']
+                )
+
+                response = self.client.patch(
+                    f'/api/pets/{self.pet.pk}/',
+                    payload,
+                    format='json',
+                )
+
+                self.pet.refresh_from_db()
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+                self.assertEqual((self.pet.latitude, self.pet.longitude), (None, None))
+
+        self.assertEqual(geocode_mock.call_count, 2)
+
+    @patch(
+        'pets.views.geocode_address',
+        return_value={'latitude': -22.1, 'longitude': -49.2},
+    )
+    def test_put_replaces_coordinates_when_new_address_is_geocoded(self, geocode_mock):
+        response = self.client.put(
+            f'/api/pets/{self.pet.pk}/',
+            self.full_update_payload(),
+            format='multipart',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (-22.1, -49.2))
+        geocode_mock.assert_called_once_with('Endereco B', 'Birigui', 'SP')
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_put_clears_old_coordinates_when_new_address_cannot_be_geocoded(
+        self,
+        geocode_mock,
+    ):
+        response = self.client.put(
+            f'/api/pets/{self.pet.pk}/',
+            self.full_update_payload(),
+            format='multipart',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (None, None))
+        geocode_mock.assert_called_once_with('Endereco B', 'Birigui', 'SP')
+
+    @patch('pets.views.geocode_address')
+    def test_address_update_uses_explicit_new_coordinate_pair(self, geocode_mock):
+        response = self.client.patch(
+            f'/api/pets/{self.pet.pk}/',
+            {
+                'endereco_texto': 'Endereco B',
+                'latitude': -22.1,
+                'longitude': -49.2,
+            },
+            format='json',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (-22.1, -49.2))
+        geocode_mock.assert_not_called()
+
+    def test_rejects_coordinate_fields_sent_without_their_pair(self):
+        for payload, expected_field in (
+            ({'latitude': -21.2}, 'longitude'),
+            ({'longitude': -50.2}, 'latitude'),
+        ):
+            with self.subTest(payload=payload):
+                response = self.client.patch(
+                    f'/api/pets/{self.pet.pk}/',
+                    payload,
+                    format='json',
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(expected_field, response.data)
+
+    def test_accepts_coordinate_boundaries(self):
+        for latitude, longitude in ((-90, -180), (90, 180)):
+            with self.subTest(latitude=latitude, longitude=longitude):
+                response = self.client.patch(
+                    f'/api/pets/{self.pet.pk}/',
+                    {'latitude': latitude, 'longitude': longitude},
+                    format='json',
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_rejects_coordinates_outside_boundaries(self):
+        for payload, expected_field in (
+            ({'latitude': -90.1, 'longitude': 0}, 'latitude'),
+            ({'latitude': 90.1, 'longitude': 0}, 'latitude'),
+            ({'latitude': 0, 'longitude': -180.1}, 'longitude'),
+            ({'latitude': 0, 'longitude': 180.1}, 'longitude'),
+        ):
+            with self.subTest(payload=payload):
+                response = self.client.patch(
+                    f'/api/pets/{self.pet.pk}/',
+                    payload,
+                    format='json',
+                )
+
+                self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+                self.assertIn(expected_field, response.data)
+
+    def test_rejects_non_finite_coordinate_values(self):
+        for value in ('NaN', 'Infinity', '-Infinity'):
+            with self.subTest(value=value):
+                serializer = PetWriteSerializer(
+                    self.pet,
+                    data={'latitude': value, 'longitude': value},
+                    partial=True,
+                )
+
+                self.assertFalse(serializer.is_valid())
+                self.assertTrue(serializer.errors)
+
+    @patch('pets.views.geocode_address')
+    def test_accepts_explicit_null_coordinate_pair_without_geocoding(self, geocode_mock):
+        response = self.client.patch(
+            f'/api/pets/{self.pet.pk}/',
+            {
+                'endereco_texto': 'Endereco B',
+                'latitude': None,
+                'longitude': None,
+            },
+            format='json',
+        )
+
+        self.pet.refresh_from_db()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(self.pet.endereco_texto, 'Endereco B')
+        self.assertEqual((self.pet.latitude, self.pet.longitude), (None, None))
+        geocode_mock.assert_not_called()
+
+    def test_database_rejects_partial_coordinate_pair(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Pet.objects.filter(pk=self.pet.pk).update(latitude=None)
+
+    def test_database_rejects_coordinates_outside_boundaries(self):
+        for latitude, longitude in ((-90.1, 0), (90.1, 0), (0, -180.1), (0, 180.1)):
+            with self.subTest(latitude=latitude, longitude=longitude):
+                with self.assertRaises(IntegrityError), transaction.atomic():
+                    Pet.objects.filter(pk=self.pet.pk).update(
+                        latitude=latitude,
+                        longitude=longitude,
+                    )
 
 
 class AddressSuggestionTests(TestCase):
@@ -637,6 +906,18 @@ class ProximityTests(TestCase):
         self.assertIsNone(build_public_location(None, -50.34, 400))
         self.assertIsNone(build_public_location(-21.29, None, 400))
 
+    def test_public_location_rejects_invalid_coordinates(self):
+        for latitude, longitude in (
+            (float('nan'), -50.34),
+            (-21.29, float('inf')),
+            (-90.1, -50.34),
+            (90.1, -50.34),
+            (-21.29, -180.1),
+            (-21.29, 180.1),
+        ):
+            with self.subTest(latitude=latitude, longitude=longitude):
+                self.assertIsNone(build_public_location(latitude, longitude, 400))
+
 
 class NearbyPetSearchTests(TestCase):
     def setUp(self):
@@ -710,6 +991,25 @@ class NearbyPetSearchTests(TestCase):
         self.assertEqual(response.data['origem']['tipo'], 'localizacao')
         self.assertIsNotNone(
             response.data['resultados'][0]['distancia_aproximada_km']
+        )
+
+    def test_ignores_pet_without_coordinate_pair(self):
+        without_coordinates = self.create_pet(
+            nome='Sem localizacao',
+            latitude=None,
+            longitude=None,
+        )
+
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 25},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn(
+            without_coordinates.pk,
+            [pet['id'] for pet in response.data['resultados']],
         )
 
     def test_combines_proximity_with_existing_filters(self):

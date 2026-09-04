@@ -1,4 +1,4 @@
-from math import asin, ceil, cos, degrees, radians, sin, sqrt
+from math import asin, ceil, cos, degrees, isfinite, radians, sin, sqrt
 
 
 EARTH_RADIUS_KM = 6371.0
@@ -43,7 +43,16 @@ def haversine_distance_km(latitude_one, longitude_one, latitude_two, longitude_t
 
 
 def build_public_location(latitude, longitude, private_radius_meters=0):
-    if latitude is None or longitude is None:
+    if (
+        latitude is None
+        or longitude is None
+        or not isinstance(latitude, (int, float))
+        or not isinstance(longitude, (int, float))
+        or not isfinite(latitude)
+        or not isfinite(longitude)
+        or not -90 <= latitude <= 90
+        or not -180 <= longitude <= 180
+    ):
         return None
 
     public_latitude = round(latitude, PUBLIC_LOCATION_DECIMAL_PLACES)

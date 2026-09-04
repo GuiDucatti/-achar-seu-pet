@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import AddressAutocomplete from './AddressAutocomplete.jsx'
 import { formatDate } from '../utils/formatters.js'
+import { parseCoordinatePair } from '../utils/publicLocation.js'
 
 const initialPetValues = {
   nome: '',
@@ -127,6 +128,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
   const objectUrlRef = useRef('')
   const isEditing = Boolean(initialValues.id)
   const reduceMotion = useReducedMotion()
+  const selectedLocation = parseCoordinatePair(values.latitude, values.longitude)
 
   useEffect(() => {
     return () => {
@@ -467,7 +469,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 Digite pelo menos 3 letras e escolha a cidade correta. Nao informe o numero da casa.
               </span>
               {fieldError('endereco_texto')}
-              {values.latitude !== null && values.longitude !== null && (
+              {selectedLocation && (
                 <span className="address-selected-note" role="status">
                   <Check aria-hidden="true" size={14} />
                   Local pronto para aparecer como area aproximada no mapa.

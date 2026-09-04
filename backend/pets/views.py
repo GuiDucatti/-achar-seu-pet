@@ -224,8 +224,12 @@ class PetViewSet(viewsets.ModelViewSet):
         )
 
     def perform_create(self, serializer):
+        coordinates_received = (
+            'latitude' in serializer.validated_data
+            and 'longitude' in serializer.validated_data
+        )
         pet = serializer.save(autor=self.request.user)
-        if pet.latitude is None or pet.longitude is None:
+        if not coordinates_received and (pet.latitude is None or pet.longitude is None):
             self._geocode_pet(pet)
 
     def perform_update(self, serializer):
