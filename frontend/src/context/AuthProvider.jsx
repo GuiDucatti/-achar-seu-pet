@@ -13,6 +13,7 @@ export function AuthProvider({ children }) {
   const [refreshToken, setRefreshToken] = useState(() => getStoredRefreshToken())
   const [user, setUser] = useState(null)
   const [isLoadingUser, setIsLoadingUser] = useState(Boolean(accessToken))
+  const isAuthenticated = Boolean(accessToken)
 
   function storeTokens(tokens) {
     storeAuthTokens(tokens)
@@ -56,13 +57,22 @@ export function AuthProvider({ children }) {
       clearSession()
     }
 
-    window.addEventListener('auth:expired', handleAuthExpired)
+    function handleAuthRefreshed() {
+      setAccessToken(getStoredAccessToken())
+      setRefreshToken(getStoredRefreshToken())
+    }
 
-    return () => window.removeEventListener('auth:expired', handleAuthExpired)
+    window.addEventListener('auth:expired', handleAuthExpired)
+    window.addEventListener('auth:refreshed', handleAuthRefreshed)
+
+    return () => {
+      window.removeEventListener('auth:expired', handleAuthExpired)
+      window.removeEventListener('auth:refreshed', handleAuthRefreshed)
+    }
   }, [])
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!isAuthenticated) {
       return
     }
 
@@ -94,20 +104,20 @@ export function AuthProvider({ children }) {
     return () => {
       isMounted = false
     }
-  }, [accessToken])
+  }, [isAuthenticated])
 
   const value = useMemo(
     () => ({
       accessToken,
       refreshToken,
       user,
-      isAuthenticated: Boolean(accessToken),
+      isAuthenticated,
       isLoadingUser,
       login,
       logout,
       register,
     }),
-    [accessToken, refreshToken, user, isLoadingUser],
+    [accessToken, refreshToken, user, isAuthenticated, isLoadingUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
