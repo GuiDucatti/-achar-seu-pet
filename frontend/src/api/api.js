@@ -24,10 +24,9 @@ export function createApiClient({
   let expirationEventDispatched = false
 
   function expireSession() {
-    const hadStoredSession = Boolean(getStoredAccessToken() || getStoredRefreshToken())
     clearAuthTokens()
 
-    if (!hadStoredSession || expirationEventDispatched) return
+    if (expirationEventDispatched) return
 
     expirationEventDispatched = true
 

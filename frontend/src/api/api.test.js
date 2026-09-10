@@ -77,6 +77,21 @@ test('clears the session once when refresh fails', async () => {
   assert.equal(expirationEvents, 1)
 })
 
+test('notifies the provider when a stale tab receives 401 after storage was cleared', async () => {
+  let expirationEvents = 0
+  window.addEventListener('auth:expired', () => {
+    expirationEvents += 1
+  })
+
+  const api = createApiClient({
+    adapter: (config) => unauthorized(config),
+  })
+
+  await assert.rejects(api.get('/protected/'))
+
+  assert.equal(expirationEvents, 1)
+})
+
 test('does not try to refresh a rejected login request', async () => {
   storeAuthTokens({ access: 'old-access', refresh: 'old-refresh' })
   let refreshCalls = 0

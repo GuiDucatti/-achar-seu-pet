@@ -1,6 +1,10 @@
 const ACCESS_TOKEN_KEY = 'acharSeuPet.accessToken'
 const REFRESH_TOKEN_KEY = 'acharSeuPet.refreshToken'
 
+export function isAuthStorageKey(key) {
+  return key === null || key === ACCESS_TOKEN_KEY || key === REFRESH_TOKEN_KEY
+}
+
 export function getStoredAccessToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY)
 }

@@ -45,7 +45,7 @@ Cobertura atual:
 
 - estados e redirecionamento de rotas protegidas;
 - debounce, cancelamento, erro e teclado no autocomplete de endereco;
-- renovacao JWT, concorrencia e isolamento entre sessoes;
+- renovacao JWT, concorrencia, isolamento entre sessoes e sincronizacao entre abas;
 - validacao da localizacao publica antes de renderizar o mapa.
 
 ```bash

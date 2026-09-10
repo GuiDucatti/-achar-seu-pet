@@ -8,14 +8,14 @@ O projeto esta versionado em um repositorio privado no GitHub e possui integraca
 
 - Django `check` sem problemas;
 - 59 testes automatizados backend passando;
-- 20 testes frontend passando;
+- 27 testes frontend passando;
 - frontend lint passando;
 - frontend build passando;
 - verificacoes automaticas configuradas para pushes e pull requests em `main`;
 - CORS local corrigido para as portas 5173 e 5174;
 - mapa Leaflet usando somente localizacao publica aproximada;
 - privacidade de endereco, coordenadas e avistamentos protegida no backend;
-- renovacao automatica de JWT com protecao contra concorrencia entre sessoes;
+- renovacao automatica de JWT com protecao contra concorrencia e sincronizacao entre abas;
 - documentacao das fases criada;
 - README de portfolio criado.
 

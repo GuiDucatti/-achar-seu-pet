@@ -208,7 +208,7 @@ npm run lint
 npm run build
 ```
 
-Atualmente existem 59 testes backend e 20 testes frontend. A cobertura inclui autenticacao e renovacao JWT, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, permissoes, filtros, avistamentos e calculo de proximidade.
+Atualmente existem 59 testes backend e 27 testes frontend. A cobertura inclui autenticacao, renovacao JWT e sincronizacao entre abas, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, permissoes, filtros, avistamentos e calculo de proximidade.
 
 O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamente em pushes e pull requests direcionados a `main`.
 
