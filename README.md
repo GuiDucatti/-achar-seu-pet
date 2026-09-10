@@ -22,6 +22,7 @@ O Achar seu Pet centraliza o cadastro, a busca e os avistamentos em um fluxo uni
 ## Funcionalidades
 
 - cadastro e login com JWT;
+- renovacao automatica do access token sem repetir requisicoes entre sessoes diferentes;
 - cadastro, edicao e exclusao de pets pelo autor;
 - upload validado de imagens;
 - filtros por status, estado, cidade, especie, sexo, data e texto;
@@ -81,6 +82,7 @@ docs/            registro das fases e decisoes tecnicas
 - Framer Motion;
 - Lucide React;
 - Oxlint.
+- Vitest e Testing Library.
 
 ### Backend
 
@@ -91,6 +93,12 @@ docs/            registro das fases e decisoes tecnicas
 - Pillow;
 - PostgreSQL via `DATABASE_URL`;
 - Gunicorn para WSGI.
+
+### Qualidade
+
+- GitHub Actions para verificacao automatica de backend e frontend;
+- testes Django/DRF;
+- testes de componentes React e regras isoladas com `node:test`.
 
 ### Servicos planejados
 
@@ -184,19 +192,25 @@ Backend:
 
 ```bash
 cd backend
-../.venv/bin/python manage.py check
-../.venv/bin/python manage.py test
+.venv/bin/python manage.py check
+.venv/bin/python manage.py makemigrations --check
+.venv/bin/python manage.py test
 ```
 
 Frontend:
 
 ```bash
 cd frontend
+npm test
+npm run test:auth
+npm run test:location
 npm run lint
 npm run build
 ```
 
-Os testes do backend cobrem autenticacao, criacao de pet, upload, permissoes, filtros, avistamentos e calculo de proximidade.
+Atualmente existem 59 testes backend e 20 testes frontend. A cobertura inclui autenticacao e renovacao JWT, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, permissoes, filtros, avistamentos e calculo de proximidade.
+
+O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamente em pushes e pull requests direcionados a `main`.
 
 ## Documentacao complementar
 
@@ -212,7 +226,7 @@ Os testes do backend cobrem autenticacao, criacao de pet, upload, permissoes, fi
 
 ## Status de publicacao
 
-O projeto esta preparado e validado localmente, mas ainda nao foi publicado. O repositorio GitHub, quando criado, devera permanecer privado conforme a decisao do responsavel. A publicacao do site e o teste em producao dependem de configuracao de hospedagem, banco e armazenamento persistente de imagens.
+O projeto esta versionado em um repositorio privado no GitHub e possui verificacoes automatizadas, mas ainda nao foi publicado como aplicacao. A publicacao e o teste em producao dependem da configuracao de hospedagem, banco e armazenamento persistente de imagens.
 
 ## Proximos passos
 

@@ -2,30 +2,31 @@
 
 ## Estado atual
 
-O desenvolvimento local da Fase 2 esta concluido. O projeto ainda nao foi enviado ao GitHub nem publicado em uma hospedagem.
+O projeto esta versionado em um repositorio privado no GitHub e possui integracao continua. A aplicacao ainda nao foi publicada em uma hospedagem.
 
 ## Validacoes concluidas
 
 - Django `check` sem problemas;
-- 18 testes automatizados backend passando;
+- 59 testes automatizados backend passando;
+- 20 testes frontend passando;
 - frontend lint passando;
 - frontend build passando;
-- API local respondendo;
+- verificacoes automaticas configuradas para pushes e pull requests em `main`;
 - CORS local corrigido para as portas 5173 e 5174;
-- cinco pets de demonstracao com fotos e coordenadas;
-- mapa Leaflet preparado com marcador e area aproximada;
-- fluxo local de detalhe, avistamento, edicao e exclusao validado;
+- mapa Leaflet usando somente localizacao publica aproximada;
+- privacidade de endereco, coordenadas e avistamentos protegida no backend;
+- renovacao automatica de JWT com protecao contra concorrencia entre sessoes;
 - documentacao das fases criada;
 - README de portfolio criado.
 
 ## Como testar agora
 
 ```text
-Frontend: http://127.0.0.1:5174/pets
+Frontend: http://127.0.0.1:5173/pets
 API:      http://127.0.0.1:8000/api/pets/
 ```
 
-Cadastros de demonstracao: Thor, Mel, Zeus, Nina e Bob.
+Se a porta `5173` estiver ocupada, confirme no terminal qual porta alternativa o Vite escolheu.
 
 ## Pendencias externas
 
@@ -35,9 +36,8 @@ Cadastros de demonstracao: Thor, Mel, Zeus, Nina e Bob.
 - configurar armazenamento persistente para imagens;
 - publicar o frontend e o backend;
 - executar o checklist em dominio HTTPS;
-- criar o repositorio GitHub como privado, se desejado;
 - adicionar screenshots e links reais ao README.
 
 ## Regra de autorizacao
 
-Nenhuma publicacao, deploy ou criacao de repositorio sera feita sem autorizacao explicita do responsavel.
+Nenhum deploy sera feito sem autorizacao explicita do responsavel.
