@@ -546,6 +546,7 @@ class AddressSuggestionTests(TestCase):
         self.assertEqual(response.data, [])
         search_mock.assert_not_called()
 
+    @override_settings(GEOCODING_ENABLED=True)
     @patch(
         'pets.geocoding._load_suggestion_features',
         return_value=[
