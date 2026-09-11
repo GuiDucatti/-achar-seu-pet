@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, HeartHandshake, MapPinned, Search, ShieldCheck } from 'lucide-react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import homeHeroImage from '../assets/editorial/home-hero.webp'
+import homePairImage from '../assets/editorial/home-pair.webp'
 import homeStoryImage from '../assets/editorial/home-story.webp'
 import PetCard from '../components/PetCard.jsx'
 import { listPets } from '../services/petService.js'
@@ -118,11 +118,11 @@ function Home() {
         </div>
         <figure className="home-hero-media">
           <img
-            alt="Pessoa caminhando com seu cachorro por um bairro residencial"
+            alt="Cachorro e gato juntos ao ar livre"
             fetchPriority="high"
-            height="934"
-            src={homeHeroImage}
-            width="1400"
+            height="1600"
+            src={homePairImage}
+            width="1200"
           />
           <figcaption className="home-hero-note">
             <span className="status-dot" />

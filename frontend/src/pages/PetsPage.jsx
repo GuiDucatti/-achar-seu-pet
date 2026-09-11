@@ -231,31 +231,37 @@ function PetsPage({ title, status }) {
 
   return (
     <section className="pets-view">
-      <div className="page-heading browse-heading">
-        <p className="eyebrow">Busca local</p>
-        <h1>{title}</h1>
-        <p>
-          {status === 'P'
-            ? 'Comece pelo que voce lembra. A cidade ajuda a colocar cada pista no lugar certo.'
-            : 'Procure por uma historia que terminou bem e ajude outras pessoas a reconhecerem seu pet.'}
-        </p>
-      </div>
+      <div className={`browse-hero ${status === 'E' ? 'found' : 'lost'}`}>
+        <div className="page-heading browse-heading">
+          <p className="eyebrow">{status === 'P' ? 'Busca local' : 'Boas noticias'}</p>
+          <h1>{title}</h1>
+          <p>
+            {status === 'P'
+              ? 'Comece pelo que voce lembra. A cidade ajuda a colocar cada pista no lugar certo.'
+              : 'Procure por uma historia que terminou bem e ajude outras pessoas a reconhecerem seu pet.'}
+          </p>
+          <div className="browse-hero-support">
+            <HeartHandshake aria-hidden="true" size={20} />
+            <span>{status === 'P' ? 'Voce tambem pode ajudar.' : 'Cada reencontro deixa uma pista para a rede.'}</span>
+          </div>
+        </div>
 
-      <aside className={`browse-human-note ${status === 'E' ? 'found' : 'lost'}`}>
-        <img
-          alt={status === 'P'
-            ? 'Pessoa caminhando com seu cachorro por uma rua de bairro'
-            : 'Tutor sentado com seu cachorro em um parque'}
-          height={status === 'P' ? 1800 : 1000}
-          src={status === 'P' ? lostSearchImage : foundSearchImage}
-          width={status === 'P' ? 1200 : 1500}
-        />
-        <p>
-          {status === 'P'
-            ? 'Comece perto de onde ele foi visto. Ruas e cidades vizinhas tambem podem guardar uma pista.'
-            : 'Estes reencontros mostram por que vale a pena registrar, compartilhar e continuar olhando.'}
-        </p>
-      </aside>
+        <aside className="browse-human-note">
+          <img
+            alt={status === 'P'
+              ? 'Pessoa caminhando com seu cachorro por uma rua de bairro'
+              : 'Tutor sentado com seu cachorro em um parque'}
+            height={status === 'P' ? 1800 : 1000}
+            src={status === 'P' ? lostSearchImage : foundSearchImage}
+            width={status === 'P' ? 1200 : 1500}
+          />
+          <p>
+            {status === 'P'
+              ? 'Toda informacao importa.'
+              : 'Juntos, tambem reencontramos.'}
+          </p>
+        </aside>
+      </div>
 
       <form className="search-panel" onSubmit={handleFilterSubmit} role="search">
         <div className="search-panel-intro">

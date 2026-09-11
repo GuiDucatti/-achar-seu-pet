@@ -9,6 +9,7 @@ Licenca: https://www.pexels.com/license/
 
 | Uso | Fotografo | Pagina original |
 | --- | --- | --- |
+| Inicio - destaque cachorro e gato | Ioan-Dan Plesa | https://www.pexels.com/photo/close-up-shot-of-a-dog-and-a-cat-sitting-together-14770947/ |
 | Inicio - hero | Daniela Risco | https://www.pexels.com/photo/person-walking-dog-in-suburban-neighborhood-31748125/ |
 | Inicio - historia | Neron Photos | https://www.pexels.com/photo/woman-hugging-her-dog-6230218/ |
 | Pets perdidos | Griffin Wooldridge | https://www.pexels.com/photo/man-walking-dog-in-peaceful-neighborhood-setting-30346768/ |

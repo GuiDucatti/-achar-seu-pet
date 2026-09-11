@@ -12,7 +12,12 @@ function PetCard({ pet }) {
   return (
     <article className="pet-item">
       <div className="pet-image-wrap">
-        <img src={pet.foto} alt={`Foto de ${pet.nome}`} />
+        <img
+          alt={`Foto de ${pet.nome}`}
+          decoding="async"
+          loading="lazy"
+          src={pet.foto}
+        />
         <span className={`pet-status ${pet.status === 'E' ? 'found' : ''}`}>
           {pet.status === 'E' ? 'Encontrado' : 'Perdido'}
         </span>

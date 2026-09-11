@@ -1462,7 +1462,7 @@ textarea:focus-visible {
   margin-top: 18px;
   padding: 11px 0 11px 14px;
   color: var(--forest);
-  border-left: 3px solid var(--eye-blue-deep);
+  border-left: 2px solid var(--eye-blue-deep);
   font-size: 13px;
   font-weight: 700;
   line-height: 1.5;
@@ -2635,7 +2635,7 @@ textarea:focus-visible {
   margin-top: 14px;
   padding: 8px 10px;
   color: var(--text-muted);
-  border-left: 3px solid var(--sun);
+  border-left: 2px solid var(--sun);
   background: var(--surface);
   font-size: 12px;
   font-weight: 650;
@@ -4094,5 +4094,943 @@ textarea:focus-visible {
   .wizard-progress-track span,
   .choice-check {
     transition-duration: 0.01ms;
+  }
+}
+
+/* Editorial visual pass: keep the existing routes and controls, but give each
+   surface a clearer job and a shared paper/forest rhythm. */
+.app-header {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background: rgba(246, 242, 235, 0.97);
+}
+
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+}
+
+.brand-copy strong {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 19px;
+}
+
+.brand-copy small {
+  font-size: 9px;
+  letter-spacing: 0.02em;
+}
+
+.main-nav {
+  gap: 6px;
+}
+
+.main-nav a,
+.nav-button {
+  min-height: 34px;
+  padding: 0 9px;
+  font-size: 12px;
+}
+
+.main-nav a:last-child:not(.active),
+.nav-button {
+  border: 1px solid var(--forest);
+}
+
+.app-main {
+  width: min(1280px, calc(100% - 56px));
+}
+
+.home-page {
+  padding-top: 24px;
+}
+
+.home-hero {
+  min-height: 570px;
+  grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);
+  gap: 0;
+  border-radius: 4px;
+  background: var(--forest);
+}
+
+.home-hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: none;
+  height: 100%;
+  padding: 80px 46px 72px 58px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.home-hero-content h1 {
+  max-width: 510px;
+  margin-bottom: 20px;
+  font-size: clamp(46px, 5.5vw, 76px);
+  line-height: 0.94;
+}
+
+.home-hero-content > p:not(.eyebrow) {
+  max-width: 450px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.home-hero .home-actions {
+  margin-top: 28px;
+}
+
+.home-hero-media {
+  position: relative;
+  min-height: 570px;
+  height: 100%;
+  padding: 0;
+  display: block;
+  background: #34504a;
+}
+
+.home-hero-media > img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  border-radius: 0;
+  object-position: center;
+}
+
+.home-hero-note {
+  position: absolute;
+  right: 22px;
+  bottom: 22px;
+  max-width: 310px;
+  padding: 11px 13px;
+  color: var(--surface-strong);
+  background: rgba(35, 79, 75, 0.9);
+  font-size: 11px;
+}
+
+.home-signal-row {
+  padding: 28px 0 34px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.signal-item,
+.signal-item:first-child,
+.signal-item:last-child {
+  min-height: 126px;
+  padding: 19px;
+  border-radius: 4px;
+}
+
+.signal-item strong {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.05;
+}
+
+.signal-item span {
+  font-size: 11px;
+}
+
+.home-marquee {
+  display: none;
+}
+
+.home-section {
+  padding: 72px 0 80px;
+}
+
+.section-heading h2 {
+  font-size: clamp(32px, 4vw, 48px);
+}
+
+.pet-list {
+  gap: 14px;
+}
+
+.pet-item {
+  border-radius: 4px;
+  box-shadow: 0 10px 28px rgba(39, 50, 57, 0.07);
+}
+
+.pet-item img {
+  aspect-ratio: 1.16;
+}
+
+.pet-card-content {
+  padding: 16px 16px 18px;
+}
+
+.pet-item h2 {
+  font-size: 25px;
+}
+
+.home-story {
+  grid-template-columns: minmax(0, 0.95fr) minmax(300px, 0.72fr);
+  gap: 72px;
+  padding: 82px 58px;
+}
+
+.home-story-copy {
+  padding-left: 24px;
+}
+
+.home-story h2 {
+  max-width: 560px;
+  font-size: clamp(38px, 4.5vw, 62px);
+}
+
+.home-story-image {
+  width: min(100%, 410px);
+}
+
+.home-story-image img {
+  border: 0;
+  border-radius: 4px;
+}
+
+.home-final-cta {
+  padding: 76px 0 92px;
+}
+
+.home-final-cta h2 {
+  font-size: clamp(36px, 4.8vw, 58px);
+}
+
+/* Browse pages use a compact editorial cue above the functional search. */
+.pets-view {
+  padding-top: 58px;
+}
+
+.browse-heading {
+  max-width: 760px;
+}
+
+.browse-heading h1 {
+  max-width: 600px;
+  font-size: clamp(54px, 6vw, 82px);
+}
+
+.browse-human-note {
+  min-height: 158px;
+  margin-top: 26px;
+  grid-template-columns: 230px minmax(0, 1fr);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 4px;
+}
+
+.browse-human-note.found {
+  border-top-color: var(--forest);
+}
+
+.browse-human-note img {
+  min-height: 158px;
+}
+
+.browse-human-note p {
+  padding: 24px 32px;
+  font-size: clamp(23px, 2.5vw, 32px);
+}
+
+.search-panel {
+  margin-top: 22px;
+  padding: 22px 24px 18px;
+  border-radius: 4px;
+  box-shadow: 0 12px 32px rgba(39, 50, 57, 0.06);
+}
+
+.search-panel-intro strong {
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 23px;
+}
+
+.search-panel-intro span {
+  font-size: 11px;
+}
+
+.region-search {
+  padding: 18px 0 16px;
+}
+
+.region-search-heading strong {
+  font-size: 14px;
+}
+
+.region-kicker,
+.quick-filter-label {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+.results-summary {
+  margin-top: 24px;
+  color: var(--forest);
+}
+
+.results-stage {
+  min-height: 220px;
+}
+
+/* Narrative and operational pages share type, but not the same composition. */
+.content-view,
+.account-view,
+.form-view,
+.detail-view,
+.auth-view {
+  padding-top: 58px;
+}
+
+.about-hero {
+  grid-template-columns: minmax(0, 1fr) minmax(340px, 0.8fr);
+  gap: 82px;
+}
+
+.about-hero-copy h1 {
+  max-width: 650px;
+  font-size: clamp(50px, 6vw, 80px);
+}
+
+.about-hero-copy > p:not(.eyebrow) {
+  max-width: 560px;
+  font-size: 17px;
+}
+
+.about-visual {
+  width: min(100%, 500px);
+}
+
+.about-visual img {
+  max-height: 390px;
+  border-radius: 4px;
+}
+
+.about-values {
+  margin-top: 78px;
+  gap: 12px;
+}
+
+.about-values article {
+  min-height: 178px;
+  padding: 21px 20px 24px;
+  border-top-width: 2px;
+  border-radius: 4px;
+}
+
+.about-values h2 {
+  font-size: 24px;
+}
+
+.about-quote {
+  margin-top: 82px;
+}
+
+.auth-layout {
+  min-height: 600px;
+  grid-template-columns: minmax(300px, 0.9fr) minmax(360px, 0.95fr);
+  gap: 62px;
+}
+
+.auth-copy > img {
+  border-radius: 4px;
+}
+
+.login-copy {
+  width: min(100%, 430px);
+}
+
+.login-copy > img {
+  aspect-ratio: 4 / 3;
+}
+
+.register-copy > img {
+  max-height: 360px;
+}
+
+.auth-copy > div {
+  padding-top: 20px;
+}
+
+.auth-panel {
+  padding-left: 52px;
+}
+
+.auth-panel .page-heading h1 {
+  font-size: clamp(42px, 4.5vw, 64px);
+}
+
+.auth-form {
+  max-width: 430px;
+  gap: 15px;
+}
+
+.account-welcome {
+  align-items: center;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.account-welcome h1 {
+  font-size: clamp(48px, 5vw, 70px);
+}
+
+.account-details,
+.account-trust {
+  margin-left: 0;
+}
+
+.account-next-step {
+  width: 100%;
+  max-width: 980px;
+  margin-top: 48px;
+  border-radius: 4px;
+}
+
+.account-next-step > img {
+  max-height: 330px;
+}
+
+.form-heading h1 {
+  max-width: 720px;
+  font-size: clamp(48px, 5.4vw, 76px);
+}
+
+.form-layout {
+  grid-template-columns: minmax(0, 1fr) minmax(250px, 0.4fr);
+  gap: 48px;
+}
+
+.form-side-note {
+  border-radius: 4px;
+}
+
+.form-side-note img {
+  max-height: 245px;
+}
+
+.pet-form-intro,
+.location-intro {
+  padding: 17px 18px;
+}
+
+.detail-layout {
+  grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1fr);
+  gap: 62px;
+}
+
+.detail-photo {
+  max-height: 620px;
+  border-radius: 4px;
+}
+
+.detail-content > h1 {
+  font-size: clamp(56px, 6vw, 86px);
+}
+
+.sighting-cta {
+  border-radius: 4px;
+}
+
+.pet-map,
+.map-placeholder {
+  border-radius: 4px;
+}
+
+.modal-panel {
+  border-radius: 4px;
+}
+
+.app-footer {
+  padding-top: 26px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .main-nav a:last-child:not(.active):hover,
+  .nav-button:hover {
+    color: var(--surface-strong);
+    background: var(--forest);
+  }
+}
+
+@media (max-width: 1050px) {
+  .app-main {
+    width: min(100% - 40px, 900px);
+  }
+
+  .home-hero {
+    grid-template-columns: minmax(0, 0.95fr) minmax(340px, 1.05fr);
+  }
+
+  .home-hero-content {
+    padding-left: 38px;
+    padding-right: 30px;
+  }
+
+  .home-hero-content h1 {
+    font-size: clamp(42px, 5vw, 62px);
+  }
+
+  .home-signal-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .signal-map,
+  .signal-search,
+  .signal-hand,
+  .signal-privacy {
+    grid-column: span 1;
+  }
+
+  .signal-map {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 800px) {
+  .app-header {
+    padding-right: 20px;
+    padding-left: 20px;
+  }
+
+  .main-nav a:last-child:not(.active),
+  .nav-button {
+    border: 0;
+  }
+
+  .home-hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .home-hero-content,
+  .home-hero-media {
+    min-height: 0;
+  }
+
+  .home-hero-content {
+    padding: 52px 32px 46px;
+  }
+
+  .home-hero-media {
+    height: 330px;
+  }
+
+  .home-hero-media > img {
+    height: 330px;
+  }
+
+  .home-story {
+    padding-right: 32px;
+    padding-left: 32px;
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .home-story-image {
+    justify-self: start;
+    width: min(100%, 480px);
+  }
+
+  .about-hero,
+  .auth-layout {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+
+  .about-visual,
+  .login-copy {
+    width: min(100%, 520px);
+    justify-self: start;
+  }
+
+  .auth-layout {
+    min-height: 0;
+  }
+
+  .auth-panel {
+    padding-top: 34px;
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .form-layout,
+  .detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .form-side-note {
+    position: static;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+
+  .form-side-note img {
+    height: 100%;
+    max-height: 230px;
+  }
+
+  .detail-photo {
+    max-height: 470px;
+  }
+}
+
+@media (max-width: 560px) {
+  .app-main {
+    width: calc(100% - 28px);
+  }
+
+  .home-page,
+  .home-view,
+  .pets-view,
+  .form-view,
+  .detail-view,
+  .content-view,
+  .auth-view,
+  .account-view {
+    padding-top: 36px;
+    padding-bottom: 58px;
+  }
+
+  h1 {
+    font-size: clamp(42px, 12vw, 58px);
+  }
+
+  .home-hero-content {
+    padding: 42px 22px 38px;
+  }
+
+  .home-hero-content h1 {
+    font-size: clamp(43px, 13vw, 58px);
+  }
+
+  .home-hero-content > p:not(.eyebrow) {
+    font-size: 15px;
+  }
+
+  .home-hero-media,
+  .home-hero-media > img {
+    height: 250px;
+  }
+
+  .home-hero-note {
+    right: 12px;
+    bottom: 12px;
+    max-width: 240px;
+    font-size: 10px;
+  }
+
+  .home-signal-row {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding-top: 22px;
+  }
+
+  .signal-map,
+  .signal-search,
+  .signal-hand,
+  .signal-privacy {
+    grid-column: span 1;
+  }
+
+  .signal-item,
+  .signal-item:first-child,
+  .signal-item:last-child {
+    min-height: 100px;
+  }
+
+  .home-section {
+    padding: 54px 0 62px;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .home-story {
+    margin-right: -14px;
+    margin-left: -14px;
+    padding: 54px 22px;
+  }
+
+  .home-story h2 {
+    font-size: clamp(39px, 12vw, 54px);
+  }
+
+  .browse-heading h1 {
+    font-size: clamp(48px, 14vw, 64px);
+  }
+
+  .browse-human-note {
+    min-height: 0;
+    grid-template-columns: 112px minmax(0, 1fr);
+  }
+
+  .browse-human-note img {
+    min-height: 128px;
+  }
+
+  .browse-human-note p {
+    padding: 16px;
+    font-size: 21px;
+  }
+
+  .search-panel {
+    padding: 17px;
+  }
+
+  .about-hero-copy h1,
+  .form-heading h1,
+  .auth-panel .page-heading h1,
+  .account-welcome h1 {
+    font-size: clamp(44px, 13vw, 60px);
+  }
+
+  .about-values {
+    margin-top: 54px;
+  }
+
+  .about-quote {
+    margin-top: 58px;
+  }
+
+  .account-details,
+  .account-trust {
+    width: 100%;
+  }
+
+  .account-details div {
+    grid-template-columns: 86px minmax(0, 1fr);
+  }
+
+  .account-next-step {
+    grid-template-columns: 1fr;
+  }
+
+  .account-next-step > img {
+    min-height: 190px;
+    height: 190px;
+  }
+
+  .account-next-step > div {
+    padding: 26px 22px 30px;
+  }
+
+  .form-side-note {
+    display: block;
+  }
+
+  .form-side-note img {
+    height: 160px;
+    max-height: none;
+  }
+
+  .detail-content > h1 {
+    font-size: clamp(52px, 15vw, 70px);
+  }
+
+  .detail-photo {
+    max-height: 370px;
+  }
+
+  .sighting-cta {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .sighting-cta .primary-action {
+    width: 100%;
+  }
+
+  .map-section .section-heading > p:last-child,
+  .section-heading-note {
+    max-width: 100%;
+    text-align: left;
+  }
+
+  .pet-map,
+  .map-placeholder {
+    height: 290px;
+  }
+
+  .modal-backdrop {
+    padding: 10px;
+  }
+
+  .modal-panel {
+    max-height: calc(100vh - 20px);
+    padding: 20px 16px;
+  }
+
+  .modal-heading h2 {
+    font-size: 34px;
+  }
+
+  .modal-actions,
+  .modal-actions .primary-action,
+  .modal-actions .secondary-action {
+    width: 100%;
+  }
+
+  .app-footer {
+    width: calc(100% - 28px);
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark,
+  .pet-item,
+  .pet-item img,
+  .primary-action,
+  .secondary-action,
+  .whatsapp-action,
+  .danger-action,
+  .menu-toggle,
+  .main-nav {
+    transition: none !important;
+  }
+}
+
+/* Browse hero: the image gives context, while the copy remains easy to scan. */
+.browse-hero {
+  position: relative;
+  min-height: 330px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-strong);
+}
+
+.browse-hero .browse-heading {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  padding: 42px 28px 42px 44px;
+}
+
+.browse-hero .browse-heading h1 {
+  font-size: clamp(52px, 5.4vw, 76px);
+}
+
+.browse-hero-support {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 22px;
+  color: var(--forest);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.browse-hero-support svg {
+  color: var(--accent);
+}
+
+.browse-human-note {
+  position: relative;
+  grid-column: 2;
+  grid-row: 1;
+  min-height: 330px;
+  height: 100%;
+  margin: 0;
+  display: block;
+  border: 0;
+  border-radius: 0;
+  background: var(--forest);
+}
+
+.browse-human-note img,
+.browse-human-note.found img,
+.browse-human-note.lost img {
+  width: 100%;
+  height: 100%;
+  min-height: 330px;
+  display: block;
+  object-fit: cover;
+}
+
+.browse-human-note.lost img {
+  object-position: center 62%;
+}
+
+.browse-human-note.found img {
+  object-position: center 52%;
+}
+
+.browse-human-note p {
+  position: absolute;
+  z-index: 1;
+  top: 26px;
+  right: 24px;
+  max-width: 210px;
+  padding: 15px 17px;
+  color: var(--forest);
+  border: 1px solid rgba(217, 206, 192, 0.7);
+  border-radius: 4px;
+  background: rgba(255, 253, 249, 0.92);
+  font-family: 'Newsreader', Georgia, serif;
+  font-size: 26px;
+  line-height: 1.02;
+}
+
+.browse-hero.found .browse-human-note p {
+  color: var(--success);
+}
+
+@media (max-width: 800px) {
+  .browse-hero {
+    display: block;
+  }
+
+  .browse-hero .browse-heading {
+    padding: 34px 28px 30px;
+  }
+
+  .browse-human-note {
+    height: 250px;
+    min-height: 250px;
+  }
+
+  .browse-human-note img,
+  .browse-human-note.found img,
+  .browse-human-note.lost img {
+    min-height: 250px;
+  }
+}
+
+@media (max-width: 560px) {
+  .browse-hero .browse-heading {
+    padding: 28px 20px 24px;
+  }
+
+  .browse-hero .browse-heading h1 {
+    font-size: clamp(46px, 13vw, 60px);
+  }
+
+  .browse-human-note,
+  .browse-human-note img,
+  .browse-human-note.found img,
+  .browse-human-note.lost img {
+    min-height: 205px;
+    height: 205px;
+  }
+
+  .browse-human-note p {
+    top: 14px;
+    right: 14px;
+    max-width: 155px;
+    padding: 11px 12px;
+    font-size: 21px;
   }
 }
