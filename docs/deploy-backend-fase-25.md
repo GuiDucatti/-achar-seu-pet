@@ -8,6 +8,7 @@ Preparacao local concluida. A API ainda nao foi publicada e nenhum servico exter
 
 - `gunicorn` adicionado ao `backend/requirements.txt`;
 - `STATIC_ROOT` configurado para permitir `collectstatic`;
+- storage persistente Cloudflare R2 configurado para uploads;
 - `backend/Procfile` criado com o comando WSGI;
 - variaveis de producao e checklist registradas abaixo.
 
@@ -42,6 +43,12 @@ CORS_ALLOWED_ORIGINS=<url-do-frontend>
 CSRF_TRUSTED_ORIGINS=<url-do-frontend>
 GEOCODING_ENABLED=True
 NOMINATIM_USER_AGENT=<identificacao-do-projeto-e-contato>
+MEDIA_STORAGE_BACKEND=r2
+R2_ACCESS_KEY_ID=<credencial limitada ao bucket>
+R2_SECRET_ACCESS_KEY=<segredo>
+R2_BUCKET_NAME=<nome-do-bucket>
+R2_ENDPOINT_URL=https://<account-id>.r2.cloudflarestorage.com
+R2_PUBLIC_BASE_URL=https://media.<seu-dominio>
 ```
 
 As configuracoes de HTTPS, HSTS e cookies seguros da Fase 23 tambem devem ser ativadas no ambiente de producao.
@@ -50,7 +57,7 @@ As configuracoes de HTTPS, HSTS e cookies seguros da Fase 23 tambem devem ser at
 
 - escolher Render ou Railway;
 - provisionar PostgreSQL de producao;
-- definir armazenamento persistente para `MEDIA_ROOT` ou um storage de imagens;
+- criar o bucket R2 e conectar um dominio personalizado para as imagens;
 - preencher as variaveis sem coloca-las no repositorio;
 - testar migrations em banco de homologacao;
 - executar o fluxo completo manualmente;

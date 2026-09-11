@@ -1,10 +1,10 @@
 from datetime import date
 from pathlib import Path
-from shutil import copy2
 
-from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.files import File
 from django.core.management.base import BaseCommand
+from django.core.files.storage import default_storage
 
 from pets.models import Pet
 
@@ -106,19 +106,21 @@ class Command(BaseCommand):
             user.save(update_fields=['password'])
 
         source_dir = Path(__file__).resolve().parents[2] / 'demo_assets'
-        media_dir = Path(settings.MEDIA_ROOT) / 'demo'
-        media_dir.mkdir(parents=True, exist_ok=True)
 
         created_count = 0
         updated_count = 0
         for item in DEMO_PETS:
             source_image = source_dir / item['foto']
-            destination_image = media_dir / item['foto']
-            copy2(source_image, destination_image)
+            requested_name = f"demo/{item['foto']}"
+            if default_storage.exists(requested_name):
+                stored_name = requested_name
+            else:
+                with source_image.open('rb') as image_file:
+                    stored_name = default_storage.save(requested_name, File(image_file))
 
             defaults = {
                 **item,
-                'foto': f"demo/{item['foto']}",
+                'foto': stored_name,
                 'endereco_texto': f"Regiao central de {item['cidade']}",
                 'raio_area_metros': 400,
                 'descricao': (

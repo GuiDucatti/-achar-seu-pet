@@ -91,6 +91,7 @@ docs/            registro das fases e decisoes tecnicas
 - Django REST Framework;
 - Simple JWT;
 - Pillow;
+- django-storages com backend S3;
 - PostgreSQL via `DATABASE_URL`;
 - Gunicorn para WSGI.
 
@@ -105,7 +106,7 @@ docs/            registro das fases e decisoes tecnicas
 - Neon para PostgreSQL;
 - Render ou Railway para a API;
 - Vercel para o frontend;
-- Cloudinary, S3 ou equivalente para imagens persistentes.
+- Cloudflare R2 para imagens persistentes.
 
 ## Decisoes tecnicas
 
@@ -123,7 +124,10 @@ A primeira versao usa Haversine para calcular distancias entre o desaparecimento
 
 ### Upload validado
 
-O backend valida extensao, MIME type e tamanho da imagem. O armazenamento atual e local para desenvolvimento; em producao sera necessario um storage persistente.
+O backend valida extensao, MIME type e tamanho da imagem. Em desenvolvimento,
+os arquivos ficam no disco local. Em producao, o projeto usa Cloudflare R2 por
+meio da API compativel com S3, evitando perder uploads quando o servidor for
+reiniciado ou substituido.
 
 ### Falhas visiveis
 
@@ -176,6 +180,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 GEOCODING_ENABLED=True
 ADDRESS_SUGGESTION_URL=https://photon.komoot.io/api/
 NOMINATIM_USER_AGENT=nome-do-projeto-e-contato
+MEDIA_STORAGE_BACKEND=local
 ```
 
 ### Frontend
@@ -208,7 +213,7 @@ npm run lint
 npm run build
 ```
 
-Atualmente existem 59 testes backend e 27 testes frontend. A cobertura inclui autenticacao, renovacao JWT e sincronizacao entre abas, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, permissoes, filtros, avistamentos e calculo de proximidade.
+Atualmente existem 64 testes backend e 27 testes frontend. A cobertura inclui autenticacao, renovacao JWT e sincronizacao entre abas, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, configuracao de storage, permissoes, filtros, avistamentos e calculo de proximidade.
 
 O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamente em pushes e pull requests direcionados a `main`.
 
@@ -226,12 +231,12 @@ O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamen
 
 ## Status de publicacao
 
-O projeto esta versionado em um repositorio privado no GitHub e possui verificacoes automatizadas, mas ainda nao foi publicado como aplicacao. A publicacao e o teste em producao dependem da configuracao de hospedagem, banco e armazenamento persistente de imagens.
+O projeto esta versionado em um repositorio privado no GitHub e possui verificacoes automatizadas, mas ainda nao foi publicado como aplicacao. O suporte a armazenamento persistente esta implementado; a publicacao e o teste em producao ainda dependem da criacao do bucket R2, das credenciais, da hospedagem e do banco.
 
 ## Proximos passos
 
 - testar manualmente todos os fluxos com calma;
 - escolher os provedores de hospedagem;
-- configurar PostgreSQL e storage persistente;
+- configurar PostgreSQL e criar o bucket Cloudflare R2;
 - publicar somente apos autorizacao explicita;
 - adicionar screenshots reais e links de producao depois do teste final.

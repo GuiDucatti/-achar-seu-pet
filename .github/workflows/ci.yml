@@ -25,6 +25,7 @@ jobs:
       DEBUG: "False"
       DATABASE_URL: sqlite:///db.sqlite3
       GEOCODING_ENABLED: "False"
+      MEDIA_STORAGE_BACKEND: local
 
     steps:
       - name: Checkout
