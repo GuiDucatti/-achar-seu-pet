@@ -229,14 +229,16 @@ O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamen
 - [Seguranca](docs/seguranca-fase-23.md);
 - [Testes automatizados](docs/testes-automatizados-fase-24.md).
 
-## Status de publicacao
+## Status do portfolio
 
-O projeto esta versionado em um repositorio privado no GitHub e possui verificacoes automatizadas, mas ainda nao foi publicado como aplicacao. O suporte a armazenamento persistente esta implementado; a publicacao e o teste em producao ainda dependem da criacao do bucket R2, das credenciais, da hospedagem e do banco.
+Este projeto foi preparado como uma demonstracao de portfolio e nao esta publicado como aplicacao em producao. O repositorio apresenta a arquitetura, as decisoes tecnicas, os testes e os principais fluxos do Achar seu Pet.
+
+O suporte a armazenamento persistente com Cloudflare R2 esta implementado para um futuro deploy. A publicacao da aplicacao depende da configuracao de hospedagem, banco PostgreSQL, bucket R2 e credenciais de producao.
 
 ## Proximos passos
 
 - testar manualmente todos os fluxos com calma;
-- escolher os provedores de hospedagem;
-- configurar PostgreSQL e criar o bucket Cloudflare R2;
-- publicar somente apos autorizacao explicita;
-- adicionar screenshots reais e links de producao depois do teste final.
+- adicionar screenshots atuais e, se desejado, um video curto da navegacao;
+- revisar a origem e os creditos das imagens usadas nos dados demonstrativos;
+- escolher e adicionar uma licenca para o codigo;
+- publicar o repositorio depois da revisao final.
