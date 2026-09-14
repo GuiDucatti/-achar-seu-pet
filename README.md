@@ -231,6 +231,7 @@ O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamen
 
 ## Documentacao complementar
 
+- [Creditos das fotografias](CREDITS.md);
 - [Identidade visual da Lobinha](docs/identidade-lobinha.md);
 - [Upload de imagens](docs/upload-imagens-fase-14.md);
 - [Geocoding](docs/geocoding-fase-15.md);
@@ -251,6 +252,5 @@ O suporte a armazenamento persistente com Cloudflare R2 esta implementado para u
 
 - testar manualmente todos os fluxos com calma;
 - adicionar screenshots atuais e, se desejado, um video curto da navegacao;
-- revisar a origem e os creditos das imagens usadas nos dados demonstrativos;
 - escolher e adicionar uma licenca para o codigo;
 - publicar o repositorio depois da revisao final.

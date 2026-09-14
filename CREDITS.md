@@ -1,7 +1,7 @@
 # Creditos de imagens
 
-As fotografias editoriais deste projeto foram obtidas no Pexels e armazenadas
-localmente em formato WebP. A licenca consultada em 2 de setembro de 2026
+As fotografias editoriais e dos dados de demonstracao foram obtidas no Pexels
+e armazenadas localmente. A licenca consultada em 14 de setembro de 2026
 permite uso gratuito em websites e aplicativos, modificacao e recorte. A
 atribuicao nao e obrigatoria, mas os creditos sao mantidos por transparencia.
 
@@ -19,6 +19,24 @@ Licenca: https://www.pexels.com/license/
 | Criar conta | Zariflavin | https://www.pexels.com/photo/woman-holding-cat-3512799/ |
 | Minha conta | Tugba Saritas | https://www.pexels.com/photo/man-holding-a-persian-cat-19190145/ |
 | Quem somos | Mônica Rodrigues | https://www.pexels.com/photo/woman-hugging-dogs-outdoors-in-urban-setting-29694636/ |
+
+## Dados de demonstracao
+
+Os nomes, locais e historias dos pets abaixo sao ficticios. Somente as
+fotografias sao reais e foram usadas para representar os cadastros de exemplo.
+
+| Pet demonstrativo | Fotografo | Pagina original |
+| --- | --- | --- |
+| Thor | Alina Skazka | https://www.pexels.com/photo/bullmastiff-in-close-up-15096092/ |
+| Mel | Gökhan Baykal | https://www.pexels.com/photo/a-chow-chow-dog-19302900/ |
+| Chico | Koke Valle | https://www.pexels.com/photo/close-up-shot-of-a-shetland-sheepdog-11430658/ |
+| Zeus | Jacob Fulwiler | https://www.pexels.com/photo/portrait-of-husky-dog-20648319/ |
+| Nina | Tanino | https://www.pexels.com/photo/close-up-photography-of-furry-dog-1191000/ |
+| Bob | Katherine Castillo | https://www.pexels.com/photo/japanese-chin-dog-sitting-on-wooden-table-18028245/ |
+| Lua | Anderson Alves | https://www.pexels.com/photo/portrait-of-a-white-and-grey-domestic-cat-36202854/ |
+| Amora | Jerson Martins | https://www.pexels.com/photo/close-up-of-black-and-white-cat-with-green-eyes-34276834/ |
+| Frida | Samed Bayrak | https://www.pexels.com/photo/close-up-of-a-tabby-cat-19785351/ |
+| Salem | Vero Andrade | https://www.pexels.com/photo/portrait-of-black-cat-with-green-eyes-16638875/ |
 
 As pessoas retratadas nao endossam o Achar seu Pet. As imagens sao usadas
 apenas como contexto editorial de cuidado e convivencia com animais.
