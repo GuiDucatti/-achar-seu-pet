@@ -86,8 +86,8 @@ docs/            registro das fases e decisoes tecnicas
 
 ### Backend
 
-- Python;
-- Django 4.2;
+- Python 3.12;
+- Django 5.2 LTS;
 - Django REST Framework;
 - Simple JWT;
 - Pillow;
@@ -225,7 +225,7 @@ npm run lint
 npm run build
 ```
 
-Atualmente existem 64 testes backend e 27 testes frontend. A cobertura inclui autenticacao, renovacao JWT e sincronizacao entre abas, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, configuracao de storage, permissoes, filtros, avistamentos e calculo de proximidade.
+Atualmente existem 65 testes backend e 27 testes frontend. A cobertura inclui autenticacao, renovacao JWT e sincronizacao entre abas, rotas protegidas, autocomplete de endereco, integridade e privacidade de coordenadas, criacao de pet, upload, configuracao de storage, permissoes, filtros, avistamentos e calculo de proximidade.
 
 O workflow em `.github/workflows/ci.yml` repete essas verificacoes automaticamente em pushes e pull requests direcionados a `main`.
 

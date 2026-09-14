@@ -7,7 +7,7 @@ O projeto esta versionado em um repositorio privado no GitHub e possui integraca
 ## Validacoes concluidas
 
 - Django `check` sem problemas;
-- 59 testes automatizados backend passando;
+- 65 testes automatizados backend passando;
 - 27 testes frontend passando;
 - frontend lint passando;
 - frontend build passando;
@@ -16,6 +16,8 @@ O projeto esta versionado em um repositorio privado no GitHub e possui integraca
 - mapa Leaflet usando somente localizacao publica aproximada;
 - privacidade de endereco, coordenadas e avistamentos protegida no backend;
 - renovacao automatica de JWT com protecao contra concorrencia e sincronizacao entre abas;
+- Django 5.2 LTS validado com a suite completa;
+- suporte a storage persistente Cloudflare R2 implementado e testado;
 - documentacao das fases criada;
 - README de portfolio criado.
 
@@ -33,7 +35,7 @@ Se a porta `5173` estiver ocupada, confirme no terminal qual porta alternativa o
 - testar manualmente todos os fluxos pela interface;
 - escolher e autenticar os provedores de hospedagem;
 - configurar PostgreSQL de producao;
-- configurar armazenamento persistente para imagens;
+- criar o bucket R2 e configurar as credenciais de producao;
 - publicar o frontend e o backend;
 - executar o checklist em dominio HTTPS;
 - adicionar screenshots e links reais ao README.

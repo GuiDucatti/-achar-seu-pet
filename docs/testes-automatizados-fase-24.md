@@ -63,4 +63,4 @@ O workflow `.github/workflows/ci.yml` executa as verificacoes de backend e front
 
 ## Proxima evolucao
 
-Depois que o fluxo inteiro for validado manualmente, os cenarios mais importantes podem ganhar testes de integracao adicionais e testes ponta a ponta. O deploy continua pendente ate a configuracao do banco, storage persistente e provedores de hospedagem.
+Depois que o fluxo inteiro for validado manualmente, os cenarios mais importantes podem ganhar testes de integracao adicionais e testes ponta a ponta. O deploy continua pendente ate a configuracao do banco, do bucket R2 e dos provedores de hospedagem.
