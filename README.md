@@ -165,6 +165,18 @@ URLs locais:
 - frontend: `http://127.0.0.1:5173` ou `http://127.0.0.1:5174`;
 - API: `http://127.0.0.1:8000/api`.
 
+### Dados de demonstracao
+
+Para visualizar a busca com pets ficticios, execute depois das migrations:
+
+```bash
+cd backend
+.venv/bin/python manage.py seed_demo_pets
+```
+
+O comando pode ser executado novamente sem duplicar os registros. Os pets e
+as localizacoes sao dados de demonstracao e nao representam casos reais.
+
 ## Variaveis de ambiente
 
 O projeto usa arquivos `.env` locais, que nao devem ser versionados:
