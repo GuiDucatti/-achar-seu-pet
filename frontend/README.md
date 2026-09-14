@@ -1,6 +1,15 @@
-# Achar seu Pet - frontend
+# Achar seu Pet - Frontend
 
-Aplicacao React/Vite do Achar seu Pet.
+Interface React/Vite do Achar seu Pet. O frontend consome a API REST do Django
+e concentra navegacao, autenticacao, formularios, busca regional e mapa.
+
+Consulte o [README principal](../README.md) para conhecer a arquitetura, as
+funcionalidades e o processo completo de configuracao do projeto.
+
+## Requisitos
+
+- Node.js 22;
+- npm.
 
 ## Desenvolvimento local
 
@@ -9,28 +18,19 @@ npm install
 npm run dev
 ```
 
-Configure `VITE_API_URL` no arquivo `.env` para apontar para a API Django.
+Copie `.env.example` para `.env` e configure `VITE_API_URL` para apontar para a
+API Django. O valor local padrao e `http://127.0.0.1:8000/api`.
 
-## Build
+## Scripts
 
 ```bash
+npm test
+npm run test:auth
+npm run test:location
 npm run lint
 npm run build
 ```
 
-O resultado de producao e gerado na pasta `dist`.
-
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+`npm test` executa os testes de componentes com Vitest. Os outros dois testes
+cobrem regras isoladas de autenticacao e localizacao com `node:test`. O build
+de producao e gerado em `dist/`.
