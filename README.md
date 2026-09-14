@@ -19,6 +19,17 @@ O Achar seu Pet centraliza o cadastro, a busca e os avistamentos em um fluxo uni
 - a timeline organiza as pistas e mostra a proximidade estimada;
 - o anuncio pode ser compartilhado pelo WhatsApp.
 
+## Interface
+
+![Pagina inicial do Achar seu Pet em desktop](docs/screenshots/home-desktop.webp)
+
+<p align="center">
+  <img src="docs/screenshots/pets-perdidos-desktop.webp" alt="Busca e filtros de pets perdidos" width="66%">
+  <img src="docs/screenshots/home-mobile.webp" alt="Pagina inicial em um celular" width="25%">
+</p>
+
+![Pagina de login do Achar seu Pet](docs/screenshots/login-desktop.webp)
+
 ## Funcionalidades
 
 - cadastro e login com JWT;
@@ -251,6 +262,6 @@ O suporte a armazenamento persistente com Cloudflare R2 esta implementado para u
 ## Proximos passos
 
 - testar manualmente todos os fluxos com calma;
-- adicionar screenshots atuais e, se desejado, um video curto da navegacao;
+- se desejado, adicionar um video curto da navegacao;
 - escolher e adicionar uma licenca para o codigo;
 - publicar o repositorio depois da revisao final.
