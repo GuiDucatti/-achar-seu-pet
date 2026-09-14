@@ -3,7 +3,6 @@ from math import asin, ceil, cos, degrees, isfinite, radians, sin, sqrt
 
 EARTH_RADIUS_KM = 6371.0
 PUBLIC_LOCATION_DECIMAL_PLACES = 2
-MIN_PUBLIC_RADIUS_METERS = 1500
 
 
 def bounding_box(latitude, longitude, radius_km):
@@ -64,10 +63,7 @@ def build_public_location(latitude, longitude, private_radius_meters=0):
         public_longitude,
     ) * 1000
     private_radius_meters = max(0, int(private_radius_meters or 0))
-    radius_meters = max(
-        MIN_PUBLIC_RADIUS_METERS,
-        ceil(offset_meters + private_radius_meters),
-    )
+    radius_meters = ceil(offset_meters + private_radius_meters)
 
     return {
         'latitude': public_latitude,

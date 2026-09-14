@@ -1,5 +1,5 @@
 from io import BytesIO
-from math import isclose
+from math import ceil, isclose
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
@@ -902,6 +902,24 @@ class ProximityTests(TestCase):
             location['raio_metros'],
             offset_meters + private_radius,
         )
+
+    def test_public_radius_does_not_apply_city_sized_minimum(self):
+        latitude = -21.2886
+        longitude = -50.3404
+        private_radius = 400
+        location = build_public_location(latitude, longitude, private_radius)
+        offset_meters = haversine_distance_km(
+            latitude,
+            longitude,
+            location['latitude'],
+            location['longitude'],
+        ) * 1000
+
+        self.assertEqual(
+            location['raio_metros'],
+            ceil(offset_meters + private_radius),
+        )
+        self.assertLess(location['raio_metros'], 1500)
 
     def test_public_location_handles_missing_coordinates(self):
         self.assertIsNone(build_public_location(None, -50.34, 400))
