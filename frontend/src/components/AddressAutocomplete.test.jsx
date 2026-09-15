@@ -104,7 +104,7 @@ describe('AddressAutocomplete', () => {
     await act(() => vi.advanceTimersByTimeAsync(450))
 
     expect(screen.getByRole('combobox').value).toBe('Rua Central')
-    expect(screen.getByText('Nao foi possivel buscar enderecos agora. Tente novamente.')).toBeTruthy()
+    expect(screen.getByText('Não foi possível buscar endereços agora. Tente novamente.')).toBeTruthy()
   })
 
   it('permite escolher uma sugestao usando o teclado', async () => {

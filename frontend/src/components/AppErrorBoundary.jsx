@@ -12,9 +12,9 @@ class AppErrorBoundary extends Component {
       return (
         <main className="app-error-view">
           <h1>O site precisa ser recarregado</h1>
-          <p>Ocorreu um erro inesperado ao montar esta pagina.</p>
+          <p>Ocorreu um erro inesperado ao montar esta página.</p>
           <button className="primary-action" onClick={() => window.location.reload()} type="button">
-            Recarregar pagina
+            Recarregar página
           </button>
         </main>
       )

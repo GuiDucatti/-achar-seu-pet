@@ -6,7 +6,7 @@ function ProtectedRoute({ children }) {
   const location = useLocation()
 
   if (isLoadingUser) {
-    return <p className="feedback">Verificando sessao...</p>
+    return <p className="feedback">Verificando sessão...</p>
   }
 
   if (!isAuthenticated) {

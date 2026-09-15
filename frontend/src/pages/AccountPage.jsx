@@ -13,14 +13,14 @@ function AccountPage() {
           <HeartHandshake size={28} />
         </div>
         <div className="page-heading">
-          <h1>Ola, {user?.username}</h1>
-          <p>Sua conta esta pronta para cuidar dos seus cadastros e acompanhar cada pista.</p>
+          <h1>Olá, {user?.username}</h1>
+          <p>Sua conta está pronta para cuidar dos seus cadastros e acompanhar cada pista.</p>
         </div>
       </div>
 
       <dl className="account-details">
         <div>
-          <dt>Usuario</dt>
+          <dt>Usuário</dt>
           <dd>{user?.username}</dd>
         </div>
         <div>
@@ -32,8 +32,8 @@ function AccountPage() {
       <div className="account-trust">
         <ShieldCheck aria-hidden="true" size={22} />
         <div>
-          <strong>Seu espaco de cuidado</strong>
-          <p>Apenas voce pode editar os pets cadastrados nesta conta.</p>
+          <strong>Seu espaço de cuidado</strong>
+          <p>Apenas você pode editar os pets cadastrados nesta conta.</p>
         </div>
       </div>
 
@@ -47,8 +47,8 @@ function AccountPage() {
           width="1100"
         />
         <div>
-          <h2 id="account-next-step-title">Sua proxima acao pode comecar aqui.</h2>
-          <p>Com sua conta, voce pode iniciar uma busca e manter seus anuncios atualizados.</p>
+          <h2 id="account-next-step-title">Sua próxima ação pode começar aqui.</h2>
+          <p>Com sua conta, você pode iniciar uma busca e manter seus anúncios atualizados.</p>
           <div className="account-next-actions">
             <Link className="primary-action" to="/cadastrar-pet">
               Cadastrar um pet

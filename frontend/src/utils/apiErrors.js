@@ -13,21 +13,21 @@ function firstErrorMessage(value) {
 
 export function getApiErrorMessage(error, fallback) {
   if (!error?.response) {
-    return 'Nao foi possivel conectar ao servidor. Tente novamente.'
+    return 'Não foi possível conectar ao servidor. Tente novamente.'
   }
 
   const { data, status } = error.response
 
   if (status === 401) {
-    return 'Sua sessao expirou. Entre novamente para continuar.'
+    return 'Sua sessão expirou. Entre novamente para continuar.'
   }
 
   if (status === 403) {
-    return 'Voce nao tem permissao para realizar esta acao.'
+    return 'Você não tem permissão para realizar esta ação.'
   }
 
   if (status === 404) {
-    return 'O cadastro solicitado nao foi encontrado.'
+    return 'O cadastro solicitado não foi encontrado.'
   }
 
   if (status >= 500) {

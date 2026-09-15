@@ -21,7 +21,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = value.strip().lower()
 
         if User.objects.filter(email__iexact=email).exists():
-            raise serializers.ValidationError('Ja existe um usuario com este email.')
+            raise serializers.ValidationError('Já existe um usuário com este e-mail.')
 
         return email
 

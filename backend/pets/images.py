@@ -51,7 +51,7 @@ def sanitize_uploaded_image(upload):
 
     try:
         if image_format not in IMAGE_CONTENT_TYPES:
-            raise ValueError('Formato de imagem nao suportado.')
+            raise ValueError('Formato de imagem não suportado.')
 
         frame_count = getattr(source, 'n_frames', 1)
         decoded_pixels = source.width * source.height * frame_count

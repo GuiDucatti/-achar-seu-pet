@@ -31,7 +31,7 @@ function RegisterPage() {
       navigate('/minha-conta', { replace: true })
     } catch (err) {
       console.error(err)
-      setError(getApiErrorMessage(err, 'Nao foi possivel criar sua conta. Confira os dados.'))
+      setError(getApiErrorMessage(err, 'Não foi possível criar sua conta. Confira os dados.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -63,7 +63,7 @@ function RegisterPage() {
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <label>
-          Usuario
+          Usuário
           <input
             autoComplete="username"
             name="username"
@@ -75,7 +75,7 @@ function RegisterPage() {
         </label>
 
         <label>
-          Email
+          E-mail
           <input
             autoComplete="email"
             name="email"
@@ -107,7 +107,7 @@ function RegisterPage() {
       </form>
 
       <p className="auth-note">
-        Ja tem conta? <Link to="/login">Entrar</Link>
+        Já tem conta? <Link to="/login">Entrar</Link>
       </p>
         </div>
       </div>

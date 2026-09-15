@@ -30,8 +30,8 @@ function LoginPage() {
       console.error(err)
       setError(
         err.response?.status === 401
-          ? 'Email, usuario ou senha invalidos.'
-          : getApiErrorMessage(err, 'Nao foi possivel entrar agora.'),
+          ? 'E-mail, usuário ou senha inválidos.'
+          : getApiErrorMessage(err, 'Não foi possível entrar agora.'),
       )
     } finally {
       setIsSubmitting(false)
@@ -52,7 +52,7 @@ function LoginPage() {
           />
           <div>
             <PawPrint aria-hidden="true" size={22} />
-            <strong>Voltar a sua conta e voltar para a busca.</strong>
+            <strong>Voltar à sua conta é voltar para a busca.</strong>
             <p>
               Revise os dados, acompanhe avistamentos e atualize o anuncio quando
               houver novidade.
@@ -62,12 +62,12 @@ function LoginPage() {
         <div className="auth-panel">
       <div className="page-heading">
         <h1>Vamos continuar essa busca?</h1>
-        <p>Entre com seu email ou usuario. A rede esta esperando por voce.</p>
+        <p>Entre com seu e-mail ou usuário. A rede está esperando por você.</p>
       </div>
 
       <form className="auth-form" onSubmit={handleSubmit}>
         <label>
-          Email ou usuario
+          E-mail ou usuário
           <input
             autoComplete="username"
             name="username"
@@ -98,7 +98,7 @@ function LoginPage() {
       </form>
 
       <p className="auth-note">
-        Ainda nao tem conta? <Link to="/criar-conta">Criar conta</Link>
+        Ainda não tem conta? <Link to="/criar-conta">Criar conta</Link>
       </p>
         </div>
       </div>

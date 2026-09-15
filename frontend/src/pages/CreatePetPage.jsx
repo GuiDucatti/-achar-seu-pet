@@ -19,7 +19,7 @@ function CreatePetPage() {
       navigate(`/pets/${pet.id}`)
     } catch (err) {
       console.error(err)
-      setError(getApiErrorMessage(err, 'Nao foi possivel cadastrar o pet. Confira os campos.'))
+      setError(getApiErrorMessage(err, 'Não foi possível cadastrar o pet. Confira os campos.'))
     } finally {
       setIsSubmitting(false)
     }
@@ -29,7 +29,7 @@ function CreatePetPage() {
     <section className="form-view">
       <div className="page-heading form-heading">
         <h1>Vamos ajudar esse pet a voltar para casa.</h1>
-        <p>Conte a historia com calma. Quanto mais detalhes a rede tiver, mais facil fica reconhecer.</p>
+        <p>Conte a história com calma. Quanto mais detalhes a rede tiver, mais fácil fica reconhecer.</p>
       </div>
 
       {error && <p className="feedback error">{error}</p>}

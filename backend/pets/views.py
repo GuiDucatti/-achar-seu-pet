@@ -146,7 +146,7 @@ class PetViewSet(viewsets.ModelViewSet):
             latitude = round(data['latitude'], 3)
             longitude = round(data['longitude'], 3)
             origin_type = 'localizacao'
-            origin_label = 'Sua localizacao'
+            origin_label = 'Sua localização'
         else:
             city = data['cidade_origem']
             state_code = data['estado_origem']
@@ -161,7 +161,7 @@ class PetViewSet(viewsets.ModelViewSet):
                 return Response(
                     {
                         'codigo': 'regiao_nao_encontrada',
-                        'detail': 'Nao foi possivel localizar a cidade informada.',
+                        'detail': 'Não foi possível localizar a cidade informada.',
                     },
                     status=status.HTTP_400_BAD_REQUEST,
                 )

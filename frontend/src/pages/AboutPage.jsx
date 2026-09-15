@@ -36,22 +36,22 @@ function AboutPage() {
         <article tabIndex="0">
           <Search aria-hidden="true" size={24} />
           <h2>Procura que aproxima</h2>
-          <p>Filtros por cidade, estado e caracteristicas ajudam a olhar para o lugar certo.</p>
+          <p>Filtros por cidade, estado e características ajudam a olhar para o lugar certo.</p>
         </article>
         <article tabIndex="0">
           <ShieldCheck aria-hidden="true" size={24} />
           <h2>Cuidado em cada detalhe</h2>
-          <p>A localizacao aparece de forma aproximada para proteger quem esta procurando.</p>
+          <p>A localização aparece de forma aproximada para proteger quem está procurando.</p>
         </article>
         <article tabIndex="0">
           <MapPinned aria-hidden="true" size={24} />
           <h2>Pistas que ganham caminho</h2>
-          <p>Avistamentos, mapa e historico deixam a busca mais clara para toda a rede.</p>
+          <p>Avistamentos, mapa e histórico deixam a busca mais clara para toda a rede.</p>
         </article>
       </div>
 
       <blockquote className="about-quote">
-        <p>“As vezes, ajudar e so prestar atencao no caminho e contar o que voce viu.”</p>
+        <p>“Às vezes, ajudar é só prestar atenção no caminho e contar o que você viu.”</p>
         <cite>Uma pequena atitude pode devolver uma grande companhia.</cite>
       </blockquote>
     </section>

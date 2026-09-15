@@ -54,9 +54,9 @@ function App() {
         <nav
           className={`main-nav ${isMenuOpen ? 'open' : ''}`}
           id="main-navigation"
-          aria-label="Navegacao principal"
+          aria-label="Navegação principal"
         >
-          <NavLink onClick={closeMobileMenu} to="/">Inicio</NavLink>
+          <NavLink onClick={closeMobileMenu} to="/">Início</NavLink>
           <NavLink onClick={closeMobileMenu} to="/pets">Pets perdidos</NavLink>
           <NavLink onClick={closeMobileMenu} to="/encontrados">Encontrados</NavLink>
           <NavLink onClick={closeMobileMenu} to="/quem-somos">Quem somos</NavLink>
@@ -100,7 +100,7 @@ function App() {
             key={location.pathname}
             transition={{ duration: reduceMotion ? 0 : 0.16, ease: [0.2, 0.8, 0.2, 1] }}
           >
-            <Suspense fallback={<p className="feedback">Carregando pagina...</p>}>
+            <Suspense fallback={<p className="feedback">Carregando página...</p>}>
               <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/pets" element={<PetsPage title="Pets perdidos" status="P" />} />
@@ -144,7 +144,7 @@ function App() {
           <strong>Achar seu Pet</strong>
         </div>
         <p>Uma busca feita com cuidado, bairro por bairro.</p>
-        <NavLink to="/quem-somos">Conheca a rede</NavLink>
+        <NavLink to="/quem-somos">Conheça a rede</NavLink>
       </footer>
     </div>
   )

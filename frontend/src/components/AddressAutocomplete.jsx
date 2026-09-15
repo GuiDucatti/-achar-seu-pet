@@ -41,7 +41,7 @@ function AddressAutocomplete({
         if (requestError.code !== 'ERR_CANCELED') {
           setSuggestions([])
           setHasSearched(true)
-          setError('Nao foi possivel buscar enderecos agora. Tente novamente.')
+          setError('Não foi possível buscar endereços agora. Tente novamente.')
         }
       } finally {
         if (!controller.signal.aborted) setIsLoading(false)
@@ -129,7 +129,7 @@ function AddressAutocomplete({
 
         {showPanel && (
           <div className="address-suggestions-panel">
-            {isLoading && <p role="status">Buscando enderecos...</p>}
+            {isLoading && <p role="status">Buscando endereços...</p>}
             {!isLoading && error && <p className="address-suggestion-error">{error}</p>}
             {!isLoading && !error && hasSearched && suggestions.length === 0 && (
               <p>Nenhum local encontrado. Inclua a cidade e o estado na busca.</p>

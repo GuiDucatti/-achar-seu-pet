@@ -42,7 +42,7 @@ export function createApiClient({
 
     if (!refreshToken) {
       expireSession()
-      return Promise.reject(new Error('Refresh token indisponivel.'))
+      return Promise.reject(new Error('Refresh token indisponível.'))
     }
 
     refreshPromise = refreshApi
@@ -51,11 +51,11 @@ export function createApiClient({
         const accessToken = response.data?.access
 
         if (!accessToken) {
-          throw new Error('Resposta de renovacao sem access token.')
+          throw new Error('Resposta de renovação sem access token.')
         }
 
         if (getStoredRefreshToken() !== refreshToken) {
-          throw new Error('A sessao mudou durante a renovacao.')
+          throw new Error('A sessão mudou durante a renovação.')
         }
 
         if (response.data.refresh) {

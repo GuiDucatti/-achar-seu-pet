@@ -31,13 +31,13 @@ function PetDetailPage() {
   const isOwner = Boolean(pet?.is_owner)
   const shareMessage = pet
     ? pet.status === 'P'
-      ? `Ajude a encontrar o ${pet.nome}!\nDesapareceu em ${pet.cidade} - ${pet.estado}.\nVeja mais informacoes:\n${window.location.href}`
-      : `${pet.nome} foi marcado como encontrado.\nConheca esta historia:\n${window.location.href}`
+      ? `Ajude a encontrar o ${pet.nome}!\nDesapareceu em ${pet.cidade} - ${pet.estado}.\nVeja mais informações:\n${window.location.href}`
+      : `${pet.nome} foi marcado como encontrado.\nConheça esta história:\n${window.location.href}`
     : ''
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`
   const ownerPhone = normalizeBrazilianPhone(pet?.contato)
   const ownerContactMessage = pet
-    ? `Ola! Tenho uma informacao sobre ${pet.nome}. Vi o anuncio no Achar seu Pet: ${window.location.href}`
+    ? `Olá! Tenho uma informação sobre ${pet.nome}. Vi o anúncio no Achar seu Pet: ${window.location.href}`
     : ''
   const ownerWhatsAppUrl = buildWhatsAppUrl(ownerPhone, ownerContactMessage)
   const ownerTelephoneUrl = buildTelephoneUrl(ownerPhone)
@@ -59,7 +59,7 @@ function PetDetailPage() {
         console.error(err)
 
         if (isMounted) {
-          setError(getApiErrorMessage(err, 'Pet nao encontrado ou indisponivel.'))
+          setError(getApiErrorMessage(err, 'Pet não encontrado ou indisponível.'))
         }
       } finally {
         if (isMounted) {
@@ -81,7 +81,7 @@ function PetDetailPage() {
       setPet(updatedPet)
     } catch (err) {
       console.error(err)
-      setError(getApiErrorMessage(err, 'Nao foi possivel atualizar o status.'))
+      setError(getApiErrorMessage(err, 'Não foi possível atualizar o status.'))
     }
   }
 
@@ -98,7 +98,7 @@ function PetDetailPage() {
       navigate('/pets')
     } catch (err) {
       console.error(err)
-      setError(getApiErrorMessage(err, 'Nao foi possivel excluir este cadastro.'))
+      setError(getApiErrorMessage(err, 'Não foi possível excluir este cadastro.'))
     } finally {
       setIsDeleting(false)
     }
@@ -116,7 +116,7 @@ function PetDetailPage() {
     } catch (err) {
       console.error(err)
       setSightingError(
-        getApiErrorMessage(err, 'Nao foi possivel registrar o avistamento. Confira o local informado.'),
+        getApiErrorMessage(err, 'Não foi possível registrar o avistamento. Confira o local informado.'),
       )
     } finally {
       setIsSubmittingSighting(false)
@@ -145,12 +145,12 @@ function PetDetailPage() {
             {ownerPhone && (
               <a
                 className="sighting-success-link"
-                href={buildWhatsAppUrl(ownerPhone, `Ola! Registrei um avistamento de ${pet.nome} em ${sightingSuccess.addressLabel}. Veja o anuncio: ${window.location.href}`)}
+                href={buildWhatsAppUrl(ownerPhone, `Olá! Registrei um avistamento de ${pet.nome} em ${sightingSuccess.addressLabel}. Veja o anúncio: ${window.location.href}`)}
                 rel="noreferrer"
                 target="_blank"
               >
                 <MessageCircle aria-hidden="true" size={16} />
-                Avisar tambem pelo WhatsApp
+                Avisar também pelo WhatsApp
               </a>
             )}
           </motion.div>
@@ -165,7 +165,7 @@ function PetDetailPage() {
             <span className={`detail-status ${pet.status === 'E' ? 'found' : ''}`}>
               {pet.status === 'P' ? 'Pet perdido' : 'Pet encontrado'}
             </span>
-            {pet.is_demo && <span className="detail-demo-label">Cadastro de demonstracao</span>}
+            {pet.is_demo && <span className="detail-demo-label">Cadastro de demonstração</span>}
             <span>Cadastro acompanhado pela rede</span>
           </div>
           <h1>{pet.nome}</h1>
@@ -173,7 +173,7 @@ function PetDetailPage() {
 
           {pet.is_demo && (
             <p className="detail-demo-note">
-              Este perfil e ficticio e existe para voce conhecer e testar a plataforma.
+              Este perfil é fictício e existe para você conhecer e testar a plataforma.
             </p>
           )}
 
@@ -181,8 +181,8 @@ function PetDetailPage() {
             <HeartHandshake aria-hidden="true" size={21} />
             <span>
               {pet.status === 'P'
-                ? 'Reconheceu algum detalhe? Compartilhe o anuncio ou registre somente o que voce observou.'
-                : `${pet.nome} ja foi marcado como encontrado. Este registro continua visivel para fortalecer quem ainda esta buscando.`}
+                ? 'Reconheceu algum detalhe? Compartilhe o anúncio ou registre somente o que você observou.'
+                : `${pet.nome} já foi marcado como encontrado. Este registro continua visível para fortalecer quem ainda está buscando.`}
             </span>
           </div>
 
@@ -195,11 +195,11 @@ function PetDetailPage() {
               </dd>
             </div>
             <div>
-              <dt>Area do mapa</dt>
+              <dt>Área do mapa</dt>
               <dd>
                 {pet.localizacao_publica
                   ? `Raio aproximado de ${pet.localizacao_publica.raio_metros} m`
-                  : 'Localizacao aproximada indisponivel'}
+                  : 'Localização aproximada indisponível'}
               </dd>
             </div>
             <div>
@@ -223,7 +223,7 @@ function PetDetailPage() {
               </dd>
             </div>
             <div>
-              <dt>Caracteristicas</dt>
+              <dt>Características</dt>
               <dd>{pet.caracteristicas}</dd>
             </div>
           </dl>
@@ -267,8 +267,8 @@ function PetDetailPage() {
             <div className="sighting-cta-title-row">
               <HeartHandshake aria-hidden="true" size={23} />
             </div>
-            <h2 id="sighting-cta-title">Voce viu este pet?</h2>
-            <p>Registre o local e os detalhes. Mesmo uma pista pequena pode devolver a esperanca.</p>
+            <h2 id="sighting-cta-title">Você viu este pet?</h2>
+            <p>Registre o local e os detalhes. Mesmo uma pista pequena pode devolver a esperança.</p>
           </div>
           <button
             className="primary-action"

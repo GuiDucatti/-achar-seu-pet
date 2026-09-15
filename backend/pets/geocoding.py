@@ -94,7 +94,7 @@ def _load_suggestion_features(search_text, limit):
             return payload.get('features', [])
     except Exception:
         logger.warning(
-            'Falha ao consultar sugestoes de endereco para %s',
+            'Falha ao consultar sugestões de endereço para %s',
             search_text,
             exc_info=True,
         )
@@ -200,7 +200,7 @@ def geocode_address(endereco_texto, cidade, estado):
         latitude = float(results[0]['lat'])
         longitude = float(results[0]['lon'])
     except (KeyError, TypeError, ValueError):
-        logger.warning('Resposta invalida do geocoding para %s', search_text)
+        logger.warning('Resposta inválida do geocoding para %s', search_text)
         return None
 
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:

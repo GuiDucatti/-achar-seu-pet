@@ -39,19 +39,19 @@ const initialPetValues = {
 const steps = [
   {
     title: 'Quem desapareceu?',
-    description: 'Comece pela foto e pelo nome. E a parte que ajuda a reconhecer de longe.',
+    description: 'Comece pela foto e pelo nome. É a parte que ajuda a reconhecer de longe.',
   },
   {
     title: 'Como ele e?',
-    description: 'Escolha os detalhes que fariam alguem parar e olhar mais uma vez.',
+    description: 'Escolha os detalhes que fariam alguém parar e olhar mais uma vez.',
   },
   {
     title: 'Onde foi visto?',
-    description: 'Uma regiao e uma data ajudam a rede a procurar no lugar certo.',
+    description: 'Uma região e uma data ajudam a rede a procurar no lugar certo.',
   },
   {
-    title: 'Como avisar voce?',
-    description: 'Revise a historia, confira o contato e publique quando estiver pronto.',
+    title: 'Como avisar você?',
+    description: 'Revise a história, confira o contato e publique quando estiver pronto.',
   },
 ]
 
@@ -62,14 +62,14 @@ const speciesOptions = [
 
 const sexOptions = [
   { label: 'Macho', value: 'macho' },
-  { label: 'Femea', value: 'femea' },
+  { label: 'Fêmea', value: 'femea' },
 ]
 
 function PetPreview({ photoPreview, values }) {
   const reduceMotion = useReducedMotion()
 
   return (
-    <aside className="listing-preview" aria-label="Preview da publicacao">
+    <aside className="listing-preview" aria-label="Preview da publicação">
       <div className="preview-label">
         <span>Assim vai aparecer</span>
         <CheckCircle2 aria-hidden="true" size={17} />
@@ -97,7 +97,7 @@ function PetPreview({ photoPreview, values }) {
         </span>
         <h3>{values.nome || 'Nome do pet'}</h3>
         <p className="preview-description">
-          {values.descricao || 'A descricao da historia aparecera neste espaco.'}
+          {values.descricao || 'A descrição da história aparecerá neste espaço.'}
         </p>
         <div className="preview-meta">
           <span>
@@ -187,7 +187,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setErrors((current) => ({ ...current, foto: 'A foto deve ter no maximo 5 MB.' }))
+      setErrors((current) => ({ ...current, foto: 'A foto deve ter no máximo 5 MB.' }))
       return
     }
 
@@ -235,8 +235,8 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
     }
 
     if (stepIndex === 1) {
-      if (!values.raca.trim()) nextErrors.raca = 'Informe a raca ou escreva "nao sei".'
-      if (!values.cor.trim()) nextErrors.cor = 'Qual e a cor predominante?'
+      if (!values.raca.trim()) nextErrors.raca = 'Informe a raça ou escreva "não sei".'
+      if (!values.cor.trim()) nextErrors.cor = 'Qual é a cor predominante?'
       if (!values.caracteristicas.trim()) nextErrors.caracteristicas = 'Conte um detalhe marcante.'
     }
 
@@ -244,14 +244,14 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
       if (!values.estado.trim()) nextErrors.estado = 'Informe o estado.'
       if (!values.cidade.trim()) nextErrors.cidade = 'Informe a cidade.'
       if (!values.endereco_texto.trim()) {
-        nextErrors.endereco_texto = 'Busque a rua ou informe um ponto de referencia.'
+        nextErrors.endereco_texto = 'Busque a rua ou informe um ponto de referência.'
       }
       if (!values.data_desaparecimento) nextErrors.data_desaparecimento = 'Informe a data.'
     }
 
     if (stepIndex === 3) {
       if (!values.descricao.trim()) nextErrors.descricao = 'Descreva o que aconteceu.'
-      if (!values.contato.trim()) nextErrors.contato = 'Informe como as pessoas podem avisar voce.'
+      if (!values.contato.trim()) nextErrors.contato = 'Informe como as pessoas podem avisar você.'
     }
 
     return nextErrors
@@ -369,7 +369,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 )}
               </div>
               {fieldError('foto')}
-              <span className="form-help">JPG, PNG, WebP ou GIF, ate 5 MB.</span>
+              <span className="form-help">JPG, PNG, WebP ou GIF, até 5 MB.</span>
             </div>
 
             <div className="wizard-field-stack">
@@ -414,7 +414,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
           <div className="wizard-field-stack">
             <div className="form-grid">
               <label htmlFor="pet-raca">
-                Raca
+                Raça
                 <input aria-invalid={Boolean(errors.raca)} id="pet-raca" name="raca" onChange={(event) => updateField('raca', event.target.value)} placeholder="Ex.: vira-lata" type="text" value={values.raca} />
                 {fieldError('raca')}
               </label>
@@ -450,8 +450,8 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             <div className="location-intro">
               <MapPin aria-hidden="true" size={21} />
               <div>
-                <strong>Vamos marcar uma area, nao um endereco.</strong>
-                <span>A localizacao publica fica aproximada para proteger voce e o pet.</span>
+                <strong>Vamos marcar uma área, não um endereço.</strong>
+                <span>A localização pública fica aproximada para proteger você e o pet.</span>
               </div>
             </div>
             <div>
@@ -466,13 +466,13 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 value={values.endereco_texto}
               />
               <span className="form-help" id="regiao-help">
-                Digite pelo menos 3 letras e escolha a cidade correta. Nao informe o numero da casa.
+                Digite pelo menos 3 letras e escolha a cidade correta. Não informe o número da casa.
               </span>
               {fieldError('endereco_texto')}
               {selectedLocation && (
                 <span className="address-selected-note" role="status">
                   <Check aria-hidden="true" size={14} />
-                  Local pronto para aparecer como area aproximada no mapa.
+                  Local pronto para aparecer como área aproximada no mapa.
                 </span>
               )}
             </div>
@@ -500,8 +500,8 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
           <div className="review-step">
             <div className="review-fields">
               <label htmlFor="pet-descricao">
-                Conte a historia
-                <textarea aria-invalid={Boolean(errors.descricao)} id="pet-descricao" name="descricao" onChange={(event) => updateField('descricao', event.target.value)} placeholder="O que aconteceu? O que alguem precisa saber para ajudar?" rows="5" value={values.descricao} />
+                Conte a história
+                <textarea aria-invalid={Boolean(errors.descricao)} id="pet-descricao" name="descricao" onChange={(event) => updateField('descricao', event.target.value)} placeholder="O que aconteceu? O que alguém precisa saber para ajudar?" rows="5" value={values.descricao} />
                 {fieldError('descricao')}
               </label>
               <label htmlFor="pet-contato">
@@ -513,7 +513,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                 {fieldError('contato')}
               </label>
               <label htmlFor="pet-status">
-                Situacao da historia
+                Situação da história
                 <select id="pet-status" name="status" onChange={(event) => updateField('status', event.target.value)} value={values.status}>
                   <option value="P">Pet perdido</option>
                   <option value="E">Pet encontrado</option>
@@ -533,7 +533,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             Voltar
           </button>
         ) : (
-          <span className="wizard-action-note"><UploadCloud aria-hidden="true" size={16} /> Voce podera revisar tudo antes de publicar.</span>
+          <span className="wizard-action-note"><UploadCloud aria-hidden="true" size={16} /> Você poderá revisar tudo antes de publicar.</span>
         )}
 
         {currentStep < steps.length - 1 ? (
@@ -548,7 +548,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
           </button>
         )}
       </div>
-      {isEditing && <span className="form-help">Suas alteracoes serao salvas neste cadastro.</span>}
+      {isEditing && <span className="form-help">Suas alterações serão salvas neste cadastro.</span>}
     </form>
   )
 }

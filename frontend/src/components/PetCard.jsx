@@ -6,8 +6,8 @@ function PetCard({ pet }) {
   const distance = Number(pet.distancia_aproximada_km)
   const hasDistance = pet.distancia_aproximada_km !== null && Number.isFinite(distance)
   const distanceLabel = distance < 1
-    ? 'A menos de 1 km de voce'
-    : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distance)} km de voce`
+    ? 'A menos de 1 km de você'
+    : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(distance)} km de você`
 
   return (
     <article className="pet-item">
@@ -21,7 +21,7 @@ function PetCard({ pet }) {
         <span className={`pet-status ${pet.status === 'E' ? 'found' : ''}`}>
           {pet.status === 'E' ? 'Encontrado' : 'Perdido'}
         </span>
-        {pet.is_demo && <span className="pet-demo-label">Cadastro de demonstracao</span>}
+        {pet.is_demo && <span className="pet-demo-label">Cadastro de demonstração</span>}
       </div>
       <div className="pet-card-content">
         <div className="pet-card-heading">
@@ -38,7 +38,7 @@ function PetCard({ pet }) {
         <p className="pet-meta">Desapareceu em {formatDate(pet.data_desaparecimento)}</p>
         {hasDistance && <p className="pet-distance">{distanceLabel}</p>}
         <Link className="text-link" to={`/pets/${pet.id}`}>
-          Ver historia completa
+          Ver história completa
           <ArrowUpRight aria-hidden="true" size={15} />
         </Link>
       </div>

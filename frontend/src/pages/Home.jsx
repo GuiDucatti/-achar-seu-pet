@@ -25,7 +25,7 @@ function Home() {
         const pets = await listPets({ status: 'P' })
         setRecentPets(pets.slice(0, 3))
       } catch (err) {
-        setError(getApiErrorMessage(err, 'Nao foi possivel carregar os pets recentes.'))
+        setError(getApiErrorMessage(err, 'Não foi possível carregar os pets recentes.'))
         console.error(err)
       } finally {
         setIsLoading(false)
@@ -137,7 +137,7 @@ function Home() {
           <MapPinned aria-hidden="true" size={25} />
           <div>
             <strong>Olhe para o bairro certo</strong>
-            <span>Mapa aproximado para proteger cada familia sem esconder o caminho.</span>
+            <span>Mapa aproximado para proteger cada família sem esconder o caminho.</span>
           </div>
         </div>
         <div className="signal-item signal-search">
@@ -151,14 +151,14 @@ function Home() {
           <HeartHandshake aria-hidden="true" size={22} />
           <div>
             <strong>Deixe uma pista</strong>
-            <span>Um avistamento pode mudar o dia de alguem.</span>
+            <span>Um avistamento pode mudar o dia de alguém.</span>
           </div>
         </div>
         <div className="signal-item signal-privacy">
           <ShieldCheck aria-hidden="true" size={22} />
           <div>
             <strong>Ajude com cuidado</strong>
-            <span>Informacao util, contato opcional e privacidade por padrao.</span>
+            <span>Informação útil, contato opcional e privacidade por padrão.</span>
           </div>
         </div>
       </section>
@@ -187,7 +187,7 @@ function Home() {
       <section className="home-section home-recent" data-reveal>
         <div className="section-heading">
           <div>
-            <h2>Quem esta esperando por uma boa noticia</h2>
+            <h2>Quem está esperando por uma boa notícia</h2>
           </div>
           <Link className="section-link" to="/pets">
             Ver todos
@@ -215,24 +215,24 @@ function Home() {
           <h2>Uma foto. Um bairro. Um reencontro.</h2>
           <p>
             A foto ajuda a reconhecer. O bairro ajuda a saber onde olhar. Quando
-            essas informacoes se encontram, uma pista deixa de ser apenas
-            coincidencia.
+            essas informações se encontram, uma pista deixa de ser apenas
+            coincidência.
           </p>
           <div className="story-proof">
             <ShieldCheck aria-hidden="true" size={20} />
-            <span>Localizacao aproximada. Informacao cuidadosa.</span>
+            <span>Localização aproximada. Informação cuidadosa.</span>
           </div>
         </div>
         <div className="home-story-image">
           <img
-            alt="Tutora abracando seu cachorro em uma area externa"
+            alt="Tutora abraçando seu cachorro em uma área externa"
             decoding="async"
             height="720"
             loading="lazy"
             src={homeStoryImage}
             width="960"
           />
-          <span>Uma imagem nitida ajuda alguem a reconhecer</span>
+          <span>Uma imagem nítida ajuda alguém a reconhecer</span>
         </div>
       </section>
 

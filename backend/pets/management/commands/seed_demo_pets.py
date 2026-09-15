@@ -21,14 +21,14 @@ DEMO_PETS = (
     {
         'nome': 'Mel', 'foto': 'mel.jpg', 'especie': 'cachorro',
         'raca': 'Chow-chow', 'cor': 'Caramelo', 'sexo': 'femea',
-        'caracteristicas': 'Pelagem volumosa e lingua azulada.',
-        'cidade': 'Aracatuba', 'estado': 'SP', 'latitude': -21.2089,
+        'caracteristicas': 'Pelagem volumosa e língua azulada.',
+        'cidade': 'Araçatuba', 'estado': 'SP', 'latitude': -21.2089,
         'longitude': -50.4328, 'data_desaparecimento': date(2026, 8, 27),
         'status': Pet.STATUS_PERDIDO,
     },
     {
         'nome': 'Lua', 'foto': 'lua.jpg', 'especie': 'gato',
-        'raca': 'Sem raca definida', 'cor': 'Branca e cinza', 'sexo': 'femea',
+        'raca': 'Sem raça definida', 'cor': 'Branca e cinza', 'sexo': 'femea',
         'caracteristicas': 'Pequena, olhos claros e ponta da cauda escura.',
         'cidade': 'Bilac', 'estado': 'SP', 'latitude': -21.4040,
         'longitude': -50.4746, 'data_desaparecimento': date(2026, 8, 25),
@@ -44,15 +44,15 @@ DEMO_PETS = (
     },
     {
         'nome': 'Amora', 'foto': 'amora.jpg', 'especie': 'gato',
-        'raca': 'Sem raca definida', 'cor': 'Preta e branca', 'sexo': 'femea',
+        'raca': 'Sem raça definida', 'cor': 'Preta e branca', 'sexo': 'femea',
         'caracteristicas': 'Mancha branca no queixo e patas dianteiras claras.',
-        'cidade': 'Penapolis', 'estado': 'SP', 'latitude': -21.4197,
+        'cidade': 'Penápolis', 'estado': 'SP', 'latitude': -21.4197,
         'longitude': -50.0775, 'data_desaparecimento': date(2026, 8, 20),
         'status': Pet.STATUS_PERDIDO,
     },
     {
         'nome': 'Frida', 'foto': 'frida.jpg', 'especie': 'gato',
-        'raca': 'Sem raca definida', 'cor': 'Tigrada', 'sexo': 'femea',
+        'raca': 'Sem raça definida', 'cor': 'Tigrada', 'sexo': 'femea',
         'caracteristicas': 'Orelha esquerda com pequena marca e coleira rosa.',
         'cidade': 'Birigui', 'estado': 'SP', 'latitude': -21.2810,
         'longitude': -50.3330, 'data_desaparecimento': date(2026, 8, 18),
@@ -61,7 +61,7 @@ DEMO_PETS = (
     {
         'nome': 'Zeus', 'foto': 'zeus.jpg', 'especie': 'cachorro',
         'raca': 'Husky siberiano', 'cor': 'Cinza e branco', 'sexo': 'macho',
-        'caracteristicas': 'Olhos azuis e mascara cinza no rosto.',
+        'caracteristicas': 'Olhos azuis e máscara cinza no rosto.',
         'cidade': 'Birigui', 'estado': 'SP', 'latitude': -21.2950,
         'longitude': -50.3480, 'data_desaparecimento': date(2026, 8, 15),
         'status': Pet.STATUS_ENCONTRADO,
@@ -70,13 +70,13 @@ DEMO_PETS = (
         'nome': 'Nina', 'foto': 'nina.jpg', 'especie': 'cachorro',
         'raca': 'Springer spaniel', 'cor': 'Branca e marrom', 'sexo': 'femea',
         'caracteristicas': 'Orelhas longas e coleira vermelha.',
-        'cidade': 'Aracatuba', 'estado': 'SP', 'latitude': -21.2150,
+        'cidade': 'Araçatuba', 'estado': 'SP', 'latitude': -21.2150,
         'longitude': -50.4400, 'data_desaparecimento': date(2026, 8, 12),
         'status': Pet.STATUS_ENCONTRADO,
     },
     {
         'nome': 'Salem', 'foto': 'salem.jpg', 'especie': 'gato',
-        'raca': 'Sem raca definida', 'cor': 'Preto', 'sexo': 'macho',
+        'raca': 'Sem raça definida', 'cor': 'Preto', 'sexo': 'macho',
         'caracteristicas': 'Olhos verdes e pequeno tufo branco no peito.',
         'cidade': 'Bilac', 'estado': 'SP', 'latitude': -21.3970,
         'longitude': -50.4680, 'data_desaparecimento': date(2026, 8, 10),
@@ -84,7 +84,7 @@ DEMO_PETS = (
     },
     {
         'nome': 'Bob', 'foto': 'bob.jpg', 'especie': 'cachorro',
-        'raca': 'Spaniel japones', 'cor': 'Branco e preto', 'sexo': 'macho',
+        'raca': 'Spaniel japonês', 'cor': 'Branco e preto', 'sexo': 'macho',
         'caracteristicas': 'Pequeno, focinho curto e pelagem macia.',
         'cidade': 'Coroados', 'estado': 'SP', 'latitude': -21.3500,
         'longitude': -50.2920, 'data_desaparecimento': date(2026, 8, 8),
@@ -94,7 +94,7 @@ DEMO_PETS = (
 
 
 class Command(BaseCommand):
-    help = 'Cria ou atualiza os dez pets ficticios usados na demonstracao.'
+    help = 'Cria ou atualiza os dez pets fictícios usados na demonstração.'
 
     def handle(self, *args, **options):
         user, created = get_user_model().objects.get_or_create(
@@ -121,12 +121,12 @@ class Command(BaseCommand):
             defaults = {
                 **item,
                 'foto': stored_name,
-                'endereco_texto': f"Regiao central de {item['cidade']}",
+                'endereco_texto': f"Região central de {item['cidade']}",
                 'raio_area_metros': 400,
                 'descricao': (
-                    f"Cadastro ficticio de {item['nome']} para demonstrar a busca regional."
+                    f"Cadastro fictício de {item['nome']} para demonstrar a busca regional."
                 ),
-                'contato': 'Nao disponivel',
+                'contato': 'Não disponível',
                 'is_demo': True,
             }
             defaults.pop('nome')
@@ -141,6 +141,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f'Demonstracao pronta: {created_count} criados, {updated_count} atualizados.'
+                f'Demonstração pronta: {created_count} criados, {updated_count} atualizados.'
             )
         )

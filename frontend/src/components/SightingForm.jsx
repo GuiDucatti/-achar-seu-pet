@@ -18,7 +18,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
   const [locationError, setLocationError] = useState('')
   const [copyFeedback, setCopyFeedback] = useState('')
   const phone = normalizeBrazilianPhone(pet.contato)
-  const ownerMessage = `Ola! Acho que vi ${pet.nome}. Estou entrando em contato pelo Achar seu Pet: ${window.location.href}`
+  const ownerMessage = `Olá! Acho que vi ${pet.nome}. Estou entrando em contato pelo Achar seu Pet: ${window.location.href}`
   const ownerWhatsAppUrl = buildWhatsAppUrl(phone, ownerMessage)
   const ownerTelephoneUrl = buildTelephoneUrl(phone)
 
@@ -62,7 +62,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
     const formData = new FormData(event.currentTarget)
 
     if (!selectedLocation) {
-      setLocationError('Digite o local e escolha uma das sugestoes da cidade correta.')
+      setLocationError('Digite o local e escolha uma das sugestões da cidade correta.')
       return
     }
 
@@ -80,7 +80,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
       await navigator.clipboard.writeText(pet.contato)
       setCopyFeedback('Contato copiado.')
     } catch {
-      setCopyFeedback('Nao foi possivel copiar. Selecione o contato abaixo.')
+      setCopyFeedback('Não foi possível copiar. Selecione o contato abaixo.')
     }
   }
 
@@ -108,9 +108,9 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
         <div className="modal-heading">
           <div>
             <h2 id="sighting-title">Vi esse pet!</h2>
-            <p className="modal-intro">Obrigado por parar e olhar. Conte o que lembrar, mesmo que pareca pequeno.</p>
+            <p className="modal-intro">Obrigado por parar e olhar. Conte o que lembrar, mesmo que pareça pequeno.</p>
           </div>
-          <button aria-label="Fechar formulario" className="modal-close" onClick={onClose} ref={closeButtonRef} type="button">
+          <button aria-label="Fechar formulário" className="modal-close" onClick={onClose} ref={closeButtonRef} type="button">
             <X aria-hidden="true" size={18} />
           </button>
         </div>
@@ -118,13 +118,13 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
         <div className="sighting-pet-context">
           <img alt={`Foto de ${pet.nome}`} src={pet.foto} />
           <p>
-            Descreva apenas o que voce observou e indique o local com a maior precisao possivel.
+            Descreva apenas o que você observou e indique o local com a maior precisão possível.
           </p>
         </div>
 
         <section className="sighting-contact-panel" aria-labelledby="owner-contact-title">
           <div>
-            <strong id="owner-contact-title">Avise o responsavel agora</strong>
+            <strong id="owner-contact-title">Avise o responsável agora</strong>
             <span>{pet.contato}</span>
           </div>
           {phone ? (
@@ -153,7 +153,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
               describedBy={`sighting-location-help${locationError ? ' sighting-location-error' : ''}`}
               id="sighting-location"
               invalid={Boolean(locationError)}
-              label="Onde voce viu este pet?"
+              label="Onde você viu este pet?"
               onChange={(value) => {
                 setAddress(value)
                 setSelectedLocation(null)
@@ -164,11 +164,11 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
                 setSelectedLocation(suggestion)
                 setLocationError('')
               }}
-              placeholder="Digite a rua, bairro ou ponto de referencia"
+              placeholder="Digite a rua, bairro ou ponto de referência"
               value={address}
             />
             <span className="form-help" id="sighting-location-help">
-              Escolha uma sugestao para registrar o ponto correto sem digitar coordenadas.
+              Escolha uma sugestão para registrar o ponto correto sem digitar coordenadas.
             </span>
             {locationError && <span className="field-error" id="sighting-location-error">{locationError}</span>}
             {selectedLocation && (
@@ -179,15 +179,15 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
           </div>
 
           <label>
-            O que voce viu?
+            O que você viu?
             <textarea name="descricao" rows="4" />
           </label>
 
           <label>
             Seu contato para o tutor (opcional)
-            <input name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsavel retornar" type="text" />
+            <input name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsável retornar" type="text" />
           </label>
-          <span className="form-help">Seu relato, local exato e contato ficam visiveis somente para o tutor.</span>
+          <span className="form-help">Seu relato, local exato e contato ficam visíveis somente para o tutor.</span>
 
           <AnimatePresence initial={false}>
             {error && (

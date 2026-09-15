@@ -7,9 +7,9 @@ function PetMap({ pet }) {
   return (
     <section className="map-section" aria-labelledby="map-title">
       <div className="section-heading">
-        <h2 id="map-title">Regiao aproximada</h2>
+        <h2 id="map-title">Região aproximada</h2>
         <p>
-          O mapa mostra uma area aproximada para preservar a privacidade do endereco.
+          O mapa mostra uma área aproximada para preservar a privacidade do endereço.
         </p>
       </div>
 
@@ -32,8 +32,8 @@ function PetMap({ pet }) {
         </MapContainer>
       ) : (
         <div className="map-placeholder">
-          <strong>Localizacao ainda nao encontrada</strong>
-          <span>O cadastro continua disponivel pela regiao informada.</span>
+          <strong>Localização ainda não encontrada</strong>
+          <span>O cadastro continua disponível pela região informada.</span>
         </div>
       )}
     </section>

@@ -200,7 +200,7 @@ class PetWriteSerializer(serializers.ModelSerializer):
 
         if has_latitude and ((attrs['latitude'] is None) != (attrs['longitude'] is None)):
             raise serializers.ValidationError(
-                {'coordinates': 'Latitude e longitude devem ser ambas validas ou ambas nulas.'}
+                {'coordinates': 'Latitude e longitude devem ser ambas válidas ou ambas nulas.'}
             )
 
         if (
@@ -233,7 +233,7 @@ class PetWriteSerializer(serializers.ModelSerializer):
         if value.size > settings.MAX_IMAGE_UPLOAD_SIZE:
             limite = settings.MAX_IMAGE_UPLOAD_SIZE_MB
             raise serializers.ValidationError(
-                f'A foto deve ter no maximo {limite} MB.'
+                f'A foto deve ter no máximo {limite} MB.'
             )
 
         allowed_extensions = {
@@ -250,13 +250,13 @@ class PetWriteSerializer(serializers.ModelSerializer):
         ):
             formatos = ', '.join(settings.ALLOWED_IMAGE_CONTENT_TYPES)
             raise serializers.ValidationError(
-                f'Formato de imagem nao permitido. Use: {formatos}.'
+                f'Formato de imagem não permitido. Use: {formatos}.'
             )
 
         try:
             return sanitize_uploaded_image(value)
         except (KeyError, OSError, ValueError):
-            raise serializers.ValidationError('O arquivo enviado nao e uma imagem valida.')
+            raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
 
 
 class NearbyPetSearchSerializer(serializers.Serializer):

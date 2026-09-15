@@ -1,6 +1,6 @@
 export function formatDate(date) {
   if (!date) {
-    return 'Data nao informada'
+    return 'Data não informada'
   }
 
   return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(new Date(date))
@@ -8,7 +8,7 @@ export function formatDate(date) {
 
 export function formatDateTime(date) {
   if (!date) {
-    return 'Data nao informada'
+    return 'Data não informada'
   }
 
   return new Intl.DateTimeFormat('pt-BR', {

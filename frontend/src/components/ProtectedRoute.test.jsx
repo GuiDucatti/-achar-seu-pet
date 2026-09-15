@@ -41,7 +41,7 @@ describe('ProtectedRoute', () => {
   it('mantem o conteudo protegido oculto enquanto verifica a sessao', () => {
     renderProtectedRoute({ isAuthenticated: false, isLoadingUser: true })
 
-    expect(screen.getByText('Verificando sessao...')).toBeTruthy()
+    expect(screen.getByText('Verificando sessão...')).toBeTruthy()
     expect(screen.queryByText('Conteudo privado')).toBeNull()
   })
 

@@ -152,7 +152,7 @@ class PetUploadTests(TestCase):
         response = self.client.post('/api/pets/', self.pet_payload(), format='multipart')
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('maximo', str(response.data['foto']).lower())
+        self.assertIn('máximo', str(response.data['foto']).lower())
 
     def test_rejects_disallowed_image_extension(self):
         response = self.client.post(
@@ -252,7 +252,7 @@ class PetUploadTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('imagem valida', str(response.data['foto']).lower())
+        self.assertIn('imagem válida', str(response.data['foto']).lower())
 
 
 class PetLocationIntegrityTests(TestCase):

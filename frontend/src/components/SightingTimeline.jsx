@@ -21,13 +21,13 @@ function SightingTimeline({ isOwner, sightings }) {
               <time dateTime={sighting.criado_em}>{formatDateTime(sighting.criado_em)}</time>
               {isOwner ? (
                 <>
-                  <p>{sighting.descricao || 'Nenhuma descricao informada.'}</p>
+                  <p>{sighting.descricao || 'Nenhuma descrição informada.'}</p>
                   {sighting.proximo && (
-                    <strong className="proximity-badge">Possivel correspondencia proxima</strong>
+                    <strong className="proximity-badge">Possível correspondência próxima</strong>
                   )}
-                  <span>Localizacao registrada para calcular a proximidade desta pista.</span>
+                  <span>Localização registrada para calcular a proximidade desta pista.</span>
                   {sighting.distancia_km !== null && sighting.distancia_km !== undefined && (
-                    <span>Distancia da regiao do pet: {sighting.distancia_km} km</span>
+                    <span>Distância da região do pet: {sighting.distancia_km} km</span>
                   )}
                   {sighting.contato_quem_viu && <small>Contato: {sighting.contato_quem_viu}</small>}
                 </>
@@ -38,7 +38,7 @@ function SightingTimeline({ isOwner, sightings }) {
           ))}
         </ol>
       ) : (
-        <p className="feedback">Ainda nao ha avistamentos registrados.</p>
+        <p className="feedback">Ainda não há avistamentos registrados.</p>
       )}
     </section>
   )
