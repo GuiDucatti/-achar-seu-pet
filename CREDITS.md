@@ -7,6 +7,9 @@ atribuicao nao e obrigatoria, mas os creditos sao mantidos por transparencia.
 
 Licenca: https://www.pexels.com/license/
 
+A fotografia da Lobinha exibida na secao de motivacao do README pertence ao
+acervo pessoal do autor.
+
 | Uso | Fotografo | Pagina original |
 | --- | --- | --- |
 | Inicio - destaque cachorro e gato | Ioan-Dan Plesa | https://www.pexels.com/photo/close-up-shot-of-a-dog-and-a-cat-sitting-together-14770947/ |

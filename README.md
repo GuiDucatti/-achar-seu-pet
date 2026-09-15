@@ -8,6 +8,25 @@ O projeto foi construido como uma aplicacao separada de frontend e backend, com 
 
 Quando um pet desaparece, as informacoes costumam ficar espalhadas em grupos e redes sociais. Isso dificulta encontrar anuncios, atualizar o status do animal e organizar pistas de pessoas que o viram.
 
+## Motivacao
+
+Criei o Achar seu Pet a partir de uma experiencia muito pessoal. Sempre tive
+cachorros que, as vezes, fugiam de casa, e cada desaparecimento vinha
+acompanhado do medo de alguem leva-los, de acontecer um atropelamento ou de eu
+nao conseguir encontra-los.
+
+Pensando nesse desespero e em outras pessoas que passam pela mesma situacao,
+desenvolvi uma plataforma para reunir informacoes, facilitar a divulgacao e
+transformar a ajuda da comunidade em uma busca mais organizada. A Lobinha,
+minha propria cachorra e inspiracao para o projeto, representa o motivo pelo
+qual comecei.
+
+<p align="center">
+  <img src="docs/images/lobinha.jpeg" alt="Lobinha, a cachorra que inspirou o projeto" width="420">
+</p>
+
+<p align="center"><em>Essa e a minha fujona. Ela se chama Lobinha.</em></p>
+
 ## Solucao
 
 O Achar seu Pet centraliza o cadastro, a busca e os avistamentos em um fluxo unico:
