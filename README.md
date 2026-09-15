@@ -259,9 +259,13 @@ Este projeto foi preparado como uma demonstracao de portfolio e nao esta publica
 
 O suporte a armazenamento persistente com Cloudflare R2 esta implementado para um futuro deploy. A publicacao da aplicacao depende da configuracao de hospedagem, banco PostgreSQL, bucket R2 e credenciais de producao.
 
+## Licenca
+
+O codigo deste projeto esta disponivel sob a [licenca MIT](LICENSE). As
+fotografias seguem as condicoes e os creditos descritos em [CREDITS.md](CREDITS.md).
+
 ## Proximos passos
 
 - testar manualmente todos os fluxos com calma;
 - se desejado, adicionar um video curto da navegacao;
-- escolher e adicionar uma licenca para o codigo;
 - publicar o repositorio depois da revisao final.
