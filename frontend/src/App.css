@@ -1212,6 +1212,72 @@ textarea:focus-visible {
   font-size: 13px;
 }
 
+.account-pets {
+  margin-top: 56px;
+  padding-top: 34px;
+  border-top: 1px solid var(--border);
+}
+
+.account-pets-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.account-pets-heading h2 {
+  margin: 5px 0 0;
+  color: var(--text-strong);
+  font-size: 36px;
+}
+
+.account-pets-heading p:last-child {
+  max-width: 620px;
+  margin-top: 7px;
+}
+
+.account-pets-heading .secondary-action {
+  flex: 0 0 auto;
+}
+
+.account-pets-grid {
+  grid-template-columns: repeat(3, minmax(0, 280px));
+  justify-content: start;
+}
+
+.account-pets-feedback {
+  min-height: 118px;
+  margin-top: 24px;
+  padding: 24px 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.account-pets-feedback p {
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: 800;
+}
+
+.account-pets-feedback span {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.account-pets-feedback .primary-action,
+.account-pets-feedback .secondary-action {
+  margin-top: 4px;
+}
+
+.account-pets-error {
+  color: var(--danger);
+}
+
 .account-next-step {
   width: min(100%, 900px);
   min-height: 280px;
@@ -2355,6 +2421,21 @@ textarea:focus-visible {
 
   .account-search-link {
     justify-content: center;
+  }
+
+  .account-pets-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .account-pets-heading .secondary-action,
+  .account-pets-feedback .primary-action,
+  .account-pets-feedback .secondary-action {
+    width: 100%;
+  }
+
+  .account-pets-grid {
+    grid-template-columns: 1fr;
   }
 
   .pet-details div,

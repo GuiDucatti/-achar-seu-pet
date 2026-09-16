@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, MapPin, PawPrint } from 'lucide-react'
 import { formatDate } from '../utils/formatters.js'
 
-function PetCard({ pet }) {
+function PetCard({ pet, linkLabel = 'Ver história completa' }) {
   const distance = Number(pet.distancia_aproximada_km)
   const hasDistance = pet.distancia_aproximada_km !== null && Number.isFinite(distance)
   const distanceLabel = distance < 1
@@ -38,7 +38,7 @@ function PetCard({ pet }) {
         <p className="pet-meta">Desapareceu em {formatDate(pet.data_desaparecimento)}</p>
         {hasDistance && <p className="pet-distance">{distanceLabel}</p>}
         <Link className="text-link" to={`/pets/${pet.id}`}>
-          Ver história completa
+          {linkLabel}
           <ArrowUpRight aria-hidden="true" size={15} />
         </Link>
       </div>

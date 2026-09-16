@@ -3,7 +3,7 @@ from hashlib import sha256
 from django.core.cache import cache
 from django.db.models import Q
 from django.utils.text import slugify
-from rest_framework import status, viewsets
+from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -83,6 +83,21 @@ class PetViewSet(viewsets.ModelViewSet):
             context=self.get_serializer_context(),
         )
         return Response(response_serializer.data)
+
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='meus',
+        permission_classes=[permissions.IsAuthenticated],
+    )
+    def meus(self, request):
+        pets = Pet.objects.filter(autor=request.user).order_by('-criado_em')
+        serializer = PublicPetListSerializer(
+            pets,
+            many=True,
+            context=self.get_serializer_context(),
+        )
+        return Response(serializer.data)
 
     @action(detail=False, methods=['get'], url_path='sugestoes-endereco')
     def sugestoes_endereco(self, request):

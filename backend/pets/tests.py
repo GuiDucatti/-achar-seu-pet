@@ -1231,3 +1231,86 @@ class PetPermissionTests(TestCase):
         response = self.client.post('/api/pets/', {}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class MyPetsTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.owner = get_user_model().objects.create_user(
+            username='my-pets-owner',
+            email='my-pets-owner@example.com',
+            password='senha-forte-123',
+        )
+        self.other_user = get_user_model().objects.create_user(
+            username='my-pets-other',
+            email='my-pets-other@example.com',
+            password='senha-forte-123',
+        )
+        self.owner_pet = self.create_pet(self.owner, 'Lobinha')
+        self.other_pet = self.create_pet(self.other_user, 'Toby')
+
+    @staticmethod
+    def create_pet(owner, name):
+        return Pet.objects.create(
+            autor=owner,
+            nome=name,
+            foto=f'pets/{name.lower()}.gif',
+            especie='cachorro',
+            raca='Vira-lata',
+            cor='Caramelo',
+            sexo='femea',
+            caracteristicas='Coleira azul',
+            estado='SP',
+            cidade='Campinas',
+            endereco_texto='Endereco privado',
+            latitude=-22.91,
+            longitude=-47.06,
+            data_desaparecimento='2026-08-01',
+            descricao='Pet para testar a listagem da conta',
+            contato='19999999999',
+        )
+
+    def test_anonymous_user_cannot_list_my_pets(self):
+        response = self.client.get('/api/pets/meus/')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_list_my_pets_returns_only_authenticated_owners_pets(self):
+        self.client.force_authenticate(self.owner)
+
+        response = self.client.get('/api/pets/meus/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], self.owner_pet.id)
+        self.assertEqual(response.data[0]['nome'], 'Lobinha')
+        self.assertNotEqual(response.data[0]['id'], self.other_pet.id)
+
+    def test_list_my_pets_uses_compact_contract_without_private_fields(self):
+        self.client.force_authenticate(self.owner)
+
+        response = self.client.get('/api/pets/meus/')
+
+        self.assertEqual(
+            set(response.data[0]),
+            {
+                'id',
+                'nome',
+                'foto',
+                'estado',
+                'cidade',
+                'data_desaparecimento',
+                'status',
+                'is_demo',
+                'distancia_aproximada_km',
+            },
+        )
+        for private_field in (
+            'autor',
+            'endereco_texto',
+            'latitude',
+            'longitude',
+            'contato',
+            'avistamentos',
+        ):
+            self.assertNotIn(private_field, response.data[0])
