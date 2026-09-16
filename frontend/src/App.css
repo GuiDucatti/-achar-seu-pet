@@ -838,7 +838,7 @@ textarea:focus-visible {
   transform: translateY(-50%);
 }
 
-.input-with-icon input {
+.pet-form .input-with-icon input {
   padding-left: 40px;
 }
 

@@ -1,5 +1,16 @@
-import { Circle, MapContainer, TileLayer } from 'react-leaflet'
+import L from 'leaflet'
+import { Circle, MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import { parsePublicLocation } from '../utils/publicLocation.js'
+
+function createPetIcon(photo) {
+  return L.icon({
+    className: 'pet-map-icon',
+    iconAnchor: [28, 28],
+    iconSize: [56, 56],
+    iconUrl: photo,
+    popupAnchor: [0, -28],
+  })
+}
 
 function PetMap({ pet }) {
   const publicLocation = parsePublicLocation(pet.localizacao_publica)
@@ -29,6 +40,18 @@ function PetMap({ pet }) {
             pathOptions={{ color: '#347ea8', fillColor: '#347ea8', fillOpacity: 0.18 }}
             radius={publicLocation.radius}
           />
+          <Marker
+            alt={`Foto de ${pet.nome} na região aproximada`}
+            icon={createPetIcon(pet.foto)}
+            position={[publicLocation.latitude, publicLocation.longitude]}
+            title={`${pet.nome} - região aproximada`}
+          >
+            <Popup>
+              {pet.nome}
+              <br />
+              {pet.cidade} - {pet.estado}
+            </Popup>
+          </Marker>
         </MapContainer>
       ) : (
         <div className="map-placeholder">

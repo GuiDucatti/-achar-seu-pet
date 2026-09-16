@@ -537,12 +537,12 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
         )}
 
         {currentStep < steps.length - 1 ? (
-          <button className="primary-action" onClick={() => goToStep(currentStep + 1)} type="button">
+          <button className="primary-action" key="continue" onClick={() => goToStep(currentStep + 1)} type="button">
             Continuar
             <ArrowRight aria-hidden="true" size={17} />
           </button>
         ) : (
-          <button className="primary-action" disabled={isSubmitting} type="submit">
+          <button className="primary-action" disabled={isSubmitting} key="submit" type="submit">
             {isSubmitting ? 'Publicando...' : submitLabel}
             <CheckCircle2 aria-hidden="true" size={17} />
           </button>
