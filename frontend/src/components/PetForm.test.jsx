@@ -45,4 +45,23 @@ describe('PetForm', () => {
     expect(screen.getByLabelText('Como entrar em contato')).toBeTruthy()
     expect(onSubmit).not.toHaveBeenCalled()
   })
+
+  it('leva o usuário ao campo rejeitado pelo backend', async () => {
+    render(
+      <PetForm
+        initialValues={validPet}
+        isSubmitting={false}
+        onSubmit={vi.fn()}
+        serverErrors={{ contato: 'O contato deve ter no máximo 20 caracteres.' }}
+        submitLabel="Salvar alterações"
+      />,
+    )
+
+    expect(
+      (await screen.findByRole('textbox', { name: 'Como entrar em contato' })).getAttribute(
+        'aria-invalid',
+      ),
+    ).toBe('true')
+    expect(screen.getByText('O contato deve ter no máximo 20 caracteres.')).toBeTruthy()
+  })
 })

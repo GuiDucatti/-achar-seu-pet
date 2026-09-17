@@ -5,6 +5,7 @@ import { suggestAddresses } from '../services/petService.js'
 function AddressAutocomplete({
   describedBy,
   id,
+  inputRef,
   invalid = false,
   label,
   onChange,
@@ -115,6 +116,7 @@ function AddressAutocomplete({
           aria-activedescendant={activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined}
           autoComplete="off"
           id={id}
+          ref={inputRef}
           onChange={handleInputChange}
           onFocus={() => {
             if (suggestions.length > 0 || hasSearched || error) setIsOpen(true)

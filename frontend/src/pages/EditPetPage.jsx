@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { HeartHandshake } from 'lucide-react'
 import PetForm from '../components/PetForm.jsx'
 import { getPet, updatePet } from '../services/petService.js'
-import { getApiErrorMessage } from '../utils/apiErrors.js'
+import { getApiErrorMessage, getApiFieldErrors } from '../utils/apiErrors.js'
 
 function EditPetPage() {
   const { id } = useParams()
@@ -12,6 +12,7 @@ function EditPetPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
 
   useEffect(() => {
     async function loadPet() {
@@ -32,11 +33,13 @@ function EditPetPage() {
   async function handleSubmit(data) {
     try {
       setError('')
+      setFieldErrors({})
       setIsSubmitting(true)
       const updatedPet = await updatePet(id, data)
       navigate(`/pets/${updatedPet.id}`)
     } catch (err) {
       console.error(err)
+      setFieldErrors(getApiFieldErrors(err))
       setError(getApiErrorMessage(err, 'Não foi possível salvar as alterações.'))
     } finally {
       setIsSubmitting(false)
@@ -66,6 +69,7 @@ function EditPetPage() {
             initialValues={pet}
             isSubmitting={isSubmitting}
             onSubmit={handleSubmit}
+            serverErrors={fieldErrors}
             submitLabel="Salvar alterações"
           />
         </div>

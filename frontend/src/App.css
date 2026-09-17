@@ -157,6 +157,35 @@
   background: #edf8f1;
 }
 
+.not-found-view {
+  max-width: 720px;
+  min-height: 58vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.not-found-view h1 {
+  max-width: 680px;
+  font-size: clamp(44px, 7vw, 76px);
+  line-height: 0.98;
+}
+
+.not-found-view > p:not(.eyebrow) {
+  max-width: 520px;
+  color: var(--text-muted);
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.not-found-actions {
+  margin-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
 .eyebrow {
   margin: 0 0 12px;
   color: var(--accent-dark);

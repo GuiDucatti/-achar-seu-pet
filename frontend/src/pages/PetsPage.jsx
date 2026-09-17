@@ -16,6 +16,7 @@ import foundSearchImage from '../assets/editorial/search-found.webp'
 import lostSearchImage from '../assets/editorial/search-lost.webp'
 import { listNearbyPets, listPets } from '../services/petService.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
+import { readPetSearchState, storePetSearchState } from '../utils/petSearchState.js'
 
 const emptyFilters = {
   estado: '',
@@ -35,18 +36,19 @@ const speciesOptions = [
 const radiusOptions = [10, 25, 50, 100]
 
 function PetsPage({ title, status }) {
+  const [savedSearchState] = useState(() => readPetSearchState(status))
   const [pets, setPets] = useState([])
   const [totalPets, setTotalPets] = useState(0)
   const [page, setPage] = useState(1)
   const [hasNextPage, setHasNextPage] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [filters, setFilters] = useState(emptyFilters)
-  const [activeFilters, setActiveFilters] = useState(emptyFilters)
-  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false)
-  const [radius, setRadius] = useState(50)
-  const [activeRegion, setActiveRegion] = useState(null)
-  const [resolvedOrigin, setResolvedOrigin] = useState(null)
+  const [filters, setFilters] = useState(savedSearchState.filters)
+  const [activeFilters, setActiveFilters] = useState(savedSearchState.activeFilters)
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(savedSearchState.isAdvancedOpen)
+  const [radius, setRadius] = useState(savedSearchState.radius)
+  const [activeRegion, setActiveRegion] = useState(savedSearchState.activeRegion)
+  const [resolvedOrigin, setResolvedOrigin] = useState(savedSearchState.resolvedOrigin)
   const [regionNotice, setRegionNotice] = useState('')
   const [locationState, setLocationState] = useState('idle')
   const [reloadKey, setReloadKey] = useState(0)
@@ -65,6 +67,17 @@ function PetsPage({ title, status }) {
 
     return () => window.clearTimeout(timeoutId)
   }, [filters])
+
+  useEffect(() => {
+    storePetSearchState(status, {
+      filters,
+      activeFilters,
+      activeRegion,
+      isAdvancedOpen,
+      radius,
+      resolvedOrigin,
+    })
+  }, [status, filters, activeFilters, activeRegion, isAdvancedOpen, radius, resolvedOrigin])
 
   useEffect(() => {
     let isMounted = true
@@ -469,7 +482,7 @@ function PetsPage({ title, status }) {
                 ? 'Atualizando os resultados...'
                 : 'Procurando pistas na rede...'
               : locationState === 'resolving'
-                ? 'Calculando os animais mais proximos...'
+                ? 'Calculando os animais mais próximos...'
               : hasPendingFilters
                 ? 'Preparando sua busca...'
                 : 'Busca atualizada automaticamente'}

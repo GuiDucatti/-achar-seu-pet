@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { CheckCircle2, HeartHandshake, MapPin, MessageCircle, Phone, Share2, Trash2 } from 'lucide-react'
 import SightingForm from '../components/SightingForm.jsx'
@@ -16,7 +16,10 @@ import {
 
 function PetDetailPage() {
   const { id } = useParams()
+  const location = useLocation()
   const navigate = useNavigate()
+  const sightingSuccessRef = useRef(null)
+  const sightingTriggerRef = useRef(null)
   const [pet, setPet] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -41,6 +44,7 @@ function PetDetailPage() {
     : ''
   const ownerWhatsAppUrl = buildWhatsAppUrl(ownerPhone, ownerContactMessage)
   const ownerTelephoneUrl = buildTelephoneUrl(ownerPhone)
+  const locationWarning = location.state?.locationWarning
 
   useEffect(() => {
     let isMounted = true
@@ -74,6 +78,22 @@ function PetDetailPage() {
       isMounted = false
     }
   }, [id])
+
+  useEffect(() => {
+    if (!sightingSuccess) return
+
+    sightingSuccessRef.current?.focus()
+    sightingSuccessRef.current?.scrollIntoView?.({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'center',
+    })
+  }, [sightingSuccess, reduceMotion])
+
+  function closeSightingForm() {
+    setSightingError('')
+    setIsSightingOpen(false)
+    window.requestAnimationFrame(() => sightingTriggerRef.current?.focus())
+  }
 
   async function handleMarkFound() {
     try {
@@ -134,13 +154,24 @@ function PetDetailPage() {
   return (
     <section className="detail-view">
       <AnimatePresence initial={false}>
+        {locationWarning && (
+          <motion.p
+            animate={{ opacity: 1, y: 0 }}
+            className="feedback location-warning"
+            initial={reduceMotion ? false : { opacity: 0, y: -3 }}
+            role="status"
+            transition={{ duration: reduceMotion ? 0 : 0.16 }}
+          >
+            {locationWarning}
+          </motion.p>
+        )}
         {error && (
           <motion.p animate={{ opacity: 1, y: 0 }} className="feedback error" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
             {error}
           </motion.p>
         )}
         {sightingSuccess && (
-          <motion.div animate={{ opacity: 1, y: 0 }} className="feedback success sighting-success" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} transition={{ duration: reduceMotion ? 0 : 0.16 }}>
+          <motion.div animate={{ opacity: 1, y: 0 }} className="feedback success sighting-success" exit={{ opacity: 0 }} initial={reduceMotion ? false : { opacity: 0, y: -3 }} ref={sightingSuccessRef} role="status" tabIndex="-1" transition={{ duration: reduceMotion ? 0 : 0.16 }}>
             <span>Avistamento registrado. Obrigado por ajudar nessa busca.</span>
             {ownerPhone && (
               <a
@@ -276,6 +307,7 @@ function PetDetailPage() {
               setSightingSuccess(null)
               setIsSightingOpen(true)
             }}
+            ref={sightingTriggerRef}
             type="button"
           >
             <MapPin aria-hidden="true" size={17} />
@@ -293,10 +325,7 @@ function PetDetailPage() {
           <SightingForm
             error={sightingError}
             isSubmitting={isSubmittingSighting}
-            onClose={() => {
-              setSightingError('')
-              setIsSightingOpen(false)
-            }}
+            onClose={closeSightingForm}
             onSubmit={handleSightingSubmit}
             pet={pet}
           />

@@ -11,6 +11,7 @@ import CreatePetPage from './pages/CreatePetPage.jsx'
 import EditPetPage from './pages/EditPetPage.jsx'
 import Home from './pages/Home.jsx'
 import LoginPage from './pages/LoginPage.jsx'
+import NotFoundPage from './pages/NotFoundPage.jsx'
 import PetsPage from './pages/PetsPage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 
@@ -133,6 +134,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
           </motion.div>

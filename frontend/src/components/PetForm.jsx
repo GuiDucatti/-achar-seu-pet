@@ -36,13 +36,15 @@ const initialPetValues = {
   status: 'P',
 }
 
+const emptyServerErrors = {}
+
 const steps = [
   {
     title: 'Quem desapareceu?',
     description: 'Comece pela foto e pelo nome. É a parte que ajuda a reconhecer de longe.',
   },
   {
-    title: 'Como ele e?',
+    title: 'Como ele é?',
     description: 'Escolha os detalhes que fariam alguém parar e olhar mais uma vez.',
   },
   {
@@ -54,6 +56,40 @@ const steps = [
     description: 'Revise a história, confira o contato e publique quando estiver pronto.',
   },
 ]
+
+const fieldSteps = {
+  nome: 0,
+  foto: 0,
+  especie: 0,
+  raca: 1,
+  cor: 1,
+  sexo: 1,
+  caracteristicas: 1,
+  endereco_texto: 2,
+  cidade: 2,
+  estado: 2,
+  latitude: 2,
+  longitude: 2,
+  coordinates: 2,
+  data_desaparecimento: 2,
+  descricao: 3,
+  contato: 3,
+  status: 3,
+}
+
+const fieldIds = {
+  foto: 'pet-foto',
+  endereco_texto: 'pet-regiao',
+  latitude: 'pet-regiao',
+  longitude: 'pet-regiao',
+  coordinates: 'pet-regiao',
+  data_desaparecimento: 'pet-data',
+}
+
+function getFirstErrorField(serverErrors) {
+  const errorFields = Object.keys(serverErrors)
+  return errorFields.find((field) => field in fieldSteps) || errorFields[0] || ''
+}
 
 const speciesOptions = [
   { label: 'Cachorro', value: 'cachorro', icon: Dog },
@@ -114,21 +150,41 @@ function PetPreview({ photoPreview, values }) {
   )
 }
 
-function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
+function PetForm({ initialValues = {}, isSubmitting, onSubmit, serverErrors = emptyServerErrors, submitLabel }) {
   const mergedInitialValues = { ...initialPetValues, ...initialValues }
+  const initialErrorField = getFirstErrorField(serverErrors)
   const [values, setValues] = useState(mergedInitialValues)
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(fieldSteps[initialErrorField] ?? 0)
   const [stepDirection, setStepDirection] = useState(1)
   const [photoFile, setPhotoFile] = useState(null)
   const [photoPreview, setPhotoPreview] = useState(
     typeof mergedInitialValues.foto === 'string' ? mergedInitialValues.foto : '',
   )
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState(serverErrors)
   const stepHeadingRef = useRef(null)
   const objectUrlRef = useRef('')
+  const pendingFocusFieldRef = useRef('')
   const isEditing = Boolean(initialValues.id)
   const reduceMotion = useReducedMotion()
   const selectedLocation = parseCoordinatePair(values.latitude, values.longitude)
+  const locationErrorField = ['endereco_texto', 'coordinates', 'latitude', 'longitude'].find(
+    (field) => errors[field],
+  )
+
+  useEffect(() => {
+    const firstField = getFirstErrorField(serverErrors)
+    if (!firstField) return
+
+    const targetStep = fieldSteps[firstField] ?? 0
+    const timeoutId = window.setTimeout(() => {
+      pendingFocusFieldRef.current = fieldIds[firstField] || `pet-${firstField}`
+      setErrors((current) => ({ ...current, ...serverErrors }))
+      setStepDirection(targetStep < steps.length - 1 ? -1 : 1)
+      setCurrentStep(targetStep)
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [serverErrors])
 
   useEffect(() => {
     return () => {
@@ -141,6 +197,17 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
   useEffect(() => {
     stepHeadingRef.current?.focus()
   }, [currentStep])
+
+  useEffect(() => {
+    if (!pendingFocusFieldRef.current) return
+
+    const target = document.getElementById(pendingFocusFieldRef.current)
+    if (target) {
+      target.focus()
+      target.scrollIntoView?.({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'center' })
+      pendingFocusFieldRef.current = ''
+    }
+  }, [currentStep, errors, reduceMotion])
 
   function updateField(name, value) {
     setValues((current) => ({ ...current, [name]: value }))
@@ -381,7 +448,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
                   id="pet-nome"
                   name="nome"
                   onChange={(event) => updateField('nome', event.target.value)}
-                  placeholder="Como ele e chamado?"
+                  placeholder="Como ele é chamado?"
                   type="text"
                   value={values.nome}
                 />
@@ -415,12 +482,12 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             <div className="form-grid">
               <label htmlFor="pet-raca">
                 Raça
-                <input aria-invalid={Boolean(errors.raca)} id="pet-raca" name="raca" onChange={(event) => updateField('raca', event.target.value)} placeholder="Ex.: vira-lata" type="text" value={values.raca} />
+                <input aria-describedby={errors.raca ? 'raca-error' : undefined} aria-invalid={Boolean(errors.raca)} id="pet-raca" name="raca" onChange={(event) => updateField('raca', event.target.value)} placeholder="Ex.: vira-lata" type="text" value={values.raca} />
                 {fieldError('raca')}
               </label>
               <label htmlFor="pet-cor">
                 Cor predominante
-                <input aria-invalid={Boolean(errors.cor)} id="pet-cor" name="cor" onChange={(event) => updateField('cor', event.target.value)} placeholder="Ex.: caramelo e branco" type="text" value={values.cor} />
+                <input aria-describedby={errors.cor ? 'cor-error' : undefined} aria-invalid={Boolean(errors.cor)} id="pet-cor" name="cor" onChange={(event) => updateField('cor', event.target.value)} placeholder="Ex.: caramelo e branco" type="text" value={values.cor} />
                 {fieldError('cor')}
               </label>
             </div>
@@ -439,7 +506,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
 
             <label htmlFor="pet-caracteristicas">
               O detalhe que mais ajuda a reconhecer
-              <textarea aria-invalid={Boolean(errors.caracteristicas)} id="pet-caracteristicas" name="caracteristicas" onChange={(event) => updateField('caracteristicas', event.target.value)} placeholder="Uma mancha, coleira, jeito de andar ou qualquer sinal marcante." rows="4" value={values.caracteristicas} />
+              <textarea aria-describedby={errors.caracteristicas ? 'caracteristicas-error' : undefined} aria-invalid={Boolean(errors.caracteristicas)} id="pet-caracteristicas" name="caracteristicas" onChange={(event) => updateField('caracteristicas', event.target.value)} placeholder="Uma mancha, coleira, jeito de andar ou qualquer sinal marcante." rows="4" value={values.caracteristicas} />
               {fieldError('caracteristicas')}
             </label>
           </div>
@@ -456,9 +523,9 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             </div>
             <div>
               <AddressAutocomplete
-                describedBy={`regiao-help${errors.endereco_texto ? ' endereco_texto-error' : ''}`}
+                describedBy={`regiao-help${locationErrorField ? ` ${locationErrorField}-error` : ''}`}
                 id="pet-regiao"
-                invalid={Boolean(errors.endereco_texto)}
+                invalid={Boolean(locationErrorField)}
                 label="Rua ou local onde desapareceu"
                 onChange={(value) => updateLocationField('endereco_texto', value)}
                 onSelect={handleAddressSelect}
@@ -468,7 +535,7 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
               <span className="form-help" id="regiao-help">
                 Digite pelo menos 3 letras e escolha a cidade correta. Não informe o número da casa.
               </span>
-              {fieldError('endereco_texto')}
+              {locationErrorField && fieldError(locationErrorField)}
               {selectedLocation && (
                 <span className="address-selected-note" role="status">
                   <Check aria-hidden="true" size={14} />
@@ -479,18 +546,18 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             <div className="form-grid location-fields">
               <label htmlFor="pet-cidade">
                 Cidade
-                <input aria-invalid={Boolean(errors.cidade)} id="pet-cidade" name="cidade" onChange={(event) => updateLocationField('cidade', event.target.value)} placeholder="Preenchida ao escolher a rua" type="text" value={values.cidade} />
+                <input aria-describedby={errors.cidade ? 'cidade-error' : undefined} aria-invalid={Boolean(errors.cidade)} id="pet-cidade" name="cidade" onChange={(event) => updateLocationField('cidade', event.target.value)} placeholder="Preenchida ao escolher a rua" type="text" value={values.cidade} />
                 {fieldError('cidade')}
               </label>
               <label htmlFor="pet-estado">
                 Estado
-                <input aria-invalid={Boolean(errors.estado)} id="pet-estado" maxLength="2" name="estado" onChange={(event) => updateLocationField('estado', event.target.value.toUpperCase())} placeholder="UF" type="text" value={values.estado} />
+                <input aria-describedby={errors.estado ? 'estado-error' : undefined} aria-invalid={Boolean(errors.estado)} id="pet-estado" maxLength="2" name="estado" onChange={(event) => updateLocationField('estado', event.target.value.toUpperCase())} placeholder="UF" type="text" value={values.estado} />
                 {fieldError('estado')}
               </label>
             </div>
             <label htmlFor="pet-data">
               Data do desaparecimento
-              <input aria-invalid={Boolean(errors.data_desaparecimento)} id="pet-data" name="data_desaparecimento" onChange={(event) => updateField('data_desaparecimento', event.target.value)} type="date" value={values.data_desaparecimento} />
+              <input aria-describedby={errors.data_desaparecimento ? 'data_desaparecimento-error' : undefined} aria-invalid={Boolean(errors.data_desaparecimento)} id="pet-data" name="data_desaparecimento" onChange={(event) => updateField('data_desaparecimento', event.target.value)} type="date" value={values.data_desaparecimento} />
               {fieldError('data_desaparecimento')}
             </label>
           </div>
@@ -501,14 +568,14 @@ function PetForm({ initialValues = {}, isSubmitting, onSubmit, submitLabel }) {
             <div className="review-fields">
               <label htmlFor="pet-descricao">
                 Conte a história
-                <textarea aria-invalid={Boolean(errors.descricao)} id="pet-descricao" name="descricao" onChange={(event) => updateField('descricao', event.target.value)} placeholder="O que aconteceu? O que alguém precisa saber para ajudar?" rows="5" value={values.descricao} />
+                <textarea aria-describedby={errors.descricao ? 'descricao-error' : undefined} aria-invalid={Boolean(errors.descricao)} id="pet-descricao" name="descricao" onChange={(event) => updateField('descricao', event.target.value)} placeholder="O que aconteceu? O que alguém precisa saber para ajudar?" rows="5" value={values.descricao} />
                 {fieldError('descricao')}
               </label>
               <label htmlFor="pet-contato">
                 Como entrar em contato
                 <span className="input-with-icon">
                   <Phone aria-hidden="true" size={17} />
-                  <input aria-invalid={Boolean(errors.contato)} id="pet-contato" name="contato" onChange={(event) => updateField('contato', event.target.value)} placeholder="Telefone, WhatsApp ou outro contato" type="text" value={values.contato} />
+                  <input aria-describedby={errors.contato ? 'contato-error' : undefined} aria-invalid={Boolean(errors.contato)} aria-label="Como entrar em contato" id="pet-contato" maxLength="20" name="contato" onChange={(event) => updateField('contato', event.target.value)} placeholder="Telefone, WhatsApp ou outro contato" type="text" value={values.contato} />
                 </span>
                 {fieldError('contato')}
               </label>

@@ -10,6 +10,8 @@ import {
 
 function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
   const closeButtonRef = useRef(null)
+  const errorFeedbackRef = useRef(null)
+  const locationInputRef = useRef(null)
   const panelRef = useRef(null)
   const onCloseRef = useRef(onClose)
   const reduceMotion = useReducedMotion()
@@ -57,12 +59,27 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  useEffect(() => {
+    if (!error) return
+
+    errorFeedbackRef.current?.focus()
+    errorFeedbackRef.current?.scrollIntoView?.({
+      behavior: reduceMotion ? 'auto' : 'smooth',
+      block: 'center',
+    })
+  }, [error, reduceMotion])
+
   function handleSubmit(event) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
 
     if (!selectedLocation) {
       setLocationError('Digite o local e escolha uma das sugestões da cidade correta.')
+      locationInputRef.current?.focus()
+      locationInputRef.current?.scrollIntoView?.({
+        behavior: reduceMotion ? 'auto' : 'smooth',
+        block: 'center',
+      })
       return
     }
 
@@ -152,6 +169,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
             <AddressAutocomplete
               describedBy={`sighting-location-help${locationError ? ' sighting-location-error' : ''}`}
               id="sighting-location"
+              inputRef={locationInputRef}
               invalid={Boolean(locationError)}
               label="Onde você viu este pet?"
               onChange={(value) => {
@@ -185,7 +203,7 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
 
           <label>
             Seu contato para o tutor (opcional)
-            <input name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsável retornar" type="text" />
+            <input maxLength="100" name="contato_quem_viu" placeholder="Telefone ou WhatsApp para o responsável retornar" type="text" />
           </label>
           <span className="form-help">Seu relato, local exato e contato ficam visíveis somente para o tutor.</span>
 
@@ -196,6 +214,9 @@ function SightingForm({ error, isSubmitting, onClose, onSubmit, pet }) {
                 className="feedback error"
                 exit={{ opacity: 0 }}
                 initial={reduceMotion ? false : { opacity: 0, y: -3 }}
+                ref={errorFeedbackRef}
+                role="alert"
+                tabIndex="-1"
                 transition={{ duration: reduceMotion ? 0 : 0.16 }}
               >
                 {error}

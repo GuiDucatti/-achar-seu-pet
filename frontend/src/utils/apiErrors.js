@@ -11,6 +11,21 @@ function firstErrorMessage(value) {
   return typeof value === 'string' ? value : ''
 }
 
+export function getApiFieldErrors(error) {
+  const data = error?.response?.data
+
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return {}
+  }
+
+  return Object.fromEntries(
+    Object.entries(data)
+      .filter(([field]) => !['detail', 'non_field_errors'].includes(field))
+      .map(([field, value]) => [field, firstErrorMessage(value)])
+      .filter(([, message]) => Boolean(message)),
+  )
+}
+
 export function getApiErrorMessage(error, fallback) {
   if (!error?.response) {
     return 'Não foi possível conectar ao servidor. Tente novamente.'

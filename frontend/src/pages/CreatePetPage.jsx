@@ -4,21 +4,30 @@ import { HeartHandshake } from 'lucide-react'
 import createPetImage from '../assets/editorial/create-pet.webp'
 import PetForm from '../components/PetForm.jsx'
 import { createPet } from '../services/petService.js'
-import { getApiErrorMessage } from '../utils/apiErrors.js'
+import { getApiErrorMessage, getApiFieldErrors } from '../utils/apiErrors.js'
 
 function CreatePetPage() {
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [fieldErrors, setFieldErrors] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   async function handleSubmit(data) {
     try {
       setError('')
+      setFieldErrors({})
       setIsSubmitting(true)
       const pet = await createPet(data)
-      navigate(`/pets/${pet.id}`)
+      navigate(`/pets/${pet.id}`, {
+        state: pet.localizacao_publica
+          ? undefined
+          : {
+              locationWarning: 'O cadastro foi publicado, mas não conseguimos localizar a região no mapa. Edite o pet e escolha uma sugestão de endereço para incluir a área aproximada.',
+            },
+      })
     } catch (err) {
       console.error(err)
+      setFieldErrors(getApiFieldErrors(err))
       setError(getApiErrorMessage(err, 'Não foi possível cadastrar o pet. Confira os campos.'))
     } finally {
       setIsSubmitting(false)
@@ -36,7 +45,12 @@ function CreatePetPage() {
 
       <div className="form-layout">
         <div className="form-main">
-          <PetForm isSubmitting={isSubmitting} onSubmit={handleSubmit} submitLabel="Publicar busca" />
+          <PetForm
+            isSubmitting={isSubmitting}
+            onSubmit={handleSubmit}
+            serverErrors={fieldErrors}
+            submitLabel="Publicar busca"
+          />
         </div>
         <aside className="form-side-note create-side-note">
           <img

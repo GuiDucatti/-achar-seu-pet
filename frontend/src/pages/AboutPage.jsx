@@ -33,17 +33,17 @@ function AboutPage() {
       </div>
 
       <div className="about-values">
-        <article tabIndex="0">
+        <article>
           <Search aria-hidden="true" size={24} />
           <h2>Procura que aproxima</h2>
           <p>Filtros por cidade, estado e características ajudam a olhar para o lugar certo.</p>
         </article>
-        <article tabIndex="0">
+        <article>
           <ShieldCheck aria-hidden="true" size={24} />
           <h2>Cuidado em cada detalhe</h2>
           <p>A localização aparece de forma aproximada para proteger quem está procurando.</p>
         </article>
-        <article tabIndex="0">
+        <article>
           <MapPinned aria-hidden="true" size={24} />
           <h2>Pistas que ganham caminho</h2>
           <p>Avistamentos, mapa e histórico deixam a busca mais clara para toda a rede.</p>

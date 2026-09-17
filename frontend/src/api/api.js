@@ -157,6 +157,16 @@ export function createApiClient({
   return api
 }
 
-const api = createApiClient()
+function getConfiguredBaseUrl() {
+  const baseURL = import.meta.env?.VITE_API_URL
+
+  if (import.meta.env?.PROD && !baseURL) {
+    throw new Error('VITE_API_URL precisa ser definida para gerar o frontend de produção.')
+  }
+
+  return baseURL
+}
+
+const api = createApiClient({ baseURL: getConfiguredBaseUrl() })
 
 export default api

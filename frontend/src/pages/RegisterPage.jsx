@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { HeartHandshake } from 'lucide-react'
 import registerImage from '../assets/editorial/register.webp'
 import { useAuth } from '../hooks/useAuth.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
+import { getReturnPath } from '../utils/navigation.js'
 
 function RegisterPage() {
   const { register } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -28,7 +30,7 @@ function RegisterPage() {
       setError('')
       setIsSubmitting(true)
       await register(formData)
-      navigate('/minha-conta', { replace: true })
+      navigate(getReturnPath(location.state?.from), { replace: true })
     } catch (err) {
       console.error(err)
       setError(getApiErrorMessage(err, 'Não foi possível criar sua conta. Confira os dados.'))
@@ -107,7 +109,7 @@ function RegisterPage() {
       </form>
 
       <p className="auth-note">
-        Já tem conta? <Link to="/login">Entrar</Link>
+        Já tem conta? <Link state={location.state} to="/login">Entrar</Link>
       </p>
         </div>
       </div>

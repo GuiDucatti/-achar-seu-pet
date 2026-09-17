@@ -4,6 +4,7 @@ import { PawPrint } from 'lucide-react'
 import loginImage from '../assets/editorial/login.webp'
 import { useAuth } from '../hooks/useAuth.js'
 import { getApiErrorMessage } from '../utils/apiErrors.js'
+import { getReturnPath } from '../utils/navigation.js'
 
 function LoginPage() {
   const { login } = useAuth()
@@ -25,7 +26,7 @@ function LoginPage() {
       setError('')
       setIsSubmitting(true)
       await login(formData)
-      navigate(location.state?.from?.pathname || '/minha-conta', { replace: true })
+      navigate(getReturnPath(location.state?.from), { replace: true })
     } catch (err) {
       console.error(err)
       setError(
@@ -54,7 +55,7 @@ function LoginPage() {
             <PawPrint aria-hidden="true" size={22} />
             <strong>Voltar à sua conta é voltar para a busca.</strong>
             <p>
-              Revise os dados, acompanhe avistamentos e atualize o anuncio quando
+              Revise os dados, acompanhe avistamentos e atualize o anúncio quando
               houver novidade.
             </p>
           </div>
@@ -98,7 +99,7 @@ function LoginPage() {
       </form>
 
       <p className="auth-note">
-        Ainda não tem conta? <Link to="/criar-conta">Criar conta</Link>
+        Ainda não tem conta? <Link state={location.state} to="/criar-conta">Criar conta</Link>
       </p>
         </div>
       </div>
