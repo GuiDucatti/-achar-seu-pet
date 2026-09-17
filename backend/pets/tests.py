@@ -166,6 +166,18 @@ class PetUploadTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('svg', str(response.data['foto']).lower())
 
+    def test_rejects_image_when_extension_does_not_match_real_format(self):
+        response = self.client.post(
+            '/api/pets/',
+            self.pet_payload(
+                foto=self.image_file('pet.jpg', content_type='image/jpeg')
+            ),
+            format='multipart',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('imagem válida', str(response.data['foto']).lower())
+
     @patch('pets.views.geocode_address')
     def test_keeps_coordinates_selected_from_address_suggestion(self, geocode_mock):
         payload = self.pet_payload()

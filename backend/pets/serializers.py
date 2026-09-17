@@ -254,7 +254,11 @@ class PetWriteSerializer(serializers.ModelSerializer):
             )
 
         try:
-            return sanitize_uploaded_image(value)
+            return sanitize_uploaded_image(
+                value,
+                settings.ALLOWED_IMAGE_CONTENT_TYPES,
+                allowed_extensions[extension],
+            )
         except (KeyError, OSError, ValueError):
             raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
 

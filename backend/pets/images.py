@@ -43,15 +43,22 @@ def _apply_orientation(image, orientation):
     return _remove_sensitive_metadata(image)
 
 
-def sanitize_uploaded_image(upload):
+def sanitize_uploaded_image(upload, allowed_content_types, expected_content_type):
     upload.seek(0)
-    source = Image.open(upload)
+    allowed_formats = [
+        image_format
+        for image_format, content_type in IMAGE_CONTENT_TYPES.items()
+        if content_type in allowed_content_types
+    ]
+    source = Image.open(upload, formats=allowed_formats)
     image_format = source.format
     output = BytesIO()
 
     try:
         if image_format not in IMAGE_CONTENT_TYPES:
             raise ValueError('Formato de imagem não suportado.')
+        if IMAGE_CONTENT_TYPES[image_format] != expected_content_type:
+            raise ValueError('A extensão não corresponde ao formato real da imagem.')
 
         frame_count = getattr(source, 'n_frames', 1)
         decoded_pixels = source.width * source.height * frame_count
