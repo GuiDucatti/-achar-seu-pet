@@ -12,9 +12,18 @@ function buildPetFormData(data) {
   return formData
 }
 
+function normalizePetPage(data, itemsKey = 'results') {
+  const items = data?.[itemsKey] ?? []
+  return {
+    count: data?.count ?? items.length,
+    hasNext: Boolean(data?.next),
+    items,
+  }
+}
+
 export async function listPets(params = {}) {
   const response = await api.get('/pets/', { params })
-  return response.data
+  return normalizePetPage(response.data)
 }
 
 export async function listMyPets() {
@@ -22,9 +31,12 @@ export async function listMyPets() {
   return response.data
 }
 
-export async function listNearbyPets(data) {
-  const response = await api.post('/pets/proximos/', data)
-  return response.data
+export async function listNearbyPets(data, page = 1) {
+  const response = await api.post('/pets/proximos/', data, { params: { page } })
+  return {
+    ...normalizePetPage(response.data, 'resultados'),
+    origem: response.data.origem,
+  }
 }
 
 export async function suggestAddresses(query, signal) {

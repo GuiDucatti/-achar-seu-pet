@@ -10,6 +10,7 @@ from rest_framework.throttling import ScopedRateThrottle
 
 from .geocoding import geocode_address, search_addresses
 from .models import Pet
+from .pagination import PetPagination
 from .permissions import PetPermission
 from .proximity import (
     build_public_location,
@@ -33,9 +34,14 @@ from .serializers import (
 class PetViewSet(viewsets.ModelViewSet):
     serializer_class = PublicPetListSerializer
     permission_classes = [PetPermission]
+    pagination_class = PetPagination
 
     def get_queryset(self):
-        queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
+        queryset = Pet.objects.all()
+        if self.action in {'retrieve', 'update', 'partial_update', 'destroy', 'avistamentos'}:
+            queryset = queryset.select_related('autor')
+        if self.action == 'retrieve':
+            queryset = queryset.prefetch_related('avistamentos')
         if self.action != 'list':
             return queryset
 
@@ -219,7 +225,7 @@ class PetViewSet(viewsets.ModelViewSet):
             longitude,
             radius + public_location_max_offset_km(),
         )
-        queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
+        queryset = Pet.objects.all()
         queryset = self._apply_filters(queryset, data).filter(
             latitude__isnull=False,
             longitude__isnull=False,
@@ -249,8 +255,9 @@ class PetViewSet(viewsets.ModelViewSet):
         nearby_pets.sort(
             key=lambda pet: (pet.distancia_aproximada_km, -pet.criado_em.timestamp())
         )
+        page = self.paginate_queryset(nearby_pets)
         results = PublicPetListSerializer(
-            nearby_pets,
+            page,
             many=True,
             context={'request': request},
         ).data
@@ -262,6 +269,9 @@ class PetViewSet(viewsets.ModelViewSet):
                     'rotulo': origin_label,
                     'raio_km': radius,
                 },
+                'count': self.paginator.page.paginator.count,
+                'next': self.paginator.get_next_link(),
+                'previous': self.paginator.get_previous_link(),
                 'resultados': results,
             }
         )

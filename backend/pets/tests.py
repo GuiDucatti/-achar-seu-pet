@@ -133,6 +133,38 @@ class PetUploadTests(TestCase):
         geocode_mock.assert_called_once_with('Regiao central', 'Sao Paulo', 'SP')
 
     @patch('pets.views.geocode_address', return_value=None)
+    def test_replacing_photo_removes_previous_file(self, _geocode_mock):
+        created = self.client.post('/api/pets/', self.pet_payload(), format='multipart')
+        pet = Pet.objects.get(pk=created.data['id'])
+        previous_name = pet.foto.name
+        storage = pet.foto.storage
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.patch(
+                f'/api/pets/{pet.pk}/',
+                {'foto': self.image_file('nova-foto.gif')},
+                format='multipart',
+            )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(storage.exists(previous_name))
+        pet.refresh_from_db()
+        self.assertTrue(storage.exists(pet.foto.name))
+
+    @patch('pets.views.geocode_address', return_value=None)
+    def test_deleting_pet_removes_photo_file(self, _geocode_mock):
+        created = self.client.post('/api/pets/', self.pet_payload(), format='multipart')
+        pet = Pet.objects.get(pk=created.data['id'])
+        photo_name = pet.foto.name
+        storage = pet.foto.storage
+
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.delete(f'/api/pets/{pet.pk}/')
+
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(storage.exists(photo_name))
+
+    @patch('pets.views.geocode_address', return_value=None)
     def test_does_not_geocode_when_location_is_unchanged(self, geocode_mock):
         response = self.client.post('/api/pets/', self.pet_payload(), format='multipart')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -659,6 +691,14 @@ class PetSightingTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn('latitude', response.data)
 
+    def test_database_rejects_sighting_coordinates_outside_valid_range(self):
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            Avistamento.objects.create(
+                pet=self.pet,
+                latitude=91,
+                longitude=-47,
+            )
+
 
 class PetPrivacyTests(TestCase):
     PUBLIC_LIST_FIELDS = {
@@ -782,7 +822,7 @@ class PetPrivacyTests(TestCase):
 
         for response in responses:
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assert_public_pet(response.data[0], detail=False)
+            self.assert_public_pet(response.data['results'][0], detail=False)
 
     def test_anonymous_and_non_owner_receive_only_public_pet_detail(self):
         anonymous = self.client.get(f'/api/pets/{self.pet.id}/')
@@ -1046,6 +1086,27 @@ class NearbyPetSearchTests(TestCase):
         result_ids = {pet['id'] for pet in response.data['resultados']}
         self.assertEqual(first.pk in result_ids, second.pk in result_ids)
 
+    def test_nearby_search_is_paginated_without_losing_origin(self):
+        for index in range(25):
+            self.create_pet(nome=f'Pet proximo {index}')
+
+        first_page = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 10},
+            format='json',
+        )
+        second_page = self.client.post(
+            '/api/pets/proximos/?page=2',
+            {'latitude': -21.289, 'longitude': -50.340, 'raio_km': 10},
+            format='json',
+        )
+
+        self.assertEqual(first_page.status_code, status.HTTP_200_OK)
+        self.assertEqual(first_page.data['count'], 26)
+        self.assertEqual(len(first_page.data['resultados']), 24)
+        self.assertEqual(len(second_page.data['resultados']), 2)
+        self.assertEqual(first_page.data['origem'], second_page.data['origem'])
+
     def test_ignores_pet_without_coordinate_pair(self):
         without_coordinates = self.create_pet(
             nome='Sem localizacao',
@@ -1194,15 +1255,42 @@ class PetFilterTests(TestCase):
         )
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['nome'], 'Lobinha')
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['nome'], 'Lobinha')
 
     def test_filters_by_exact_disappearance_date(self):
         response = APIClient().get('/api/pets/?data_desaparecimento=2026-08-02')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['nome'], 'Toby')
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['nome'], 'Toby')
+
+    def test_pet_list_is_paginated(self):
+        user = get_user_model().objects.get(username='filter-test')
+        for index in range(24):
+            Pet.objects.create(
+                autor=user,
+                nome=f'Pet {index}',
+                foto='pets/test.gif',
+                especie='cachorro',
+                raca='Vira-lata',
+                cor='Caramelo',
+                sexo='macho',
+                caracteristicas='Sem detalhes',
+                estado='SP',
+                cidade='Campinas',
+                endereco_texto='Centro',
+                data_desaparecimento='2026-08-01',
+                descricao='Pet para paginação',
+                contato='Não disponível',
+            )
+
+        first_page = APIClient().get('/api/pets/')
+        second_page = APIClient().get('/api/pets/?page=2')
+
+        self.assertEqual(first_page.data['count'], 26)
+        self.assertEqual(len(first_page.data['results']), 24)
+        self.assertEqual(len(second_page.data['results']), 2)
 
     def test_rejects_invalid_disappearance_date(self):
         response = APIClient().get('/api/pets/?data_desaparecimento=not-a-date')

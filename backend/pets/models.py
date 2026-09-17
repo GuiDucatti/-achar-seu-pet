@@ -94,6 +94,16 @@ class Avistamento(models.Model):
 
     class Meta:
         ordering = ['-criado_em']
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(latitude__gte=-90, latitude__lte=90),
+                name='sighting_valid_latitude',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(longitude__gte=-180, longitude__lte=180),
+                name='sighting_valid_longitude',
+            ),
+        ]
 
     def __str__(self):
         return f'Avistamento de {self.pet.nome} em {self.criado_em:%d/%m/%Y %H:%M}'

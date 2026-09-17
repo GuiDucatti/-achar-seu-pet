@@ -36,6 +36,9 @@ const radiusOptions = [10, 25, 50, 100]
 
 function PetsPage({ title, status }) {
   const [pets, setPets] = useState([])
+  const [totalPets, setTotalPets] = useState(0)
+  const [page, setPage] = useState(1)
+  const [hasNextPage, setHasNextPage] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
   const [filters, setFilters] = useState(emptyFilters)
@@ -56,6 +59,7 @@ function PetsPage({ title, status }) {
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
+      setPage(1)
       setActiveFilters(filters)
     }, 350)
 
@@ -89,12 +93,15 @@ function PetsPage({ title, status }) {
                 cidade_origem: activeRegion.city,
                 estado_origem: activeRegion.state,
               }
-          const regionalData = await listNearbyPets({
-            ...origin,
-            ...commonFilters,
-            raio_km: radius,
-          })
-          data = regionalData.resultados
+          const regionalData = await listNearbyPets(
+            {
+              ...origin,
+              ...commonFilters,
+              raio_km: radius,
+            },
+            page,
+          )
+          data = regionalData
 
           if (isMounted) {
             setResolvedOrigin(regionalData.origem)
@@ -106,11 +113,14 @@ function PetsPage({ title, status }) {
             ...commonFilters,
             estado: activeFilters.estado || undefined,
             cidade: activeFilters.cidade || undefined,
+            page,
           })
         }
 
         if (isMounted) {
-          setPets(data)
+          setPets((current) => page === 1 ? data.items : [...current, ...data.items])
+          setTotalPets(data.count)
+          setHasNextPage(data.hasNext)
         }
       } catch (err) {
         if (
@@ -144,11 +154,12 @@ function PetsPage({ title, status }) {
     return () => {
       isMounted = false
     }
-  }, [status, activeFilters, activeRegion, radius, reloadKey])
+  }, [status, activeFilters, activeRegion, radius, reloadKey, page])
 
   function handleFilterChange(event) {
     const { name, value } = event.target
     const nextValue = name === 'estado' ? value.toUpperCase() : value
+    setPage(1)
     setFilters((current) => ({ ...current, [name]: nextValue }))
 
     if ((name === 'cidade' || name === 'estado') && activeRegion?.type === 'city') {
@@ -160,11 +171,13 @@ function PetsPage({ title, status }) {
   }
 
   function handleSpeciesChange(value) {
+    setPage(1)
     setFilters((current) => ({ ...current, especie: value }))
   }
 
   function handleFilterSubmit(event) {
     event.preventDefault()
+    setPage(1)
     setActiveFilters(filters)
   }
 
@@ -176,6 +189,7 @@ function PetsPage({ title, status }) {
     setRegionNotice('')
     setLocationState('idle')
     setRadius(50)
+    setPage(1)
   }
 
   function handleUseTypedRegion() {
@@ -189,6 +203,7 @@ function PetsPage({ title, status }) {
     }
 
     setActiveFilters({ ...filters, cidade: city, estado: stateCode })
+    setPage(1)
     setActiveRegion({ type: 'city', city, state: stateCode })
     setResolvedOrigin(null)
     setRegionNotice('')
@@ -211,6 +226,7 @@ function PetsPage({ title, status }) {
           latitude: Number(coords.latitude.toFixed(3)),
           longitude: Number(coords.longitude.toFixed(3)),
         })
+        setPage(1)
         setResolvedOrigin(null)
         setLocationState('resolving')
       },
@@ -227,6 +243,7 @@ function PetsPage({ title, status }) {
     setResolvedOrigin(null)
     setLocationState('idle')
     setRegionNotice('Busca regional removida. Cidade e UF voltaram ao filtro comum.')
+    setPage(1)
   }
 
   return (
@@ -330,7 +347,10 @@ function PetsPage({ title, status }) {
                     aria-pressed={radius === option}
                     className={radius === option ? 'selected' : ''}
                     key={option}
-                    onClick={() => setRadius(option)}
+                    onClick={() => {
+                      setRadius(option)
+                      setPage(1)
+                    }}
                     type="button"
                   >
                     {option} km
@@ -463,7 +483,7 @@ function PetsPage({ title, status }) {
 
       {!error && (!isLoading || pets.length > 0) && (
         <p className="results-summary" aria-live="polite">
-          {pets.length} {pets.length === 1 ? 'história encontrada' : 'histórias encontradas'}
+          {totalPets} {totalPets === 1 ? 'história encontrada' : 'histórias encontradas'}
           {resolvedOrigin ? ` em até ${radius} km` : ''}
         </p>
       )}
@@ -513,11 +533,23 @@ function PetsPage({ title, status }) {
         )}
 
         {!error && pets.length > 0 && (
-          <motion.div animate={{ opacity: 1 }} className="pet-list" initial={reduceMotion ? false : { opacity: 0.82 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}>
-            {pets.map((pet) => (
-              <PetCard key={pet.id} pet={pet} />
-            ))}
-          </motion.div>
+          <>
+            <motion.div animate={{ opacity: 1 }} className="pet-list" initial={reduceMotion ? false : { opacity: 0.82 }} transition={{ duration: reduceMotion ? 0 : 0.18 }}>
+              {pets.map((pet) => (
+                <PetCard key={pet.id} pet={pet} />
+              ))}
+            </motion.div>
+            {hasNextPage && (
+              <button
+                className="secondary-action load-more-action"
+                disabled={isLoading}
+                onClick={() => setPage((current) => current + 1)}
+                type="button"
+              >
+                {isLoading ? 'Carregando...' : 'Carregar mais histórias'}
+              </button>
+            )}
+          </>
         )}
       </AnimatePresence>
       </div>

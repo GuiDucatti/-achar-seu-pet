@@ -3012,6 +3012,11 @@ textarea:focus-visible {
   opacity: 0.68;
 }
 
+.load-more-action {
+  width: fit-content;
+  margin: 24px auto 0;
+}
+
 .search-error {
   display: grid;
   gap: 7px;
