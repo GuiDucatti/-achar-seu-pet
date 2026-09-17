@@ -1,27 +1,25 @@
 import { lazy, Suspense, useState } from 'react'
 import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
-import { motion, useReducedMotion } from 'framer-motion'
 import { LogIn, Menu, PawPrint, UserPlus, X } from 'lucide-react'
 import './App.css'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import { useAuth } from './hooks/useAuth.js'
-import AccountPage from './pages/AccountPage.jsx'
-import AboutPage from './pages/AboutPage.jsx'
-import CreatePetPage from './pages/CreatePetPage.jsx'
-import EditPetPage from './pages/EditPetPage.jsx'
-import Home from './pages/Home.jsx'
-import LoginPage from './pages/LoginPage.jsx'
-import NotFoundPage from './pages/NotFoundPage.jsx'
-import PetsPage from './pages/PetsPage.jsx'
-import RegisterPage from './pages/RegisterPage.jsx'
 
+const AccountPage = lazy(() => import('./pages/AccountPage.jsx'))
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'))
+const CreatePetPage = lazy(() => import('./pages/CreatePetPage.jsx'))
+const EditPetPage = lazy(() => import('./pages/EditPetPage.jsx'))
+const Home = lazy(() => import('./pages/Home.jsx'))
+const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage.jsx'))
 const PetDetailPage = lazy(() => import('./pages/PetDetailPage.jsx'))
+const PetsPage = lazy(() => import('./pages/PetsPage.jsx'))
+const RegisterPage = lazy(() => import('./pages/RegisterPage.jsx'))
 
 function App() {
   const { isAuthenticated, logout, user } = useAuth()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const location = useLocation()
-  const reduceMotion = useReducedMotion()
 
   function closeMobileMenu() {
     setIsMenuOpen(false)
@@ -94,13 +92,7 @@ function App() {
       </header>
 
       <main className="app-main">
-          <motion.div
-            animate={{ opacity: 1, y: 0 }}
-            className="route-stage"
-            initial={reduceMotion ? false : { opacity: 0.96, y: 3 }}
-            key={location.pathname}
-            transition={{ duration: reduceMotion ? 0 : 0.16, ease: [0.2, 0.8, 0.2, 1] }}
-          >
+          <div className="route-stage" key={location.pathname}>
             <Suspense fallback={<p className="feedback">Carregando página...</p>}>
               <Routes>
           <Route path="/" element={<Home />} />
@@ -137,7 +129,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </Suspense>
-          </motion.div>
+          </div>
       </main>
 
       <footer className="app-footer">
