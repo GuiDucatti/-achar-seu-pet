@@ -33,7 +33,7 @@ function PetMap({ pet }) {
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <Circle
             center={[publicLocation.latitude, publicLocation.longitude]}
