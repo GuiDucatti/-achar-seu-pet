@@ -55,7 +55,10 @@ export function AuthProvider({ children }) {
     try {
       return await fetchCurrentUser(response.data.refresh)
     } catch (error) {
-      if (getStoredRefreshToken() === response.data.refresh) {
+      if (
+        getStoredRefreshToken() === response.data.refresh &&
+        [401, 403].includes(error.response?.status)
+      ) {
         clearSession()
       }
 
@@ -143,7 +146,7 @@ export function AuthProvider({ children }) {
       } catch (err) {
         console.error(err)
 
-        if (isMounted) {
+        if (isMounted && [401, 403].includes(err.response?.status)) {
           clearSession()
         }
       } finally {

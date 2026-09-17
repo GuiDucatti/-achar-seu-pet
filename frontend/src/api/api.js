@@ -13,6 +13,10 @@ function isAuthenticationRequest(config) {
   return AUTH_ENDPOINTS.some((endpoint) => config.url?.endsWith(endpoint))
 }
 
+function isDefinitiveRefreshRejection(error) {
+  return [400, 401, 403].includes(error.response?.status)
+}
+
 export function createApiClient({
   baseURL = import.meta.env?.VITE_API_URL,
   adapter,
@@ -73,7 +77,10 @@ export function createApiClient({
         return accessToken
       })
       .catch((error) => {
-        if (getStoredRefreshToken() === refreshToken) {
+        if (
+          getStoredRefreshToken() === refreshToken &&
+          isDefinitiveRefreshRejection(error)
+        ) {
           expireSession()
         }
 

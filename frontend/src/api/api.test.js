@@ -77,6 +77,49 @@ test('clears the session once when refresh fails', async () => {
   assert.equal(expirationEvents, 1)
 })
 
+test('keeps the session when refresh fails because the network is unavailable', async () => {
+  storeAuthTokens({ access: 'expired-access', refresh: 'valid-refresh' })
+  let expirationEvents = 0
+  window.addEventListener('auth:expired', () => {
+    expirationEvents += 1
+  })
+
+  const api = createApiClient({
+    adapter: (config) => {
+      if (config.url === '/auth/token/refresh/') {
+        return Promise.reject({ config, code: 'ERR_NETWORK' })
+      }
+
+      return unauthorized(config)
+    },
+  })
+
+  await assert.rejects(api.get('/protected/'))
+
+  assert.equal(getStoredAccessToken(), 'expired-access')
+  assert.equal(getStoredRefreshToken(), 'valid-refresh')
+  assert.equal(expirationEvents, 0)
+})
+
+test('keeps the session when refresh fails with a server error', async () => {
+  storeAuthTokens({ access: 'expired-access', refresh: 'valid-refresh' })
+
+  const api = createApiClient({
+    adapter: (config) => {
+      if (config.url === '/auth/token/refresh/') {
+        return Promise.reject({ config, response: { status: 503 } })
+      }
+
+      return unauthorized(config)
+    },
+  })
+
+  await assert.rejects(api.get('/protected/'))
+
+  assert.equal(getStoredAccessToken(), 'expired-access')
+  assert.equal(getStoredRefreshToken(), 'valid-refresh')
+})
+
 test('notifies the provider when a stale tab receives 401 after storage was cleared', async () => {
   let expirationEvents = 0
   window.addEventListener('auth:expired', () => {

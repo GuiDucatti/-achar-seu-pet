@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError, transaction
 from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -24,6 +25,42 @@ class AuthenticationTests(TestCase):
         self.assertNotIn('password', response.data)
         user = get_user_model().objects.get(username='auth-test')
         self.assertTrue(user.check_password(self.user_data['password']))
+
+    def test_registration_rejects_common_password(self):
+        response = self.client.post(
+            '/api/auth/register/',
+            {**self.user_data, 'password': 'password123'},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password', response.data)
+
+    def test_database_rejects_case_insensitive_duplicate_email(self):
+        get_user_model().objects.create_user(**self.user_data)
+
+        with self.assertRaises(IntegrityError), transaction.atomic():
+            get_user_model().objects.create_user(
+                username='auth-test-duplicate',
+                email='AUTH-TEST@EXAMPLE.COM',
+                password='outra-senha-forte-456',
+            )
+
+    def test_registration_rejects_case_insensitive_duplicate_email(self):
+        get_user_model().objects.create_user(**self.user_data)
+
+        response = self.client.post(
+            '/api/auth/register/',
+            {
+                'username': 'auth-test-duplicate',
+                'email': 'AUTH-TEST@EXAMPLE.COM',
+                'password': 'outra-senha-forte-456',
+            },
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('email', response.data)
 
     def test_user_can_obtain_jwt_with_username(self):
         get_user_model().objects.create_user(**self.user_data)

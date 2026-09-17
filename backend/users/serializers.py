@@ -1,4 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import IntegrityError, transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -25,8 +28,27 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return email
 
+    def validate(self, attrs):
+        candidate = User(
+            username=attrs.get('username', ''),
+            email=attrs.get('email', ''),
+        )
+        try:
+            validate_password(attrs['password'], user=candidate)
+        except DjangoValidationError as error:
+            raise serializers.ValidationError({'password': list(error.messages)})
+        return attrs
+
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
+        try:
+            with transaction.atomic():
+                return User.objects.create_user(**validated_data)
+        except IntegrityError:
+            if User.objects.filter(email__iexact=validated_data['email']).exists():
+                raise serializers.ValidationError(
+                    {'email': 'Já existe um usuário com este e-mail.'}
+                )
+            raise
 
 
 class UserSerializer(serializers.ModelSerializer):

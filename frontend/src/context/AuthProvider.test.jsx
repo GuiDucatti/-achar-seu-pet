@@ -98,6 +98,22 @@ describe('AuthProvider entre abas', () => {
     expect(api.get).toHaveBeenCalledWith('/auth/me/')
   })
 
+  it('preserva a sessao quando o carregamento do usuario falha pela rede', async () => {
+    window.localStorage.setItem('acharSeuPet.accessToken', 'access-token')
+    window.localStorage.setItem('acharSeuPet.refreshToken', 'refresh-token')
+    api.get.mockRejectedValue({ code: 'ERR_NETWORK' })
+
+    render(
+      <AuthProvider>
+        <AuthState />
+      </AuthProvider>,
+    )
+
+    await screen.findByText('Autenticado: carregando')
+    expect(window.localStorage.getItem('acharSeuPet.accessToken')).toBe('access-token')
+    expect(window.localStorage.getItem('acharSeuPet.refreshToken')).toBe('refresh-token')
+  })
+
   it('substitui os dados do usuario quando outra aba troca de conta', async () => {
     window.localStorage.setItem('acharSeuPet.accessToken', 'account-a-access')
     window.localStorage.setItem('acharSeuPet.refreshToken', 'account-a-refresh')
