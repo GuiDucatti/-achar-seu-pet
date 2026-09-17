@@ -52,17 +52,17 @@ O Achar seu Pet centraliza o cadastro, a busca e os avistamentos em um fluxo ún
 ## Funcionalidades
 
 - cadastro e login com JWT;
-- renovação automática do access token sem repetir requisições entre sessões diferentes;
+- renovação automática do access token com coordenação de requisições concorrentes;
 - cadastro, edição e exclusão de pets pelo autor;
 - upload validado de imagens;
 - filtros por status, estado, cidade, espécie, sexo, data e texto;
-- geocoding de endereço por Nominatim/OpenStreetMap;
+- geocodificação de endereço por Nominatim e sugestões de busca por Photon;
 - mapa interativo com Leaflet;
 - área aproximada para preservar a privacidade do endereço;
 - registro de avistamentos com coordenadas e contato opcional;
-- timeline de avistamentos em ordem decrescente;
+- timeline de avistamentos em ordem decrescente, com detalhes privados visíveis apenas ao tutor;
 - cálculo de distância por Haversine;
-- indicador de avistamento próximo;
+- indicador de avistamento próximo para o tutor;
 - compartilhamento dinâmico no WhatsApp;
 - estados de carregamento, vazio, sucesso e erro;
 - mensagens de erro para API offline, sessão expirada e falta de permissão;
@@ -79,8 +79,8 @@ React + Vite
 Django REST Framework
       |
       +-- JWT e permissões por autor
-      +-- Geocoding Nominatim
-      +-- Upload local de imagens
+      +-- Geocodificação Nominatim e sugestões Photon
+      +-- Upload local ou Cloudflare R2
       v
 SQLite local ou PostgreSQL em produção
 ```
@@ -110,6 +110,7 @@ docs/            registro das fases e decisões técnicas
 - Axios;
 - Leaflet e React Leaflet;
 - Framer Motion;
+- GSAP;
 - Lucide React;
 - Oxlint;
 - Vitest e Testing Library.
@@ -146,7 +147,7 @@ React cuida da experiência e Django oferece uma API REST independente. Isso per
 
 ### Privacidade da localização
 
-O endereço completo não é exibido publicamente. O mapa mostra apenas cidade, estado e um círculo de área aproximada usando as coordenadas do cadastro.
+O endereço completo não é exibido publicamente. O mapa mostra cidade, estado e um círculo em torno de coordenadas generalizadas. As coordenadas reais são usadas apenas pelo backend para cálculos e ficam disponíveis ao tutor na área autenticada.
 
 ### Proximidade sem dependência de PostGIS
 
@@ -227,8 +228,8 @@ NOMINATIM_MIN_INTERVAL_SECONDS=1
 MEDIA_STORAGE_BACKEND=local
 ```
 
-O acesso ao Nominatim público usa cache e respeita o intervalo mínimo global de
-uma requisição por segundo em cada processo. Em produção, configure um
+O acesso ao Nominatim público usa cache e respeita o intervalo mínimo de
+uma requisição por segundo por processo. Em produção, configure um
 `NOMINATIM_USER_AGENT` que identifique o projeto e forneça um contato válido.
 Para tráfego maior ou múltiplos processos, use um provedor de geocodificação
 com SLA ou uma instância própria.
@@ -263,13 +264,13 @@ npm run lint
 npm run build
 ```
 
-Atualmente existem 68 testes backend e 31 testes frontend. A cobertura inclui autenticação, renovação JWT e sincronização entre abas, rotas protegidas, autocomplete de endereço, integridade e privacidade de coordenadas, criação de pet, upload, configuração de storage, permissões, filtros, avistamentos e cálculo de proximidade.
+Atualmente existem 83 testes backend e 45 testes frontend (30 de componentes, 11 de autenticação e 4 de localização). A cobertura inclui autenticação, renovação JWT e sincronização entre abas, rotas protegidas, autocomplete de endereço, integridade e privacidade de coordenadas, criação de pet, upload, configuração de storage, permissões, filtros, avistamentos e cálculo de proximidade.
 
 O workflow em `.github/workflows/ci.yml` repete essas verificações automaticamente em pushes e pull requests direcionados a `main`.
 
 ## Documentação complementar
 
-- [Créditos das fotografias](CREDITS.md);
+- [Créditos das fotografias, mapas e dados geográficos](CREDITS.md);
 - [Identidade visual da Lobinha](docs/identidade-lobinha.md);
 - [Upload de imagens](docs/upload-imagens-fase-14.md);
 - [Geocoding](docs/geocoding-fase-15.md);
@@ -293,6 +294,5 @@ fotografias seguem as condições e os créditos descritos em [CREDITS.md](CREDI
 
 ## Próximos passos
 
-- testar manualmente todos os fluxos com calma;
 - se desejado, adicionar um vídeo curto da navegação;
 - publicar o repositório depois da revisão final.

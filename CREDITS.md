@@ -1,4 +1,4 @@
-# Créditos de imagens
+# Créditos de imagens, mapas e dados
 
 As fotografias editoriais e dos dados de demonstração foram obtidas no Pexels
 e armazenadas localmente. A licença consultada em 14 de setembro de 2026
@@ -43,3 +43,10 @@ fotografias são reais e foram usadas para representar os cadastros de exemplo.
 
 As pessoas retratadas não endossam o Achar seu Pet. As imagens são usadas
 apenas como contexto editorial de cuidado e convivência com animais.
+
+## Mapas e dados geográficos
+
+- Dados e tiles do mapa: [OpenStreetMap contributors](https://www.openstreetmap.org/copyright). A atribuição também aparece no próprio mapa.
+- Interface do mapa: [Leaflet](https://leafletjs.com/) e [React Leaflet](https://react-leaflet.js.org/).
+- Geocodificação de endereços: [Nominatim](https://nominatim.org/).
+- Sugestões de endereço: [Photon](https://github.com/komoot/photon), baseado em dados do OpenStreetMap.
