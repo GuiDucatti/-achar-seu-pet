@@ -263,17 +263,22 @@ class PetWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('O arquivo enviado não é uma imagem válida.')
 
 
-class NearbyPetSearchSerializer(serializers.Serializer):
-    latitude = serializers.FloatField(min_value=-90, max_value=90, required=False)
-    longitude = serializers.FloatField(min_value=-180, max_value=180, required=False)
-    cidade_origem = serializers.CharField(max_length=100, required=False, allow_blank=True)
-    estado_origem = serializers.CharField(max_length=2, required=False, allow_blank=True)
-    raio_km = serializers.ChoiceField(choices=(10, 25, 50, 100), default=50)
+class PetFilterSerializer(serializers.Serializer):
+    estado = serializers.CharField(max_length=2, required=False, allow_blank=True)
+    cidade = serializers.CharField(max_length=100, required=False, allow_blank=True)
     status = serializers.ChoiceField(choices=Pet.STATUS_CHOICES, required=False)
     especie = serializers.ChoiceField(choices=Pet.ESPECIE_CHOICES, required=False)
     sexo = serializers.ChoiceField(choices=Pet.SEXO_CHOICES, required=False)
     data_desaparecimento = serializers.DateField(required=False)
     busca = serializers.CharField(max_length=255, required=False, allow_blank=True)
+
+
+class NearbyPetSearchSerializer(PetFilterSerializer):
+    latitude = serializers.FloatField(min_value=-90, max_value=90, required=False)
+    longitude = serializers.FloatField(min_value=-180, max_value=180, required=False)
+    cidade_origem = serializers.CharField(max_length=100, required=False, allow_blank=True)
+    estado_origem = serializers.CharField(max_length=2, required=False, allow_blank=True)
+    raio_km = serializers.ChoiceField(choices=(10, 25, 50, 100), default=50)
 
     def validate(self, attrs):
         has_latitude = 'latitude' in attrs

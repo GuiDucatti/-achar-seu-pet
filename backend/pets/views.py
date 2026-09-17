@@ -6,15 +6,22 @@ from django.utils.text import slugify
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.throttling import ScopedRateThrottle
 
 from .geocoding import geocode_address, search_addresses
 from .models import Pet
 from .permissions import PetPermission
-from .proximity import build_public_location, bounding_box, haversine_distance_km
+from .proximity import (
+    build_public_location,
+    bounding_box,
+    haversine_distance_km,
+    public_location_max_offset_km,
+)
 from .serializers import (
     NearbyPetSearchSerializer,
     OwnerPetDetailSerializer,
     OwnerSightingSerializer,
+    PetFilterSerializer,
     PetWriteSerializer,
     PublicPetDetailSerializer,
     PublicPetListSerializer,
@@ -29,7 +36,27 @@ class PetViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
-        return self._apply_filters(queryset, self.request.query_params)
+        if self.action != 'list':
+            return queryset
+
+        filters = PetFilterSerializer(data=self.request.query_params)
+        filters.is_valid(raise_exception=True)
+        return self._apply_filters(queryset, filters.validated_data)
+
+    def get_throttles(self):
+        scope = None
+        if self.action == 'sugestoes_endereco':
+            scope = 'address_suggestions'
+        elif self.action == 'proximos':
+            scope = 'nearby_search'
+        elif self.action == 'avistamentos' and self.request.method == 'POST':
+            scope = 'sighting_create'
+
+        throttles = super().get_throttles()
+        if scope:
+            self.throttle_scope = scope
+            throttles.append(ScopedRateThrottle())
+        return throttles
 
     def _is_owner(self, pet):
         return bool(
@@ -187,7 +214,11 @@ class PetViewSet(viewsets.ModelViewSet):
             origin_label = f'{city}, {state_code}'
 
         radius = int(data['raio_km'])
-        bounds = bounding_box(latitude, longitude, radius)
+        bounds = bounding_box(
+            latitude,
+            longitude,
+            radius + public_location_max_offset_km(),
+        )
         queryset = Pet.objects.select_related('autor').prefetch_related('avistamentos')
         queryset = self._apply_filters(queryset, data).filter(
             latitude__isnull=False,
@@ -198,28 +229,25 @@ class PetViewSet(viewsets.ModelViewSet):
 
         nearby_pets = []
         for pet in queryset:
-            pet.distancia_km = haversine_distance_km(
-                latitude,
-                longitude,
+            public_location = build_public_location(
                 pet.latitude,
                 pet.longitude,
+                pet.raio_area_metros,
             )
-            if pet.distancia_km <= radius:
-                public_location = build_public_location(
-                    pet.latitude,
-                    pet.longitude,
-                    pet.raio_area_metros,
-                )
-                pet.distancia_aproximada_km = haversine_distance_km(
-                    latitude,
-                    longitude,
-                    public_location['latitude'],
-                    public_location['longitude'],
-                )
+            if not public_location:
+                continue
+
+            pet.distancia_aproximada_km = haversine_distance_km(
+                latitude,
+                longitude,
+                public_location['latitude'],
+                public_location['longitude'],
+            )
+            if pet.distancia_aproximada_km <= radius:
                 nearby_pets.append(pet)
 
         nearby_pets.sort(
-            key=lambda pet: (pet.distancia_km, -pet.criado_em.timestamp())
+            key=lambda pet: (pet.distancia_aproximada_km, -pet.criado_em.timestamp())
         )
         results = PublicPetListSerializer(
             nearby_pets,

@@ -41,6 +41,12 @@ def haversine_distance_km(latitude_one, longitude_one, latitude_two, longitude_t
     return 2 * EARTH_RADIUS_KM * asin(sqrt(min(1, haversine)))
 
 
+def public_location_max_offset_km():
+    """Return the largest possible offset introduced by public rounding."""
+    half_cell = 0.5 * 10 ** -PUBLIC_LOCATION_DECIMAL_PLACES
+    return haversine_distance_km(0, 0, half_cell, half_cell)
+
+
 def build_public_location(latitude, longitude, private_radius_meters=0):
     if (
         latitude is None

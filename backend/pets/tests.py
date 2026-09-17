@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import Avistamento, Pet
-from .geocoding import search_addresses
+from .geocoding import geocode_address, search_addresses
 from .proximity import build_public_location, haversine_distance_km
 from .serializers import PetWriteSerializer
 
@@ -1024,6 +1024,28 @@ class NearbyPetSearchTests(TestCase):
             response.data['resultados'][0]['distancia_aproximada_km']
         )
 
+    def test_nearby_search_does_not_distinguish_points_in_same_public_cell(self):
+        first = self.create_pet(
+            nome='Mesmo ponto publico A',
+            latitude=0.0851,
+            longitude=0,
+        )
+        second = self.create_pet(
+            nome='Mesmo ponto publico B',
+            latitude=0.0949,
+            longitude=0,
+        )
+
+        response = self.client.post(
+            '/api/pets/proximos/',
+            {'latitude': 0, 'longitude': 0, 'raio_km': 10},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        result_ids = {pet['id'] for pet in response.data['resultados']}
+        self.assertEqual(first.pk in result_ids, second.pk in result_ids)
+
     def test_ignores_pet_without_coordinate_pair(self):
         without_coordinates = self.create_pet(
             nome='Sem localizacao',
@@ -1181,6 +1203,35 @@ class PetFilterTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]['nome'], 'Toby')
+
+    def test_rejects_invalid_disappearance_date(self):
+        response = APIClient().get('/api/pets/?data_desaparecimento=not-a-date')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+
+class GeocodingPrivacyTests(TestCase):
+    @override_settings(GEOCODING_ENABLED=True)
+    @patch('pets.geocoding.urlopen', side_effect=OSError('offline'))
+    def test_geocoding_failure_does_not_log_address(self, _urlopen_mock):
+        private_address = 'Rua Particular 123, Cidade Privada'
+
+        with self.assertLogs('pets.geocoding', level='WARNING') as captured:
+            result = geocode_address(private_address, 'Cidade Privada', 'SP')
+
+        self.assertIsNone(result)
+        self.assertNotIn(private_address, ' '.join(captured.output))
+
+    @override_settings(GEOCODING_ENABLED=True)
+    @patch('pets.geocoding.urlopen', side_effect=OSError('offline'))
+    def test_suggestion_failure_does_not_log_query(self, _urlopen_mock):
+        private_query = 'Rua Particular 123, Cidade Privada'
+
+        with self.assertLogs('pets.geocoding', level='WARNING') as captured:
+            result = search_addresses(private_query)
+
+        self.assertEqual(result, [])
+        self.assertNotIn(private_query, ' '.join(captured.output))
 
 
 class PetPermissionTests(TestCase):

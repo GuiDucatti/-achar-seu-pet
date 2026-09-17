@@ -98,6 +98,9 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '60/hour',
         'user': '300/hour',
+        'address_suggestions': '120/hour',
+        'nearby_search': '120/hour',
+        'sighting_create': '20/hour',
     },
 }
 

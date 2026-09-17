@@ -1,6 +1,7 @@
 import json
 import logging
 import unicodedata
+from hashlib import sha256
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
@@ -45,6 +46,10 @@ def build_search_text(endereco_texto, cidade, estado):
     return ', '.join(str(part).strip() for part in parts if str(part).strip())
 
 
+def _query_reference(search_text):
+    return sha256(search_text.encode('utf-8')).hexdigest()[:12]
+
+
 def _load_results(search_text, limit=1, address_details=False):
     query_data = {
         'q': search_text,
@@ -69,7 +74,11 @@ def _load_results(search_text, limit=1, address_details=False):
         with urlopen(request, timeout=settings.GEOCODING_TIMEOUT_SECONDS) as response:
             return json.load(response)
     except Exception:
-        logger.warning('Falha ao consultar o geocoding para %s', search_text, exc_info=True)
+        logger.warning(
+            'Falha ao consultar o geocoding (consulta %s)',
+            _query_reference(search_text),
+            exc_info=True,
+        )
         return []
 
 
@@ -94,8 +103,8 @@ def _load_suggestion_features(search_text, limit):
             return payload.get('features', [])
     except Exception:
         logger.warning(
-            'Falha ao consultar sugestões de endereço para %s',
-            search_text,
+            'Falha ao consultar sugestões de endereço (consulta %s)',
+            _query_reference(search_text),
             exc_info=True,
         )
         return []
@@ -200,11 +209,17 @@ def geocode_address(endereco_texto, cidade, estado):
         latitude = float(results[0]['lat'])
         longitude = float(results[0]['lon'])
     except (KeyError, TypeError, ValueError):
-        logger.warning('Resposta inválida do geocoding para %s', search_text)
+        logger.warning(
+            'Resposta inválida do geocoding (consulta %s)',
+            _query_reference(search_text),
+        )
         return None
 
     if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
-        logger.warning('Coordenadas fora do intervalo para %s', search_text)
+        logger.warning(
+            'Coordenadas fora do intervalo (consulta %s)',
+            _query_reference(search_text),
+        )
         return None
 
     return {'latitude': latitude, 'longitude': longitude}
