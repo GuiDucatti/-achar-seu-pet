@@ -37,7 +37,6 @@ A aplicacao e usada principalmente em situacoes urgentes e no celular, mas tambe
 - React 19, Vite, React Router, Axios, Leaflet, Framer Motion, Lucide React e Oxlint;
 - backend Django REST Framework, com frontend e backend desacoplados;
 - o endereco completo nao deve ser exibido publicamente;
-- a publicacao ainda nao foi autorizada.
 
 ## Brand Commitments
 
