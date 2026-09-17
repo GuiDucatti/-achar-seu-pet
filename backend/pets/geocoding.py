@@ -2,13 +2,18 @@ import json
 import logging
 import unicodedata
 from hashlib import sha256
+from threading import Lock
+from time import monotonic, sleep
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
 from django.conf import settings
+from django.core.cache import cache
 
 
 logger = logging.getLogger(__name__)
+_nominatim_lock = Lock()
+_last_nominatim_request_started = None
 
 STATE_CODES = {
     'acre': 'AC',
@@ -50,6 +55,32 @@ def _query_reference(search_text):
     return sha256(search_text.encode('utf-8')).hexdigest()[:12]
 
 
+def _nominatim_delay_seconds(last_started, now, minimum_interval):
+    if last_started is None:
+        return 0
+
+    return max(0, minimum_interval - (now - last_started))
+
+
+def _wait_for_nominatim_slot():
+    global _last_nominatim_request_started
+
+    minimum_interval = settings.NOMINATIM_MIN_INTERVAL_SECONDS
+    if minimum_interval <= 0:
+        return
+
+    with _nominatim_lock:
+        now = monotonic()
+        delay = _nominatim_delay_seconds(
+            _last_nominatim_request_started,
+            now,
+            minimum_interval,
+        )
+        if delay:
+            sleep(delay)
+        _last_nominatim_request_started = monotonic()
+
+
 def _load_results(search_text, limit=1, address_details=False):
     query_data = {
         'q': search_text,
@@ -59,6 +90,14 @@ def _load_results(search_text, limit=1, address_details=False):
     }
     if address_details:
         query_data['addressdetails'] = 1
+
+    cache_reference = _query_reference(
+        f'{settings.NOMINATIM_URL}|{json.dumps(query_data, sort_keys=True)}'
+    )
+    cache_key = f'nominatim:{cache_reference}'
+    cached_results = cache.get(cache_key)
+    if cached_results is not None:
+        return cached_results
 
     query = urlencode(query_data)
     request = Request(
@@ -71,8 +110,11 @@ def _load_results(search_text, limit=1, address_details=False):
     )
 
     try:
+        _wait_for_nominatim_slot()
         with urlopen(request, timeout=settings.GEOCODING_TIMEOUT_SECONDS) as response:
-            return json.load(response)
+            results = json.load(response)
+            cache.set(cache_key, results, settings.GEOCODING_CACHE_SECONDS)
+            return results
     except Exception:
         logger.warning(
             'Falha ao consultar o geocoding (consulta %s)',

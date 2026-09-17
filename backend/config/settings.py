@@ -64,12 +64,21 @@ ADDRESS_SUGGESTION_URL = os.getenv(
     'ADDRESS_SUGGESTION_URL',
     'https://photon.komoot.io/api/',
 )
-NOMINATIM_USER_AGENT = os.getenv(
-    'NOMINATIM_USER_AGENT',
-    'AcharSeuPet/1.0 (local-development)',
+_configured_nominatim_user_agent = os.getenv('NOMINATIM_USER_AGENT')
+NOMINATIM_USER_AGENT = (
+    _configured_nominatim_user_agent or 'AcharSeuPet/1.0 (local-development)'
 )
 GEOCODING_TIMEOUT_SECONDS = int(os.getenv('GEOCODING_TIMEOUT_SECONDS', '5'))
+GEOCODING_CACHE_SECONDS = int(os.getenv('GEOCODING_CACHE_SECONDS', '604800'))
+NOMINATIM_MIN_INTERVAL_SECONDS = float(
+    os.getenv('NOMINATIM_MIN_INTERVAL_SECONDS', '1')
+)
 PROXIMITY_THRESHOLD_KM = float(os.getenv('PROXIMITY_THRESHOLD_KM', '3'))
+
+if GEOCODING_ENABLED and not DEBUG and not _configured_nominatim_user_agent:
+    raise ImproperlyConfigured(
+        'NOMINATIM_USER_AGENT precisa identificar o projeto e um contato em produção.'
+    )
 
 SECURE_SSL_REDIRECT = os.getenv('SECURE_SSL_REDIRECT', 'False').lower() == 'true'
 SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'

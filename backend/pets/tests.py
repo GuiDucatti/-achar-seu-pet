@@ -14,7 +14,7 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 from .models import Avistamento, Pet
-from .geocoding import geocode_address, search_addresses
+from .geocoding import _nominatim_delay_seconds, geocode_address, search_addresses
 from .proximity import build_public_location, haversine_distance_km
 from .serializers import PetWriteSerializer
 
@@ -1299,7 +1299,7 @@ class PetFilterTests(TestCase):
 
 
 class GeocodingPrivacyTests(TestCase):
-    @override_settings(GEOCODING_ENABLED=True)
+    @override_settings(GEOCODING_ENABLED=True, NOMINATIM_MIN_INTERVAL_SECONDS=0)
     @patch('pets.geocoding.urlopen', side_effect=OSError('offline'))
     def test_geocoding_failure_does_not_log_address(self, _urlopen_mock):
         private_address = 'Rua Particular 123, Cidade Privada'
@@ -1310,7 +1310,7 @@ class GeocodingPrivacyTests(TestCase):
         self.assertIsNone(result)
         self.assertNotIn(private_address, ' '.join(captured.output))
 
-    @override_settings(GEOCODING_ENABLED=True)
+    @override_settings(GEOCODING_ENABLED=True, NOMINATIM_MIN_INTERVAL_SECONDS=0)
     @patch('pets.geocoding.urlopen', side_effect=OSError('offline'))
     def test_suggestion_failure_does_not_log_query(self, _urlopen_mock):
         private_query = 'Rua Particular 123, Cidade Privada'
@@ -1320,6 +1320,34 @@ class GeocodingPrivacyTests(TestCase):
 
         self.assertEqual(result, [])
         self.assertNotIn(private_query, ' '.join(captured.output))
+
+
+class GeocodingUsagePolicyTests(TestCase):
+    def setUp(self):
+        cache.clear()
+
+    def test_calculates_delay_between_nominatim_requests(self):
+        self.assertEqual(_nominatim_delay_seconds(None, 10, 1), 0)
+        self.assertAlmostEqual(_nominatim_delay_seconds(10, 10.25, 1), 0.75)
+        self.assertEqual(_nominatim_delay_seconds(10, 11.5, 1), 0)
+
+    @override_settings(
+        GEOCODING_CACHE_SECONDS=604800,
+        GEOCODING_ENABLED=True,
+        NOMINATIM_MIN_INTERVAL_SECONDS=0,
+    )
+    @patch(
+        'pets.geocoding.json.load',
+        return_value=[{'lat': '-21.5', 'lon': '-50.3'}],
+    )
+    @patch('pets.geocoding.urlopen')
+    def test_caches_repeated_nominatim_query(self, urlopen_mock, _json_load_mock):
+        first = geocode_address('Centro', 'Braúna', 'SP')
+        second = geocode_address('Centro', 'Braúna', 'SP')
+
+        self.assertEqual(first, {'latitude': -21.5, 'longitude': -50.3})
+        self.assertEqual(second, first)
+        urlopen_mock.assert_called_once()
 
 
 class PetPermissionTests(TestCase):

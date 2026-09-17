@@ -222,8 +222,16 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 GEOCODING_ENABLED=True
 ADDRESS_SUGGESTION_URL=https://photon.komoot.io/api/
 NOMINATIM_USER_AGENT=nome-do-projeto-e-contato
+GEOCODING_CACHE_SECONDS=604800
+NOMINATIM_MIN_INTERVAL_SECONDS=1
 MEDIA_STORAGE_BACKEND=local
 ```
+
+O acesso ao Nominatim público usa cache e respeita o intervalo mínimo global de
+uma requisição por segundo em cada processo. Em produção, configure um
+`NOMINATIM_USER_AGENT` que identifique o projeto e forneça um contato válido.
+Para tráfego maior ou múltiplos processos, use um provedor de geocodificação
+com SLA ou uma instância própria.
 
 ### Frontend
 
