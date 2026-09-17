@@ -23,7 +23,7 @@ function Home() {
         setIsLoading(true)
         setError('')
         const pets = await listPets({ status: 'P' })
-        setRecentPets(pets.slice(0, 3))
+        setRecentPets(pets.items.slice(0, 3))
       } catch (err) {
         setError(getApiErrorMessage(err, 'Não foi possível carregar os pets recentes.'))
         console.error(err)
