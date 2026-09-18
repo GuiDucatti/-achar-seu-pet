@@ -281,18 +281,13 @@ O workflow em `.github/workflows/ci.yml` repete essas verificações automaticam
 - [Segurança](docs/seguranca-fase-23.md);
 - [Testes automatizados](docs/testes-automatizados-fase-24.md).
 
-## Status do portfólio
+## Resumo do desenvolvimento
 
-Este projeto foi preparado como uma demonstração de portfólio e não está publicado como aplicação em produção. O repositório apresenta a arquitetura, as decisões técnicas, os testes e os principais fluxos do Achar seu Pet.
+O MVP está concluído como projeto de portfólio: frontend React, API Django, autenticação, cadastro e busca de pets, avistamentos, mapa com localização aproximada, testes e CI. A aplicação ainda não está publicada como site.
 
-O suporte a armazenamento persistente com Cloudflare R2 está implementado para um futuro deploy. A publicação da aplicação depende da configuração de hospedagem, banco PostgreSQL, bucket R2 e credenciais de produção.
+Um deploy futuro exigirá configurar hospedagem, PostgreSQL, Cloudflare R2 e credenciais de produção. O suporte ao armazenamento persistente já está implementado, mas essa infraestrutura não é necessária para consultar o código e executar o projeto localmente.
 
 ## Licença
 
 O código deste projeto está disponível sob a [licença MIT](LICENSE). As
 fotografias seguem as condições e os créditos descritos em [CREDITS.md](CREDITS.md).
-
-## Próximos passos
-
-- se desejado, adicionar um vídeo curto da navegação;
-- publicar o repositório depois da revisão final.
